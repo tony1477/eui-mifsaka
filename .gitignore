@@ -4,9 +4,12 @@ protected/runtime/*
 !protected/runtime/.gitignore
 protected/data/*.db
 themes/classic/views/
-protected/config
 uploads/*
+<<<<<<< HEAD
 <<<<<<< HEAD
 .vs/
 =======
 >>>>>>> 982592ef83d2e9e60e3cd310afcb3ee9f83f185b
+=======
+protected/config/main.php
+>>>>>>> 48bca4066a20f7528acec36d05ab69af585b44ee
