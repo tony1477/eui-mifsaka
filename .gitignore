@@ -6,4 +6,7 @@ protected/data/*.db
 themes/classic/views/
 protected/config
 uploads/*
+<<<<<<< HEAD
 .vs/
+=======
+>>>>>>> 982592ef83d2e9e60e3cd310afcb3ee9f83f185b
