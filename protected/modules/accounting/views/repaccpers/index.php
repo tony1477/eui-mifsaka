@@ -4,7 +4,7 @@
     <table >
         <tr>
             <td><?php echo GetCatalog('reporttype')?></td>
-            <td> <select class="easyui-combobox" id="listrepaccpers" name="listrepaccpers" data-options="required:true" style="width:320px;">
+            <td> <select class="easyui-combobox" id="listrepaccpers" name="listrepaccpers" data-options="required:true" style="width:600px;">
 				<option value="1">1.Rekap Persediaan (Detail)</option>
 				<option value="2">2.Rekap Penerimaan Persediaan (Detail)</option>
 				<option value="3">3.Rekap Pengeluaran Persediaan (Detail)</option>
@@ -22,21 +22,31 @@
 				<option value="23">15.Rekap Perbandingan Nilai HPP, Nilai Penjualan - Retur dan Nilai Jurnal Per Dokumen</option>
 -->				<option value="15">16.1.Rekap Perbandingan Nilai HPP dan Nilai Penjualan Per Barang</option>
 				<option value="33">16.2.Rekap Perbandingan Nilai HPP dan Nilai Penjualan Per Kasta Per Barang</option>
+				<option value="37">16.3.Rekap Perbandingan Nilai HPP dan Nilai Penjualan Per Kasta Per Group Material Per Barang</option>
+				<option value="38">16.4.Rekap Perbandingan Nilai HPP dan Nilai Penjualan-Retur Per Kasta Per Group Material Per Barang</option>
+				<option value="39">16.5.Rekap Perbandingan Nilai HPP dan Nilai Penjualan-Retur Per Provinsi Per Zona Per Subzona Per Customer Per Material Group</option>
+				<option value="42">16.6.Rekap Perbandingan Nilai HPP dan Nilai Penjualan-Retur Per Provinsi Per Zona Per Subzona Per Customer</option>
 				<option value="28">17.Rekap Perbandingan Nilai HPP dan Nilai Penjualan Per Customer Per Barang</option>
-				<option value="16">18.Rekap Persediaan Barang Not Moving</option>
+				<option value="16">18.1.Rekap Persediaan Barang Not Moving FG</option>
+				<option value="36">18.2.Rekap Persediaan Barang Not Moving BB / WIP</option>
 				<option value="17">19.Rekap Persediaan Barang Slow Moving</option>
 				<option value="18">20.Rekap Persediaan Barang Fast Moving</option>
 				<option value="19">21.Kartu Stok Barang (Nilai)</option>
-				<option value="24">22.HPP Actual Hasil Produksi VS BOM</option>
+				<option value="24">22.1.HPP Actual Hasil Produksi VS BOM</option>
+				<option value="48">22.2.Rekap HPP Actual Hasil Produksi VS BOM</option>
 				<option value="30">30.Rincian Harga Pemakaian Barang</option>
 				<option value="31">31.Rincian Biaya UL Barang</option>
 				<option value="32">32.Rincian Biaya FOH Barang</option>
 				<option value="35">33.Rekap Persediaan Bahan Baku, Setengah Jadi & Barang Jadi</option>
+				<option value="40">34.Rekap Potensi Market, Penjualan - Retur, Pembayaran, & GM Per Tipe Per Kategori Per Customer</option>
+				<option value="43">35.Rekap Potensi Market, Target, Penjualan - Retur, Pembayaran, & GM Per Zona Per Subzona Per Tipe Per Kategori Per Customer</option>
+				<option value="44">36.Rekap Potensi Market, Target, Penjualan - Retur, Pembayaran, & GM Per Zona Per Subzona Per Customer</option>
+				<option value="41">37.Harga Bahan Baku Kimia Per Cabang</option>
     </select></td>
         </tr>
         <tr>
             <td><?php echo GetCatalog('company')?></td>
-            <td><select class="easyui-combogrid" id="repaccpers_companyid" name="repaccpers_companyid" style="width:320px" data-options="
+            <td><select class="easyui-combogrid" id="repaccpers_companyid" name="repaccpers_companyid" style="width:600px" data-options="
 								panelWidth: 308,
 								required: true,
 								idField: 'companyid',
@@ -55,7 +65,7 @@
         </tr>
         <tr>
             <td><?php echo GetCatalog('sloc')?></td>
-            <td><select class="easyui-combogrid" id="repaccpers_slocid" name="repaccpers_slocid" style="width:320px" data-options="
+            <td><select class="easyui-combogrid" id="repaccpers_slocid" name="repaccpers_slocid" style="width:600px" data-options="
 								panelWidth: 308,
 								idField: 'sloccode',
 								textField: 'sloccode',
@@ -80,7 +90,7 @@
  				<?php echo GetCatalog('materialgroup')?>
  			</td>
  			<td> 				
-				<select class="easyui-combogrid" id="repaccpers_materialgroupid" name="repaccpers_materialgroupid" style="width:320px" data-options="
+				<select class="easyui-combogrid" id="repaccpers_materialgroupid" name="repaccpers_materialgroupid" style="width:600px" data-options="
 								panelWidth: 500,
 								idField: 'description',
 								textField: 'description',
@@ -100,7 +110,7 @@
  		</tr>
 				<tr>
             <td><?php echo GetCatalog('storagebin')?></td>
-            <td><select class="easyui-combogrid" id="repaccpers_storagebinid" name="repaccpers_storagebinid" style="width:320px" data-options="
+            <td><select class="easyui-combogrid" id="repaccpers_storagebinid" name="repaccpers_storagebinid" style="width:600px" data-options="
 								panelWidth: 500,
 								idField: 'description',
 								textField: 'description',
@@ -118,7 +128,7 @@
         </tr>
  		<tr>
             <td><?php echo GetCatalog('product')?></td>
-            <td><select class="easyui-combogrid" id="repaccpers_productid" name="repaccpers_productid" style="width:320px" data-options="
+            <td><select class="easyui-combogrid" id="repaccpers_productid" name="repaccpers_productid" style="width:600px" data-options="
 								panelWidth: 308,
 								idField: 'productname',
 								textField: 'productname',
@@ -134,9 +144,30 @@
 						">
 				</select></td>
         </tr>
+        <tr>
+      <td><?php echo GetCatalog('productcollection')?></td>
+      <td>
+        <select class="easyui-combogrid" id="reppurchase_productcollectid" name="reppurchase_productcollectid" style="width:320px" data-options="
+            panelWidth: 500,
+            idField: 'productcollectid',
+            textField: 'collectionname',
+            pagination:true,
+            multiple:true,
+            mode:'remote',
+            url: '<?php echo Yii::app()->createUrl('common/productcollection/index',array('grid'=>true,'combo'=>true)) ?>',
+            method: 'get',
+            columns: [[
+                {field:'productcollectid',title:'<?php echo GetCatalog('productcollectid') ?>'},
+                {field:'collectionname',title:'<?php echo GetCatalog('collectionname') ?>'},
+            ]],
+            fitColumns: true
+        ">
+        </select>
+      </td>
+    </tr>
  		<tr>
             <td><?php echo GetCatalog('accountname')?></td>
-            <td><select class="easyui-combogrid" id="repaccpers_accountid" name="repaccpers_accountid" style="width:320px" data-options="
+            <td><select class="easyui-combogrid" id="repaccpers_accountid" name="repaccpers_accountid" style="width:600px" data-options="
 								panelWidth: 308,
 								idField: 'accountname',
 								textField: 'accountname',
@@ -154,7 +185,7 @@
         </tr>
  <tr>
  <td><?php echo GetCatalog('accountcode')?></td>
- <td><select class="easyui-combogrid" id="repaccpers_startacccode" name="repaccpers_startacccode" style="width:213px" data-options="
+ <td><select class="easyui-combogrid" id="repaccpers_startacccode" name="repaccpers_startacccode" style="width:290px" data-options="
 								panelWidth: 500,
 								idField: 'accountcode',
 								textField: 'accountcode',
@@ -182,7 +213,7 @@
 								]],
 								fitColumns: true
 						"> 
-				</select> s/d <select class="easyui-combogrid" id="repaccpers_endacccode" name="repaccpers_endacccode" style="width:215px" data-options="
+				</select> s/d <select class="easyui-combogrid" id="repaccpers_endacccode" name="repaccpers_endacccode" style="width:290px" data-options="
 								panelWidth: 500,
 								idField: 'accountcode',
 								textField: 'accountcode',
@@ -214,7 +245,7 @@
  </tr>
           <tr>
             <td> <?php echo getCatalog('Qty Keluar')?></td>
-            <td><input class="easyui-box" id="keluar3" name="keluar3" style="width:320px" data-options="required:true"></input></td>
+            <td><input class="easyui-box" id="keluar3" name="keluar3" style="width:600px" data-options="required:true"></input></td>
         </tr>
         <tr>
             <td><?php echo GetCatalog('date')?></td>
@@ -231,7 +262,15 @@
 </div>
 
 <script type="text/javascript">
+function makeUnique(str) {
+  let uniqueNames = [];
+  $.each(str, function(i, val){
+    if($.inArray(val, uniqueNames) === -1) uniqueNames.push(val);
+  });
+  return uniqueNames.join();
+}
 function downpdfrepaccpers  () {
+  let productcollectid = makeUnique($('#reppurchase_productcollectid').combogrid('getValues'));
 	window.open('<?php echo $this->createUrl('repaccpers/downpdf') ?>?lro='+
 		$('#listrepaccpers').combobox('getValue') +
 		'&company='+$('#repaccpers_companyid').combogrid('getValue')+
@@ -239,6 +278,7 @@ function downpdfrepaccpers  () {
 		'&materialgroup='+$('#repaccpers_materialgroupid').combogrid('getValue')+
 		'&storagebin='+$('#repaccpers_storagebinid').combogrid('getValue')+
 		'&product='+$('#repaccpers_productid').combogrid('getValue')+
+    '&productcollect='+productcollectid+
 		'&account='+$('#repaccpers_accountid').combogrid('getValue')+
 		'&startacccode='+$('#repaccpers_startacccode').combogrid('getValue')+
 		'&endacccode='+$('#repaccpers_endacccode').combogrid('getValue')+
@@ -249,6 +289,7 @@ function downpdfrepaccpers  () {
 };
 
 function downxlsrepaccpers   () {
+  let productcollectid = makeUnique($('#reppurchase_productcollectid').combogrid('getValues'));
 	window.open('<?php echo $this->createUrl('repaccpers/downxls') ?>?lro='+
 		$('#listrepaccpers').combobox('getValue') +
 		'&company='+$('#repaccpers_companyid').combogrid('getValue')+
@@ -256,6 +297,7 @@ function downxlsrepaccpers   () {
 		'&materialgroup='+$('#repaccpers_materialgroupid').combogrid('getValue')+
 		'&storagebin='+$('#repaccpers_storagebinid').combogrid('getValue')+
 		'&product='+$('#repaccpers_productid').combogrid('getValue')+
+    '&productcollect='+productcollectid+
 		'&account='+$('#repaccpers_accountid').combogrid('getValue')+
 		'&startacccode='+$('#repaccpers_startacccode').combogrid('getValue')+
 		'&endacccode='+$('#repaccpers_endacccode').combogrid('getValue')+

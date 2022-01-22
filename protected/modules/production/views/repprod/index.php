@@ -4,18 +4,19 @@
             <td><?php echo GetCatalog('reporttype')?></td>
             <td><select class="easyui-combobox" id="listrepprod" name="listrepprod" data-options="required:true" style="width:450px;">
             <option value="1">Rincian Produksi Per Dokumen</option>
-            <option value="2">Rekap Produksi Per Barang</option>
+            <option value="2">Rekap Produksi Per Material Group Per Barang - G</option>
             <option value="3">Rincian Pemakaian Per Dokumen</option>
-            <option value="4">Rekap Pemakaian Per Barang</option>
+            <option value="4">Rekap Pemakaian Per Gudang Per Barang</option>
+            <option value="23">Rekap Pemakaian Per Barang - G</option>
             <option value="5">Perbandingan Planning vs Output</option>
             <option value="6">Raw Material yang Gudang Asal Belum Ada di Data Gudang - SPP</option>
             <option value="7">Raw Material yang Gudang Tujuan Belum Ada di Data Gudang - SPP</option>
             <option value="8">Pendingan Produksi</option>
             <option value="9">Rincian Pendingan Produksi Per Barang</option>
             <option value="10">Rekap Pendingan Produksi Per Barang</option>
-            <option value="11">Rekap Produksi Per Barang Per Hari</option>
+            <option value="11">Rekap Produksi Per Material Group Per Barang Per Hari</option>
             <option value="12">Rekap Produksi Per Dokumen Belum Status Max</option>
-            <option value="13">Rekap Produksi Per Barang Per Bulan</option>
+            <option value="13">Rekap Produksi Material Group Per Barang Per Bulan</option>
             <option value="14">Jadwal Produksi (SPP)</option>
             <option value="15">SPP yang belum status Max</option>
             <option value="16">Laporan Perbandingan</option>
@@ -69,7 +70,7 @@
 				</select></td>
         </tr>
         <tr>
-            <td><?php echo GetCatalog('operator')?></td>
+            <td><?php echo GetCatalog('foreman')?></td>
             <td><select class="easyui-combogrid" id="repprod_employeeid" name="repprod_employeeid" style="width:250px" data-options="
 					panelWidth: 500,
 					idField: 'fullname',
@@ -108,7 +109,28 @@
 						">
 				</select></td>
         </tr>
-         <tr>
+        <tr>
+      <td><?php echo GetCatalog('productcollection')?></td>
+      <td>
+        <select class="easyui-combogrid" id="repprod_productcollectid" name="repprod_productcollectid" style="width:250px" data-options="
+            panelWidth: 500,
+            idField: 'productcollectid',
+            textField: 'collectionname',
+            pagination:true,
+            multiple:true,
+            mode:'remote',
+            url: '<?php echo Yii::app()->createUrl('common/productcollection/index',array('grid'=>true,'combo'=>true)) ?>',
+            method: 'get',
+            columns: [[
+                {field:'productcollectid',title:'<?php echo GetCatalog('productcollectid') ?>'},
+                {field:'collectionname',title:'<?php echo GetCatalog('collectionname') ?>'},
+            ]],
+            fitColumns: true
+        ">
+        </select>
+      </td>
+    </tr>
+        <tr>
             <td> <?php echo GetCatalog('date')?></td>
             <td><input class="easyui-datebox" id="repprod_startdate" name="repprod_startdate" data-options="formatter:dateformatter,required:true,parser:dateparser"></input>
 		-
@@ -135,7 +157,16 @@
 </div>
 
 <script type="text/javascript">
+function makeUnique(str) {
+  let uniqueNames = [];
+  $.each(str, function(i, val){
+    if($.inArray(val, uniqueNames) === -1) uniqueNames.push(val);
+  });
+  return uniqueNames.join();
+}
+
 function downpdfrepprod() {
+  let productcollectid = makeUnique($('#repprod_productcollectid').combogrid('getValues'));
 	window.open('<?php echo $this->createUrl('repprod/downpdf') 
 
 ?>?lro='+
@@ -144,19 +175,22 @@ function downpdfrepprod() {
 		'&sloc='+$('#repprod_slocid').combogrid('getValue')+
 		'&fullname='+$('#repprod_employeeid').combogrid('getValue')+
 		'&product='+$('#repprod_productid').combogrid('getValue')+
+		'&productcollectid='+productcollectid+
 		'&startdate='+$('#repprod_startdate').datebox('getValue')+
 		'&enddate='+$('#repprod_enddate').datebox('getValue'));
 };
 
 function downxlsrepprod() {
+  let productcollectid = makeUnique($('#repprod_productcollectid').combogrid('getValues'));
 	window.open('<?php echo $this->createUrl('repprod/downxls') 
 
 ?>?lro='+
 		$('#listrepprod').combobox('getValue') +
 		'&company='+$('#repprod_companyid').combogrid('getValue')+
 		'&sloc='+$('#repprod_slocid').combogrid('getValue')+
-        '&fullname='+$('#repprod_employeeid').combogrid('getValue')+
+    '&fullname='+$('#repprod_employeeid').combogrid('getValue')+
 		'&product='+$('#repprod_productid').combogrid('getValue')+
+		'&productcollectid='+productcollectid+
 		'&startdate='+$('#repprod_startdate').datebox('getValue')+
 		'&enddate='+$('#repprod_enddate').datebox('getValue'));
 };

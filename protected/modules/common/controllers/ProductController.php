@@ -21,6 +21,7 @@ class ProductController extends Controller {
 		$brandname = isset ($_POST['brandname']) ? $_POST['brandname'] : '';
 		$collectionname = isset ($_POST['collectionname']) ? $_POST['collectionname'] : '';
 		$productseries = isset ($_POST['productseries']) ? $_POST['productseries'] : '';
+		$leadtime = isset ($_POST['leadtime']) ? $_POST['leadtime'] : '';
     $k3lnumber = isset ($_POST['k3lnumber']) ? $_POST['k3lnumber'] : '';
 		$length = isset ($_POST['length']) ? $_POST['length'] : '';
 		$width = isset ($_POST['width']) ? $_POST['width'] : '';
@@ -39,6 +40,7 @@ class ProductController extends Controller {
 		$brandname = isset ($_GET['q']) ? $_GET['q'] : $brandname;
 		$collectionname = isset ($_GET['q']) ? $_GET['q'] : $collectionname;
 		$productseries = isset ($_GET['q']) ? $_GET['q'] : $productseries;
+		$leadtime = isset ($_GET['q']) ? $_GET['q'] : $leadtime;
     $k3lnumber = isset ($_GET['q']) ? $_GET['q'] : $k3lnumber;
 		$length = isset ($_GET['q']) ? $_GET['q'] : $length;
 		$width = isset ($_GET['q']) ? $_GET['q'] : $width;
@@ -59,9 +61,6 @@ class ProductController extends Controller {
 		$row = array();
         $materialtypeid = '';
 		if (isset($_GET['combo'])) {
-            if(isset($_GET['materialtypeid']) && $_GET['materialtypeid']!='') {
-                $materialtypeid = " and t.materialtypeid = ".$_GET['materialtypeid'];
-            }
 			$cmd = Yii::app()->db->createCommand()
 				->select('count(1) as total')	
 				->from('product t')
@@ -71,7 +70,7 @@ class ProductController extends Controller {
 				->leftjoin('productcollection d','d.productcollectid = t.productcollectid')
 				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
 				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
-					and t.recordstatus = 1 {$materialtypeid}",
+					and t.recordstatus = 1 ",
 					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
 							':barcode'=>'%'.$barcode.'%'))
 				->queryScalar();
@@ -94,9 +93,6 @@ class ProductController extends Controller {
 		}
 		else
 		if (isset($_GET['trxplant'])) {
-            if(isset($_GET['materialtypeid']) && $_GET['materialtypeid']!='') {
-                $materialtypeid = " and t.materialtypeid = ".$_GET['materialtypeid'];
-            }
 			$cmd = Yii::app()->db->createCommand()
 				->select('count(1) as total')	
 				->from('product t')
@@ -108,6 +104,28 @@ class ProductController extends Controller {
 				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
 				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
 					and t.recordstatus = 1 and a1.recordstatus = 1 and slocid in (".getUserObjectValues('sloc').")",
+					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
+							':barcode'=>'%'.$barcode.'%'))
+				->queryScalar();
+		}
+		else
+		if (isset($_GET['trxplantmattype'])) {
+            if(isset($_GET['materialtypeid']) && $_GET['materialtypeid']!='') {
+                $materialtypeid = " and t.materialtypeid = ".$_GET['materialtypeid'];
+            } else {
+                $materialtypeid = " and t.materialtypeid = 0 ";
+            }
+			$cmd = Yii::app()->db->createCommand()
+				->select('count(1) as total')	
+				->from('product t')
+				->leftjoin('productplant a1','a1.productid = t.productid')
+				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
+				->leftjoin('productidentity b','b.productidentityid = t.productidentityid')
+				->leftjoin('productbrand c','c.productbrandid = t.productbrandid')
+				->leftjoin('productcollection d','d.productcollectid = t.productcollectid')
+				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
+				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
+					{$materialtypeid} and t.recordstatus = 1 and a1.recordstatus = 1 and slocid in (".getUserObjectValues('sloc').")",
 					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
 							':barcode'=>'%'.$barcode.'%'))
 				->queryScalar();
@@ -137,7 +155,7 @@ class ProductController extends Controller {
 				->leftjoin('productcollection d','d.productcollectid = t.productcollectid')
 				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
 				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
-					and t.recordstatus = 1 {$materialtypeid}",
+					and t.recordstatus = 1 ",
 					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
 							':barcode'=>'%'.$barcode.'%'))
 				->offset($offset)
@@ -176,7 +194,32 @@ class ProductController extends Controller {
 				->leftjoin('productcollection d','d.productcollectid = t.productcollectid')
 				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
 				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
-					and t.recordstatus = 1 and a1.recordstatus = 1 and slocid in (".getUserObjectValues('sloc').")",
+					and  t.recordstatus = 1 and a1.recordstatus = 1 and slocid in (".getUserObjectValues('sloc').")",
+					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
+							':barcode'=>'%'.$barcode.'%'))
+				->offset($offset)
+				->limit($rows)
+				->order($sort.' '.$order)
+				->queryAll();
+		}
+		else
+		if (isset($_GET['trxplantmattype'])) {
+            if(isset($_GET['materialtypeid']) && $_GET['materialtypeid']!='') {
+                $materialtypeid = " and t.materialtypeid = ".$_GET['materialtypeid'];
+            } else {
+                $materialtypeid = " and t.materialtypeid = 0 ";
+            }
+			$cmd = Yii::app()->db->createCommand()
+				->select('t.*, (0) as qty,(null) as sloccode,(null) as slocdesc, (null) as rak, a.description, a.materialtypeid, (null) as materialtypedesc, (null) as identitydesc, (null) as branddesc, (null) as collectdesc, (null) as seriesdesc')	
+				->from('product t')
+				->leftjoin('productplant a1','a1.productid = t.productid')
+				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
+				->leftjoin('productidentity b','b.productidentityid = t.productidentityid')
+				->leftjoin('productbrand c','c.productbrandid = t.productbrandid')
+				->leftjoin('productcollection d','d.productcollectid = t.productcollectid')
+				->leftjoin('productseries e','e.productseriesid = t.productseriesid')
+				->where("((t.productid like :productid) or (t.productname like :productname) or (t.barcode like :barcode)) 
+					{$materialtypeid} and  t.recordstatus = 1 and a1.recordstatus = 1 and slocid in (".getUserObjectValues('sloc').")",
 					array(':productid'=>'%'.$productid.'%',':productname'=>'%'.$productname.'%',
 							':barcode'=>'%'.$barcode.'%'))
 				->offset($offset)
@@ -220,7 +263,7 @@ class ProductController extends Controller {
 				'productseriesid'=>$data['productseriesid'],
 				'k3lnumber'=>$data['k3lnumber'],
 				'seriesdesc'=>$data['seriesdesc'],
-				//'description'=>$data['description'],
+				'leadtime'=>$data['leadtime'],
 				'slocdesc'=>$data['slocdesc'],
 				'rak'=>$data['rak'],
 				'productname'=>$data['productname'],
@@ -239,32 +282,33 @@ class ProductController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql = 'call Insertproduct(:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Insertproduct(:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
-			$sql = 'call Updateproduct(:vid,:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Updateproduct(:vid,:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
 		}
 		$command->bindvalue(':vproductname',$arraydata[1],PDO::PARAM_STR);
 		$command->bindvalue(':visstock',$arraydata[2],PDO::PARAM_STR);
-		$command->bindvalue(':visfohulbom',$arraydata[16],PDO::PARAM_STR);
-		$command->bindvalue(':viscontinue',$arraydata[17],PDO::PARAM_STR);
+		$command->bindvalue(':visfohulbom',$arraydata[17],PDO::PARAM_STR);
+		$command->bindvalue(':viscontinue',$arraydata[18],PDO::PARAM_STR);
 		$command->bindvalue(':vproductpic',$arraydata[3],PDO::PARAM_STR);
 		$command->bindvalue(':vbarcode',$arraydata[4],PDO::PARAM_STR);
-		$command->bindvalue(':vk3lnumber',$arraydata[14],PDO::PARAM_STR);
+		$command->bindvalue(':vk3lnumber',$arraydata[15],PDO::PARAM_STR);
 		$command->bindvalue(':vmaterialtypeid',$arraydata[5],PDO::PARAM_STR);
 		$command->bindvalue(':vproductidentityid',$arraydata[6],PDO::PARAM_STR);
 		$command->bindvalue(':vproductbrandid',$arraydata[7],PDO::PARAM_STR);
 		$command->bindvalue(':vproductcollectid',$arraydata[8],PDO::PARAM_STR);
 		$command->bindvalue(':vproductseriesid',$arraydata[9],PDO::PARAM_STR);
-		$command->bindvalue(':vpanjang',$arraydata[10],PDO::PARAM_STR);
-		$command->bindvalue(':vlebar',$arraydata[11],PDO::PARAM_STR);
-		$command->bindvalue(':vtinggi',$arraydata[12],PDO::PARAM_STR);
-		$command->bindvalue(':vdensity',$arraydata[15],PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus',$arraydata[13],PDO::PARAM_STR);
+		$command->bindvalue(':vleadtime',$arraydata[10],PDO::PARAM_STR);
+		$command->bindvalue(':vpanjang',$arraydata[11],PDO::PARAM_STR);
+		$command->bindvalue(':vlebar',$arraydata[12],PDO::PARAM_STR);
+		$command->bindvalue(':vtinggi',$arraydata[13],PDO::PARAM_STR);
+		$command->bindvalue(':vdensity',$arraydata[16],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[14],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();			
 	}
@@ -288,12 +332,12 @@ class ProductController extends Controller {
 					$productpic = $objWorksheet->getCellByColumnAndRow(2, $row)->getValue();
 					$issto = $objWorksheet->getCellByColumnAndRow(3, $row)->getValue();
 					$isstock = Yii::app()->db->createCommand("select case when '".$issto."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$isfoh = $objWorksheet->getCellByColumnAndRow(16, $row)->getValue();
+					$isfoh = $objWorksheet->getCellByColumnAndRow(17, $row)->getValue();
 					$isfohulbom = Yii::app()->db->createCommand("select case when '".$isfoh."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$iscont = $objWorksheet->getCellByColumnAndRow(17, $row)->getValue();
+					$iscont = $objWorksheet->getCellByColumnAndRow(18, $row)->getValue();
 					$iscontinue = Yii::app()->db->createCommand("select case when '".$iscont."' = 'Yes' then '1' else '0' end")->queryScalar();
 					$barcode = $objWorksheet->getCellByColumnAndRow(4, $row)->getValue();
-					$k3lnumber = $objWorksheet->getCellByColumnAndRow(14, $row)->getValue();
+					$k3lnumber = $objWorksheet->getCellByColumnAndRow(15, $row)->getValue();
 					$materialtypecode = $objWorksheet->getCellByColumnAndRow(5, $row)->getValue();
 					$materialtypeid = Yii::app()->db->createCommand("select materialtypeid from materialtype where materialtypecode = '".$materialtypecode."'")->queryScalar();
 					$identity = $objWorksheet->getCellByColumnAndRow(6, $row)->getValue();
@@ -304,13 +348,14 @@ class ProductController extends Controller {
                     $collectionid = Yii::app()->db->createCommand("select productcollectid from productcollection where collectionname = '".$collection."'")->queryScalar();
 					$series = $objWorksheet->getCellByColumnAndRow(9, $row)->getValue();
                     $seriesid = Yii::app()->db->createCommand("select productseriesid from productseries where description = '".$series."'")->queryScalar();
-					$panjang = $objWorksheet->getCellByColumnAndRow(10, $row)->getValue();
-					$lebar = $objWorksheet->getCellByColumnAndRow(11, $row)->getValue();
-					$tinggi = $objWorksheet->getCellByColumnAndRow(12, $row)->getValue();
-					$density = $objWorksheet->getCellByColumnAndRow(15, $row)->getValue();
-					$rec = $objWorksheet->getCellByColumnAndRow(13, $row)->getValue();
+					$leadtime = $objWorksheet->getCellByColumnAndRow(10, $row)->getValue();
+					$panjang = $objWorksheet->getCellByColumnAndRow(11, $row)->getValue();
+					$lebar = $objWorksheet->getCellByColumnAndRow(12, $row)->getValue();
+					$tinggi = $objWorksheet->getCellByColumnAndRow(13, $row)->getValue();
+					$density = $objWorksheet->getCellByColumnAndRow(16, $row)->getValue();
+					$rec = $objWorksheet->getCellByColumnAndRow(14, $row)->getValue();
 					$recordstatus = Yii::app()->db->createCommand("select case when '".$rec."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$this->ModifyData($connection,array($id,$productname,$isstock,$productpic,$barcode,$materialtypeid,$identityid,$brandid,$collectionid,$seriesid,$panjang,$lebar,$tinggi,$recordstatus,$k3lnumber,$density,$isfohulbom,$iscontinue));
+					$this->ModifyData($connection,array($id,$productname,$isstock,$productpic,$barcode,$materialtypeid,$identityid,$brandid,$collectionid,$seriesid,$leadtime,$panjang,$lebar,$tinggi,$recordstatus,$k3lnumber,$density,$isfohulbom,$iscontinue));
 				}
 				$transaction->commit();			
 				GetMessage(false,'insertsuccess');
@@ -326,7 +371,7 @@ class ProductController extends Controller {
 		$connection=Yii::app()->db;
 		$transaction=$connection->beginTransaction();
 		try {
-			$this->ModifyData($connection,array((isset($_POST['productid'])?$_POST['productid']:''),$_POST['productname'],$_POST['isstock'],$_POST['productpic'],$_POST['barcode'],$_POST['materialtypeid'],$_POST['productidentityid'],$_POST['productbrandid'],$_POST['productcollectid'],$_POST['productseriesid'],$_POST['panjang'],$_POST['lebar'],$_POST['tinggi'],$_POST['recordstatus'],$_POST['k3lnumber'],$_POST['density'],$_POST['isfohulbom'],$_POST['iscontinue']));
+			$this->ModifyData($connection,array((isset($_POST['productid'])?$_POST['productid']:''),$_POST['productname'],$_POST['isstock'],$_POST['productpic'],$_POST['barcode'],$_POST['materialtypeid'],$_POST['productidentityid'],$_POST['productbrandid'],$_POST['productcollectid'],$_POST['productseriesid'],$_POST['leadtime'],$_POST['panjang'],$_POST['lebar'],$_POST['tinggi'],$_POST['recordstatus'],$_POST['k3lnumber'],$_POST['density'],$_POST['isfohulbom'],$_POST['iscontinue']));
 			$transaction->commit();			
 			GetMessage(false,'insertsuccess');
 		}
@@ -420,12 +465,12 @@ class ProductController extends Controller {
 	public function actionDownPDF()	{
 	  parent::actionDownload();
 		//masukkan perintah download
-	  $sql = "select productid,productname,productpic,
+	  $sql = "select productid,productname,productpic,leadtime,
 						case when isstock = 1 then 'Yes' else 'No' end as isstock,
 						case when isfohulbom = 1 then 'Yes' else 'No' end as isfohulbom,
 						case when iscontinue = 1 then 'Yes' else 'No' end as iscontinue,
 						barcode,panjang,lebar,tinggi,density,b.materialtypecode,
-            c.identityname,d.brandname,e.collectionname,f.description as prodcutseries,
+            c.identityname,d.brandname,e.collectionname,f.description as productseries,
 						case when a.recordstatus = 1 then 'Yes' else 'No' end as recordstatus, k3lnumber
 						from product a
 						left join materialtype b on b.materialtypeid=a.materialtypeid 
@@ -441,6 +486,7 @@ class ProductController extends Controller {
 		$productbrand = filter_input(INPUT_GET,'productbrand');
 		$productcollection = filter_input(INPUT_GET,'productcollection');
 		$productseries = filter_input(INPUT_GET,'productseries');
+		$leadtime = filter_input(INPUT_GET,'leadtime');
 		$length = filter_input(INPUT_GET,'length');
 		$width = filter_input(INPUT_GET,'width');
 		$height = filter_input(INPUT_GET,'height');
@@ -457,6 +503,7 @@ class ProductController extends Controller {
 			and coalesce(d.brandname,'') like '%".$productbrand."%'
 			and coalesce(e.collectionname,'') like '%".$productcollection."%'
 			and coalesce(f.description,'') like '%".$productseries."%'
+			and coalesce(a.leadtime,'') like '%".$leadtime."%'
 			and coalesce(a.panjang,'') like '%".$length."%'
 			and coalesce(a.lebar,'') like '%".$width."%'
 			and coalesce(a.tinggi,'') like '%".$height."%'
@@ -480,7 +527,7 @@ class ProductController extends Controller {
 		$this->pdf->AddPage('P',array(400,250));
 		//masukkan posisi judul
 		$this->pdf->setFont('Arial','B',8);
-		$this->pdf->colalign = array('L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L');
+		$this->pdf->colalign = array('L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L');
 		//masukkan colom judul
 		$this->pdf->colheader = array(GetCatalog('productid'),
 			GetCatalog('productname'),
@@ -494,21 +541,22 @@ class ProductController extends Controller {
 			GetCatalog('brandname'),
 			GetCatalog('collectionname'),
 			GetCatalog('productseries'),
+			GetCatalog('leadtime'),
 			GetCatalog('panjang'),
 			GetCatalog('lebar'),
 			GetCatalog('tinggi'),
 			GetCatalog('recordstatus'),
 			GetCatalog('k3lnumber'),
 			GetCatalog('density'));
-		$this->pdf->setwidths(array(22,90,25,20,20,20,45,25,20,20,20,20,20,20,20,20,20,20));
+		$this->pdf->setwidths(array(22,90,25,20,20,20,45,25,20,20,20,20,20,20,20,20,20,20,20,20));
 		$this->pdf->Rowheader();
 		$this->pdf->setFont('Arial','',8);
-		$this->pdf->coldetailalign = array('L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L');
+		$this->pdf->coldetailalign = array('L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L','L');
 		
 		foreach($dataReader as $row1)
 		{
 			//masukkan baris untuk cetak
-		  $this->pdf->row(array($row1['productid'],$row1['productname'],$row1['productpic'],$row1['isstock'],$row1['isfohulbom'],$row1['iscontinue'],$row1['barcode'],$row1['materialtypecode'],$row1['identityname'],$row1['brandname'],$row1['collectionname'],$row1['prodcutseries'],$row1['panjang'],$row1['lebar'],$row1['tinggi'],$row1['recordstatus'],$row1['k3lnumber'],$row1['density']));
+		  $this->pdf->row(array($row1['productid'],$row1['productname'],$row1['productpic'],$row1['isstock'],$row1['isfohulbom'],$row1['iscontinue'],$row1['barcode'],$row1['materialtypecode'],$row1['identityname'],$row1['brandname'],$row1['collectionname'],$row1['productseries'],$row1['leadtime'],$row1['panjang'],$row1['lebar'],$row1['tinggi'],$row1['recordstatus'],$row1['k3lnumber'],$row1['density']));
 		}
 		// me-render ke browser
 		$this->pdf->Output();
@@ -516,7 +564,7 @@ class ProductController extends Controller {
 	public function actionDownxls()	{
 		$this->menuname='product';
 		parent::actionDownxls();
-		$sql = "select productid,productname,productpic,
+		$sql = "select productid,productname,productpic,leadtime,
 						case when isstock = 1 then 'Yes' else 'No' end as isstock,
 						case when isfohulbom = 1 then 'Yes' else 'No' end as isfohulbom,
 						case when iscontinue = 1 then 'Yes' else 'No' end as iscontinue,
@@ -537,6 +585,7 @@ class ProductController extends Controller {
 		$productbrand = filter_input(INPUT_GET,'productbrand');
 		$productcollection = filter_input(INPUT_GET,'productcollection');
 		$productseries = filter_input(INPUT_GET,'productseries');
+		$leadtime = filter_input(INPUT_GET,'leadtime');
 		$length = filter_input(INPUT_GET,'length');
 		$width = filter_input(INPUT_GET,'width');
 		$height = filter_input(INPUT_GET,'height');
@@ -553,6 +602,7 @@ class ProductController extends Controller {
 			and coalesce(d.brandname,'') like '%".$productbrand."%'
 			and coalesce(e.collectionname,'') like '%".$productcollection."%'
 			and coalesce(f.description,'') like '%".$productseries."%'
+			and coalesce(a.leadtime,'') like '%".$leadtime."%'
 			and coalesce(a.panjang,'') like '%".$length."%'
 			and coalesce(a.lebar,'') like '%".$width."%'
 			and coalesce(a.tinggi,'') like '%".$height."%'
@@ -583,14 +633,15 @@ class ProductController extends Controller {
 				->setCellValueByColumnAndRow(7,$i,$row1['brandname'])
 				->setCellValueByColumnAndRow(8,$i,$row1['collectionname'])
 				->setCellValueByColumnAndRow(9,$i,$row1['productseries'])
-				->setCellValueByColumnAndRow(10,$i,$row1['panjang'])
-				->setCellValueByColumnAndRow(11,$i,$row1['lebar'])
-				->setCellValueByColumnAndRow(12,$i,$row1['tinggi'])
-				->setCellValueByColumnAndRow(13,$i,$row1['recordstatus'])
-				->setCellValueByColumnAndRow(14,$i,$row1['k3lnumber'])
-				->setCellValueByColumnAndRow(15,$i,$row1['density'])
-				->setCellValueByColumnAndRow(16,$i,$row1['isfohulbom'])
-				->setCellValueByColumnAndRow(17,$i,$row1['iscontinue']);
+				->setCellValueByColumnAndRow(10,$i,$row1['leadtime'])
+				->setCellValueByColumnAndRow(11,$i,$row1['panjang'])
+				->setCellValueByColumnAndRow(12,$i,$row1['lebar'])
+				->setCellValueByColumnAndRow(13,$i,$row1['tinggi'])
+				->setCellValueByColumnAndRow(14,$i,$row1['recordstatus'])
+				->setCellValueByColumnAndRow(15,$i,$row1['k3lnumber'])
+				->setCellValueByColumnAndRow(16,$i,$row1['density'])
+				->setCellValueByColumnAndRow(17,$i,$row1['isfohulbom'])
+				->setCellValueByColumnAndRow(18,$i,$row1['iscontinue']);
 			$i++;
 		}
 		

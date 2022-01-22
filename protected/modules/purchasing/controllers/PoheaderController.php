@@ -25,46 +25,6 @@ class PoheaderController extends Controller {
     else
       $this->renderPartial('index', array());
   }
-  public function actionSuppliertoCompany()
-  {
-    $addressbookid = $_POST['supplierid'];
-    $sql = 'select companyid 
-    from addressbook a
-    join company b on b.companyname = a.fullname
-    where a.addressbookid = '.$addressbookid;
-    $q = Yii::app()->db->createCommand($sql)->queryScalar();
-    echo json_encode(
-      array(
-      'status'=>'success',
-      'companyid' => $q
-      ));
-  }
-
-  public function actionGetplantfromsupplier()
-  {
-    $result            = array();
-    $row               = array();
-    $addressbookid = $_GET['supplierid'];
-    $sql = 'select companyid 
-    from addressbook a
-    join company b on b.companyname = a.fullname
-    where a.addressbookid = '.$addressbookid;
-    $q = Yii::app()->db->createCommand($sql)->queryScalar();
-
-    $sql = "select plantid,plantcode,description from plant a where a.companyid = ".$q;
-    $cmd = Yii::app()->db->createCommand($sql)->queryAll();
-    foreach ($cmd as $data) {
-      $row[] = array(
-        'plantid' => $data['plantid'],
-        'plantcode' => $data['plantcode'],
-        'description' => $data['description'],
-      );
-    }
-    $result = array_merge($result, array(
-      'rows' => $row
-    ));
-    echo CJSON::encode($result);
-  }
   public function actionGetData() {
     if (isset($_GET['id'])) {
     } else {
@@ -83,7 +43,6 @@ class PoheaderController extends Controller {
     $price        = '';
     $currencyid   = '';
     $currencyrate = '';
-    $current = 0;
     $cmd          = Yii::app()->db->createCommand()->select('a.productid,sum(a.poqty),a.netprice,a.currencyid,a.ratevalue')->from('podetail t')->where("t.poheaderid = '" . $_POST['poheaderid'] . "' and t.productid = '" . $_POST['productid'] . "'")->limit(1)->queryRow();
     $productid    = $cmd['productid'];
     $qty          = $cmd['poqty'];
@@ -864,45 +823,7 @@ class PoheaderController extends Controller {
 	public function actionGeneratedetail() {
     if (isset($_POST['supplierid']) & isset($_POST['prmaterialid'])) {
       $podetail  = Yii::app()->db->createCommand()->select('t.*,e.slocid,b.prno,c.productname,d.uomcode,(t.qty - t.poqty) as posisa,e.sloccode')->from('prmaterial t')->join('prheader b', 'b.prheaderid = t.prheaderid')->join('product c', 'c.productid = t.productid')->join('unitofmeasure d', 'd.unitofmeasureid = t.unitofmeasureid')->leftjoin('deliveryadvicedetail f', 'f.deliveryadvicedetailid = t.deliveryadvicedetailid')->leftjoin('deliveryadvice g', 'g.deliveryadviceid = f.deliveryadviceid')->join('sloc e', 'e.slocid = g.slocid')->where('t.prmaterialid = ' . $_POST['prmaterialid'] . ' and t.qty > t.poqty ' . ' and b.prno is not null')->queryRow();
-      
-      // get supplierid
-      $sql = "select addressbookid,isextern from addressbook a where a.addressbookid=".$_POST['supplierid'];
-      $addressbook = Yii::app()->db->createCommand($sql)->queryRow();
-
-      if($addressbook['isextern']==0 && $_POST['plantid']!='') {
-        $tambahan = 0;
-
-        $fg = array(1,3,4,15,16,19,20,22,24,25,27,28,30); // mateiraltype
-        $wip = array(14,15,16,17); //productcollect
-        $bb = array(5,6,7,8,9,10,11,12,13,23); // productcollect
-        $promo = array(24); // productcollect
-
-        $getproductdetail = 'select productcollectid, materialtypeid from product where productid = '.$podetail['productid'];
-        $jenis = Yii::app()->db->createCommand($getproductdetail)->queryRow();
-
-        if (in_array($jenis['materialtypeid'], $fg)) {
-          $tambahan = 10;
-        }
-        else if (in_array($jenis['productcollectid'], $wip)) {
-          $tambahan = 7.5;
-        }
-        else if (in_array($jenis['productcollectid'], $bb)) {
-          $tambahan = 5;
-        }
-        else if (in_array($jenis['productcollectid'], $promo)) {
-          $tambahan = 10;
-        }
-
-        $pirdetail = Yii::app()->db->createCommand("
-        select nilai, nilai+(nilai*{$tambahan}/100) as price, currencyid,0 as underdelvtol, 0 as overdelvtol from (
-          select sum(qty*buyprice)/sum(qty) as nilai, currencyid 
-          from productdetail a
-          where a.productid = {$podetail['productid']} and a.slocid in(select slocid 
-            from sloc a1
-            where a1.plantid = {$_POST['plantid']})) z")->queryRow();
-      }
-      else 
-        $pirdetail = Yii::app()->db->createCommand()->select('ifnull(underdelvtol,0) as underdelvtol, ifnull(overdelvtol,0) as overdelvtol,price,currencyid')->from('purchinforec t')->where('t.addressbookid = ' . $_POST['supplierid'] . ' and t.productid = ' . $podetail['productid'] .' order by biddate desc limit 1')->queryRow();
+      $pirdetail = Yii::app()->db->createCommand()->select('ifnull(underdelvtol,0) as underdelvtol, ifnull(overdelvtol,0) as overdelvtol,price,currencyid')->from('purchinforec t')->where('t.addressbookid = ' . $_POST['supplierid'] . ' and t.productid = ' . $podetail['productid'] .' order by biddate desc limit 1')->queryRow();
       echo CJSON::encode(array(
         'status' => 'success',
         'prmaterialid' => $podetail['prmaterialid'],

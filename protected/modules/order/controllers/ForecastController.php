@@ -119,13 +119,8 @@ order by d.bomdetailid";
 				set iscreate = 0
 				where forecastdetailid = " . $data['forecastdetailid'];
       Yii::app()->db->createCommand($sql)->execute();
-      $this->RecursiveFG($data['companyid'], $_REQUEST['bulan'], $_REQUEST['tahun'], $data['forecastid'], $data['forecastdetailid'], $data['productid'], $data['unitofmeasureid'], $data['qty']);      
+      $this->RecursiveFG($data['companyid'], $_REQUEST['bulan'], $_REQUEST['tahun'], $data['forecastid'], $data['forecastdetailid'], $data['productid'], $data['unitofmeasureid'], $data['qty']);
     }
-    // get forecastdetail 
-    // then create PR
-    $q = "call generateForecastPR({$id},{$_REQUEST['tahun']},{$_REQUEST['bulan']})";
-    $exc = Yii::app()->db->createCommand($q)->execute();
-      
     GetMessage('success', 'alreadysaved');
   }
   public function search()

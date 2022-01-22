@@ -2,6 +2,7 @@
 <div id="tb-repcb">
 	<?php if (CheckAccess($this->menuname, $this->isdownload) == 1) {  ?>
 		<a href="javascript:void(0)" title="Export Ke PDF"class="easyui-linkbutton" iconCls="icon-pdf" plain="true" onclick="downpdfrepcb()"></a>
+		<a href="javascript:void(0)" title="Export Ke PDF Kwitansi"class="easyui-linkbutton" iconCls="icon-pdf" plain="true" onclick="downpdfrepcb1()"></a>
 <?php }?>
 <table>
 <tr>
@@ -291,6 +292,15 @@ function downpdfrepcb() {
 			ss.push(row.cbid);
 	}
 	window.open('<?php echo $this->createUrl('repcb/downpdf') ?>?id='+ss);
+}
+function downpdfrepcb1() {
+	var ss = [];
+	var rows = $('#dg-repcb').edatagrid('getSelections');
+	for(var i=0; i<rows.length; i++){
+			var row = rows[i];
+			ss.push(row.cbid);
+	}
+	window.open('<?php echo $this->createUrl('cb/downpdf1') ?>?id='+ss);
 }
 function downxlsrepcb() {
 	var ss = [];

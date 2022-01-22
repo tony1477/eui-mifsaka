@@ -1,4 +1,11 @@
 <?php
+class MYPDF extends tcpdf {
+
+    protected $print_header = false;
+    protected $print_footer = false;
+
+    //Page header
+}
 class CbController extends Controller {
   public $menuname = 'cb';
   public function actionIndex() {
@@ -881,7 +888,202 @@ class CbController extends Controller {
     }
     $this->pdf->Output();
   }
-  public function actionDownxls()
+	public function actionDownPDF1()
+  {
+    $this->pdf = new MYPDF("P", "mm", array(215,347) , true, 'UTF-8', false);
+    $id = $_GET['id'];
+    //$this->pdf->print_header = true;
+    //$this->pdf->print_footer = true;
+    $sql = "select *,if(debit like 'hutang deposito%',companyname,fullname) as terima,
+    if(debit like 'hutang deposito%',(select cityname from city za where za.cityid=debcity),(select cityname from city za where za.cityid=debcity)) as city
+     from (select concat(a.cashbankno,'(',b.cbaccid,')') as cashbankno, 
+	    c.accountname as debit, d.accountname as credit,b.amount*b.currencyrate as amount,
+	    c2.currencyname,(select fullname from employee x where x.employeeid=b.employeeid) as fullname,
+      (select companyname from company y where y.companyid = a.companyid) as companyname,
+      b.description, p.cityid as debcity,p2.cityid as credbity,a.docdate
+      from cb a
+      join cbacc b on b.cbid = a.cbid
+      join account c on c.accountid = b.debitaccid 
+      join account d on d.accountid = b.creditaccid
+      join currency c2 on c2.currencyid = b.currencyid
+      join plant p on p.plantid = b.debplantid
+      join plant p2 on p2.plantid = b.credplantid
+      where a.cbid in({$id}) and 
+      (c.accountname like 'HUTANG DEPOSITO%' or d.accountname like 'HUTANG DEPOSITO%'))z";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->pdf->SetCreator(PDF_CREATOR);
+    $this->pdf->SetAuthor('PT. Anugerah Karya Group');
+    $this->pdf->SetTitle('Kwitansi');
+
+    // set default header data
+    $this->pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'Internal Memo ', PDF_HEADER_STRING);
+
+    // set header and footer fonts
+    //$this->pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+    //$this->pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+    // set default monospaced font
+    //$this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // set margins
+    $this->pdf->SetMargins(PDF_MARGIN_LEFT, 5, 5);
+    $this->pdf->SetHeaderMargin(5);
+    $this->pdf->SetFooterMargin(5);
+
+    // set auto page breaks
+    $this->pdf->SetAutoPageBreak(TRUE, 5);
+
+    // set image scale factor
+    $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+    // set some language-dependent strings (optional)
+    if (@file_exists(dirname(_FILE_).'/lang/eng.php')) {
+        require_once(dirname(_FILE_).'/lang/eng.php');
+        $this->pdf->setLanguageArray($l);
+    }
+
+    // ---------------------------------------------------------
+
+    // set font
+    
+    $this->pdf->SetFont('helvetica', '', 10);
+    $this->pdf->AddPage();
+    
+    //$this->pdf->MultiCell(40, 10, 'Tanggal', 1, '', 0, 2, 135, 26, true,0,false,true,10,'M',false);
+
+    // Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false, $alt=false, $altimgs=array())
+
+    $y = 5;
+    $this->pdf->setFont('Times','B',11);
+    $i=1;
+    foreach($dataReader as $row)
+    {
+      $bilangan = explode(".", $row['amount']);
+      $this->pdf->Image('images/kwitansi1.png', 0, $y, 215, '', '', '', '', false, 300);
+      $this->pdf->setFont('Times','B',11);
+      $this->pdf->MultiCell(60, 5, $row['cashbankno'], 0, '', 0, 1, 52, $y+5, true,0,false,true,10,'M',false);
+      $this->pdf->setFont('Times','B',12);
+      $this->pdf->MultiCell(100, 5, $row['terima'], 0, '', 0, 1, 85, $y+12, true,0,false,true,10,'M',false);
+      $this->pdf->setFont('Times','IB',11);
+      $this->pdf->MultiCell(125, 10, eja($bilangan[0]).''.$row['currencyname'], 0, 'L', 0, 1, 84, $y+20, true,0,false,true,12,'M',true);
+      $this->pdf->setFont('Times','',12);
+      $this->pdf->MultiCell(155, 20, '                                        '.$row['description'], 0, 'L', 0, 1, 45, $y+31, true,0,false,true,20,'T',true);
+      $this->pdf->setFont('Times','B',14);
+      $this->pdf->MultiCell(100, 5, $row['city'].' , '.date('d-F-Y',strtotime($row['docdate'])), 0, 'L', 0, 1, 137, $y+50, true,0,false,true,5,'T',true);
+      $this->pdf->setFont('Times','BI',18);
+      $this->pdf->MultiCell(125, 10, Yii::app()->format->formatCurrency($row['amount']), 0, 'L', 0, 1, 56, $y+63, true,0,false,true,10,'M',true);
+      $html = "<span style=\"color:white;text-align:center;font-weight:bold;font-size:80pt;\">{$row['cashbankno']}</span>";
+      //$this->pdf->writeHTML($html, true, false, true, false, '');
+      $y = $y+85;
+      $i++;
+      
+      if($i>4){
+        $y = 5;
+        $i=1;
+        $this->pdf->AddPage();
+       }
+
+    }
+    
+    $this->pdf->setFont('Times','B',16);
+    //$this->pdf->MultiCell(40, 10, $q['cashbankno'], 1, '', 0, 2, 72, 15, true,0,false,true,10,'M',false);
+    $this->pdf->Output();
+  }
+/*  public function actionDownPDF1()
+  {
+    $this->pdf = new MYPDF("P", "mm", array(215,347) , true, 'UTF-8', false);
+    $id = $_GET['id'];
+    //$this->pdf->print_header = true;
+    //$this->pdf->print_footer = true;
+    $sql = "select *,if(debit like 'hutang deposito%',companyname,fullname) as terima,
+    if(debit like 'hutang deposito%',(select cityname from city za where za.cityid=debcity),(select cityname from city za where za.cityid=debcity)) as city
+     from (select concat(a.cashbankno,'(',b.cbaccid,')') as cashbankno, 
+	    c.accountname as debit, d.accountname as credit,b.amount*b.currencyrate as amount,
+	    c2.currencyname,(select fullname from employee x where x.employeeid=b.employeeid) as fullname,
+      (select companyname from company y where y.companyid = a.companyid) as companyname,
+      b.description, p.cityid as debcity,p2.cityid as credbity,a.docdate
+      from cb a
+      join cbacc b on b.cbid = a.cbid
+      join account c on c.accountid = b.debitaccid 
+      join account d on d.accountid = b.creditaccid
+      join currency c2 on c2.currencyid = b.currencyid
+      join plant p on p.plantid = b.debplantid
+      join plant p2 on p2.plantid = b.credplantid
+      where a.cbid = {$id} and 
+      (c.accountname like 'HUTANG DEPOSITO%' or d.accountname like 'HUTANG DEPOSITO%'))z";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->pdf->SetCreator(PDF_CREATOR);
+    $this->pdf->SetAuthor('PT. Anugerah Karya Group');
+    $this->pdf->SetTitle('Internal Memo ');
+
+    // set default header data
+    $this->pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'Internal Memo ', PDF_HEADER_STRING);
+
+    // set header and footer fonts
+    //$this->pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+    //$this->pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+    // set default monospaced font
+    //$this->pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // set margins
+    $this->pdf->SetMargins(PDF_MARGIN_LEFT, 5, 5);
+    $this->pdf->SetHeaderMargin(5);
+    $this->pdf->SetFooterMargin(5);
+
+    // set auto page breaks
+    $this->pdf->SetAutoPageBreak(TRUE, 5);
+
+    // set image scale factor
+    $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+    // set some language-dependent strings (optional)
+    if (@file_exists(dirname(_FILE_).'/lang/eng.php')) {
+        require_once(dirname(_FILE_).'/lang/eng.php');
+        $this->pdf->setLanguageArray($l);
+    }
+
+    // ---------------------------------------------------------
+
+    // set font
+    
+    $this->pdf->SetFont('helvetica', '', 10);
+    $this->pdf->AddPage();
+    
+    //$this->pdf->MultiCell(40, 10, 'Tanggal', 1, '', 0, 2, 135, 26, true,0,false,true,10,'M',false);
+
+    // Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false, $alt=false, $altimgs=array())
+
+    $y = 5;
+    $this->pdf->setFont('Times','B',11);
+    foreach($dataReader as $row)
+    {
+      $bilangan = explode(".", $row['amount']);
+      $this->pdf->Image('images/kwitansi1.png', 0, $y, 215, '', '', '', '', false, 300);
+      $this->pdf->setFont('Times','B',11);
+      $this->pdf->MultiCell(60, 5, $row['cashbankno'], 0, '', 0, 2, 52, $y+5, true,0,false,true,10,'M',false);
+      $this->pdf->setFont('Times','B',12);
+      $this->pdf->MultiCell(100, 5, $row['terima'], 0, '', 0, 2, 85, $y+12, true,0,false,true,10,'M',false);
+      $this->pdf->setFont('Times','IB',11);
+      $this->pdf->MultiCell(125, 10, eja($bilangan[0]).''.$row['currencyname'], 0, 'L', 0, 1, 84, $y+20, true,0,false,true,12,'M',true);
+      $this->pdf->setFont('Times','',12);
+      $this->pdf->MultiCell(155, 20, '                                        '.$row['description'], 0, 'L', 0, 1, 45, $y+31, true,0,false,true,20,'T',true);
+      $this->pdf->setFont('Times','B',14);
+      $this->pdf->MultiCell(100, 5, $row['city'].' , '.date('d-F-Y',strtotime($row['docdate'])), 0, 'L', 0, 1, 137, $y+50, true,0,false,true,5,'T',true);
+      $this->pdf->setFont('Times','BI',18);
+      $this->pdf->MultiCell(125, 10, Yii::app()->format->formatCurrency($row['amount']), 0, 'L', 0, 1, 56, $y+63, true,0,false,true,10,'M',true);
+      $y = $y+85;
+    }
+    //$this->pdf->Image('images/kwitansi1.png', 0, 5, 264, 698, 'PNG', '', '', true, 300, '', false, false, 0, false, false, false);
+    //$html = "<span style=\"color:white;text-align:center;font-weight:bold;font-size:80pt;\">{$q['cashbankno']}</span>";
+    //$this->pdf->writeHTML($html, true, false, true, false, '');
+    $this->pdf->setFont('Times','B',16);
+    //$this->pdf->MultiCell(40, 10, $q['cashbankno'], 1, '', 0, 2, 72, 15, true,0,false,true,10,'M',false);
+    $this->pdf->Output();
+  }
+*/  public function actionDownxls()
   {
     parent::actionDownload();
     $sql = "select receiptno,docdate,recordstatus

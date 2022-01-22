@@ -36,7 +36,6 @@ class CutarController extends Controller {
 				$sql = "select cutarid
 							from cutar
 							where recordstatus = getwfmaxstatbywfname('appcutar')
-							and cutarid <> 62762
 							and cutarid = ".$id;
 				if($ids == null) {
 					$ids = Yii::app()->db->createCommand($sql)->queryScalar();
@@ -71,7 +70,6 @@ class CutarController extends Controller {
 											left join addressbook f on f.addressbookid = e.addressbookid
 											left join company g on g.companyid = e.companyid
 											where b.cutarid in ({$ids})
-											and b.cutarid <> 62762
 				";
 
 				$res = Yii::app()->db->createCommand($getCustomer)->queryAll();  
@@ -93,7 +91,6 @@ class CutarController extends Controller {
 											left join addressbook f on f.addressbookid = e.addressbookid
 											-- left join addresscontact g on g.addressbookid = f.addressbookid
 											where b.cutarid = {$row['cutarid']} and f.addressbookid = {$row['addressbookid']}
-											and b.cutarid <> 62762
 											) z";
 					$res1 = Yii::app()->db->createCommand($getWaNumber)->queryAll();
 					$pesanw = '';
@@ -176,6 +173,11 @@ class CutarController extends Controller {
 					else if ($companyid == 15) {$telegroupid = "-1001264861899";} //AGEM
 					else if ($companyid == 14) {$telegroupid = "-1001406450805";} //AKP
 					
+					//device-key
+					$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+					$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+					$as = "";
+					
 					$teleuserid =  '1021823837'; //telegram ADS
 					//$wano = '6281717212109'; //wa ADS
 					$wano = '6285888885050'; //wa ADS
@@ -191,9 +193,10 @@ class CutarController extends Controller {
 					if ($wanumber > 0)
 					{
 					//Whatsapp Customer
-						$ch = curl_init();
+						sendwajapri($siaga,$pesanwa,$wanumber);
+/*						$ch = curl_init();
 						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwa)."&tujuan=".$wanumber."@s.whatsapp.net",
+							CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesanwa)."&tujuan=".$wanumber."@s.whatsapp.net",
 							  CURLOPT_RETURNTRANSFER => true,
 							  CURLOPT_ENCODING => "",
 							  CURLOPT_MAXREDIRS => 10,
@@ -207,13 +210,16 @@ class CutarController extends Controller {
 						));
 						$res = curl_exec($ch);
 						if ($res != '{"success":true,"message":"berhasil"}') {if ($wanumber > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$wanumber." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$wanumber." (".$row['fullname'].")\n";}}}
+						
+*/						sendwagroup($siaga,$pesanwa."\n\n_Tes Chatfire EUI_","6281717212109-1615804565");
 					}
 					else
 					{
 						//Whatsapp Group Tidak Ada No WA Customer
-						$ch = curl_init();
+						sendwagroup($siaga,$pesannowa,$auditgroup);
+/*						$ch = curl_init();
 						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesannowa)."&tujuan=".$auditgroup."@g.us",
+							CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesannowa)."&tujuan=".$auditgroup."@g.us",
 							  CURLOPT_RETURNTRANSFER => true,
 							  CURLOPT_ENCODING => "",
 							  CURLOPT_MAXREDIRS => 10,
@@ -226,11 +232,11 @@ class CutarController extends Controller {
 							  ),
 						));
 						$res = curl_exec($ch);
-							
+*/							
 /*						//Whatsapp Japri Tidak Ada No WA Customer
 						$ch = curl_init();
 						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesannowa)."&tujuan=".$nowanumber."@s.whatsapp.net",
+							CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesannowa)."&tujuan=".$nowanumber."@s.whatsapp.net",
 							  CURLOPT_RETURNTRANSFER => true,
 							  CURLOPT_ENCODING => "",
 							  CURLOPT_MAXREDIRS => 10,
@@ -271,10 +277,11 @@ class CutarController extends Controller {
 					//echo $data_string;
 */					
 					
-				//Whatsva v3
+					sendwajapri($siaga,$pesanwa,$wano);
+/*				//Whatsva v3
 					$ch = curl_init();
 					curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwa)."&tujuan=".$wano."@s.whatsapp.net",
+						CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesanwa)."&tujuan=".$wano."@s.whatsapp.net",
 						  CURLOPT_RETURNTRANSFER => true,
 						  CURLOPT_ENCODING => "",
 						  CURLOPT_MAXREDIRS => 10,
@@ -305,7 +312,7 @@ class CutarController extends Controller {
 					));
 					echo $res = curl_exec($ch);
 					
-/*					$url = Yii::app()->params['ip'].'send_message';
+					$url = Yii::app()->params['ip'].'send_message';
 					$data = array(
 						"phone_no"=> $wanum,
 						"key"		=> Yii::app()->params['key'],

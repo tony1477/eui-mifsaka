@@ -308,7 +308,7 @@ $this->widget('Form',	array('menuname'=>$this->menuname,
 				return value;
 		}},
 	",
-	'searchfield'=> array ('soheaderid','companyname','sono','customer','pocustno','pono','headernote'),
+	'searchfield'=> array ('soheaderid','companyname','sono','customer','pocustno','pono','sotype','headernote','recordstatus'),
 	'headerform'=> "
 	",
 	'loadsuccess' => "
@@ -335,6 +335,14 @@ $this->widget('Form',	array('menuname'=>$this->menuname,
 			'urlsub'=>Yii::app()->createUrl('order/reportso/indexdetail',array('grid'=>true,'list'=>true)),
 			'subs'=>"
 				{field:'productname',title:'".GetCatalog('productname') ."'},
+				{field:'isbonus',title:'".GetCatalog('isbonus')."',width:'60px',
+					formatter: function(value,row,index){
+					if (value == 1){
+						return '<img src=\"".Yii::app()->request->baseUrl."/images/ok.png"."\"></img>';
+					} else {
+						return '';
+					}}
+				},
 				{field:'qty',title:'".GetCatalog('qty') ."',align:'right'},
 				{field:'giqty',title:'".GetCatalog('giqty') ."',align:'right',
 					formatter: function(value,row,index){

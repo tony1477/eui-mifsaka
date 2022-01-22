@@ -29,6 +29,13 @@ class CustomerController extends Controller {
 		else
 			$this->renderPartial('index',array());
 	}
+	public function actionIndexpotensi() {
+		parent::actionIndex();
+		if(isset($_GET['grid']))
+			echo $this->actionSearchpotensi();
+		else
+			$this->renderPartial('index',array());
+	}
 	public function actionIndexdiscount() {
 		parent::actionIndex();
 		if(isset($_GET['grid']))
@@ -56,6 +63,8 @@ class CustomerController extends Controller {
 		$bankaccountno = isset ($_POST['bankaccountno']) ? $_POST['bankaccountno'] : '';
 		$bankname = isset ($_POST['bankname']) ? $_POST['bankname'] : '';
 		$accountowner = isset ($_POST['accountowner']) ? $_POST['accountowner'] : '';
+		$custcategory = isset ($_POST['custcategory']) ? $_POST['custcategory'] : '';
+		$recordstatus = isset ($_POST['recordstatus']) ? $_POST['recordstatus'] : '';
 		$addressbookid = isset ($_GET['q']) ? $_GET['q'] : $addressbookid;
 		$fullname = isset ($_GET['q']) ? $_GET['q'] : $fullname;
 		$iscustomer = isset ($_GET['q']) ? $_GET['q'] : $iscustomer;
@@ -74,6 +83,8 @@ class CustomerController extends Controller {
 		$bankaccountno = isset ($_GET['q']) ? $_GET['q'] : $bankaccountno;
 		$bankname = isset ($_GET['q']) ? $_GET['q'] : $bankname;
 		$accountowner = isset ($_GET['q']) ? $_GET['q'] : $accountowner;
+		$custcategory = isset ($_GET['q']) ? $_GET['q'] : $custcategory;
+		$recordstatus = isset ($_GET['q']) ? $_GET['q'] : $recordstatus;
 		$page = isset($_POST['page']) ? intval($_POST['page']) : 1;
 		$rows = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
 		$sort = isset($_POST['sort']) ? strval($_POST['sort']) : 'addressbookid';
@@ -115,13 +126,20 @@ class CustomerController extends Controller {
 				->leftjoin('groupcustomer d','d.groupcustomerid = t.groupcustomerid')
 				->leftjoin('custcategory e','e.custcategoryid = t.custcategoryid')
 				->leftjoin('custgrade f','f.custgradeid = t.custgradeid')
-				->where("((coalesce(t.addressbookid,'') like :addressbookid) and (coalesce(t.fullname,'') like :fullname) and (coalesce(t.bankname,'') like :bankname) and (coalesce(t.accountowner,'') like :accountowner) and (coalesce(b.areaname,'') like :areaname) and (coalesce(d.groupname,'') like :groupcustomer)) and iscustomer = 1",
+				->leftjoin('tax g','g.taxid = t.taxid')
+				->leftjoin('paymentmethod h','h.paymentmethodid = t.paymentmethodid')
+        ->leftjoin('province i','i.provinceid = t.provinceid')
+				->leftjoin('marketarea j','j.marketareaid = t.marketareaid')
+				->leftjoin('customertype k','k.customertypeid = t.customertypeid')
+				->where("((coalesce(t.addressbookid,'') like :addressbookid) and (coalesce(t.fullname,'') like :fullname) and (coalesce(t.bankname,'') like :bankname) and (coalesce(t.accountowner,'') like :accountowner) and (coalesce(b.areaname,'') like :areaname) and (coalesce(d.groupname,'') like :groupcustomer) and (coalesce(e.custcategoryname,'') like :custcategory) and (coalesce(t.recordstatus,'') like :recordstatus)) and iscustomer = 1",
 						array(':addressbookid'=>'%'.$addressbookid.'%',
 									':fullname'=>'%'.$fullname.'%',
 									':bankname'=>'%'.$bankname.'%',
 									':accountowner'=>'%'.$accountowner.'%',
 									':areaname'=>'%'.$areaname.'%',
 									':groupcustomer'=>'%'.$groupcustomer.'%',
+									':custcategory'=>'%'.$custcategory.'%',
+									':recordstatus'=>'%'.$recordstatus.'%',
 						))
 				->queryScalar();
 		}
@@ -143,7 +161,7 @@ class CustomerController extends Controller {
 		$result['total'] = $cmd;
 		if (isset($_GET['company'])) {
 			$cmd = Yii::app()->db->createCommand()
-				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode')			
+				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode,i.provincename,j.marketname,k.customertypename')			
 				->from('addressbook t')
 				->leftjoin('addressaccount t1','t1.addressbookid = t.addressbookid')
 				->leftjoin('account a','a.accountid = t.accpiutangid')
@@ -154,6 +172,9 @@ class CustomerController extends Controller {
 				->leftjoin('custgrade f','f.custgradeid = t.custgradeid')
 				->leftjoin('tax g','g.taxid = t.taxid')
 				->leftjoin('paymentmethod h','h.paymentmethodid = t.paymentmethodid')
+        ->leftjoin('province i','i.provinceid = t.provinceid')
+				->leftjoin('marketarea j','j.marketareaid = t.marketareaid')
+				->leftjoin('customertype k','k.customertypeid = t.customertypeid')
 				->where("(fullname like :fullname) and t1.recordstatus = 1 and iscustomer = 1 and t.recordstatus=1 and t1.companyid=".$companyid,
 						array(':fullname'=>'%'.$fullname.'%'))
 				->offset($offset)
@@ -164,7 +185,7 @@ class CustomerController extends Controller {
 		else
 		if (!isset($_GET['combo'])) {
 			$cmd = Yii::app()->db->createCommand()
-				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode')			
+				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode,i.provincename,j.marketname,k.customertypename')			
 				->from('addressbook t')
 				->leftjoin('account a','a.accountid = t.accpiutangid')
 				->leftjoin('salesarea b','b.salesareaid = t.salesareaid')
@@ -174,13 +195,18 @@ class CustomerController extends Controller {
 				->leftjoin('custgrade f','f.custgradeid = t.custgradeid')
 				->leftjoin('tax g','g.taxid = t.taxid')
 				->leftjoin('paymentmethod h','h.paymentmethodid = t.paymentmethodid')
-				->where("((coalesce(t.addressbookid,'') like :addressbookid) and (coalesce(t.fullname,'') like :fullname) and (coalesce(t.bankname,'') like :bankname) and (coalesce(t.accountowner,'') like :accountowner) and (coalesce(b.areaname,'') like :areaname) and (coalesce(d.groupname,'') like :groupcustomer)) and iscustomer = 1",
+        ->leftjoin('province i','i.provinceid = t.provinceid')
+				->leftjoin('marketarea j','j.marketareaid = t.marketareaid')
+				->leftjoin('customertype k','k.customertypeid = t.customertypeid')
+				->where("((coalesce(t.addressbookid,'') like :addressbookid) and (coalesce(t.fullname,'') like :fullname) and (coalesce(t.bankname,'') like :bankname) and (coalesce(t.accountowner,'') like :accountowner) and (coalesce(b.areaname,'') like :areaname) and (coalesce(d.groupname,'') like :groupcustomer) and (coalesce(e.custcategoryname,'') like :custcategory) and (coalesce(t.recordstatus,'') like :recordstatus)) and iscustomer = 1",
 						array(':addressbookid'=>'%'.$addressbookid.'%',
 									':fullname'=>'%'.$fullname.'%',
 									':bankname'=>'%'.$bankname.'%',
 									':accountowner'=>'%'.$accountowner.'%',
 									':areaname'=>'%'.$areaname.'%',
 									':groupcustomer'=>'%'.$groupcustomer.'%',
+									':custcategory'=>'%'.$custcategory.'%',
+									':recordstatus'=>'%'.$recordstatus.'%',
 						))
 				->offset($offset)
 				->limit($rows)
@@ -189,7 +215,7 @@ class CustomerController extends Controller {
 		}
 		else 	{
 			$cmd = Yii::app()->db->createCommand()
-				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode')			
+				->select('t.*,a.accountname,b.areaname,c.categoryname,d.groupname,e.custcategoryname,f.custgradename,g.taxcode,h.paycode,i.provincename,j.marketname,k.customertypename')			
 				->from('addressbook t')
 				->leftjoin('account a','a.accountid = t.accpiutangid')
 				->leftjoin('salesarea b','b.salesareaid = t.salesareaid')
@@ -199,6 +225,9 @@ class CustomerController extends Controller {
 				->leftjoin('custgrade f','f.custgradeid = t.custgradeid')
 				->leftjoin('tax g','g.taxid = t.taxid')
 				->leftjoin('paymentmethod h','h.paymentmethodid = t.paymentmethodid')
+        ->leftjoin('province i','i.provinceid = t.provinceid')
+				->leftjoin('marketarea j','j.marketareaid = t.marketareaid')
+				->leftjoin('customertype k','k.customertypeid = t.customertypeid')
 				->where('(fullname like :fullname) and iscustomer = 1 and t.recordstatus=1',
 						array(':fullname'=>'%'.$fullname.'%'))
 				->offset($offset)
@@ -235,6 +264,15 @@ class CustomerController extends Controller {
       'bankaccountno'=>$data['bankaccountno'],
       'bankname'=>$data['bankname'],
       'accountowner'=>$data['accountowner'],
+      'husbandbirthdate'=>date(Yii::app()->params['dateviewfromdb'],strtotime($data['husbandbirthdate'])),
+      'wifebirthdate'=>date(Yii::app()->params['dateviewfromdb'],strtotime($data['wifebirthdate'])),
+      'weddingdate'=>date(Yii::app()->params['dateviewfromdb'],strtotime($data['weddingdate'])),
+      'provinceid'=>$data['provinceid'],
+      'provincename'=>$data['provincename'],
+      'marketareaid'=>$data['marketareaid'],
+      'marketname'=>$data['marketname'],
+      'customertypeid'=>$data['customertypeid'],
+      'customertypename'=>$data['customertypename'],
 			'recordstatuscustomer'=>$data['recordstatus'],
 			);
 		}
@@ -473,6 +511,59 @@ class CustomerController extends Controller {
 		$result=array_merge($result,array('rows'=>$row));;
 		echo CJSON::encode($result);
 	}
+	public function actionSearchpotensi() {
+		header("Content-Type: application/json");
+		$id=0;	
+		if (isset($_POST['id'])) {
+			$id = $_POST['id'];
+		}
+		else
+		if (isset($_GET['id'])) {
+			$id = $_GET['id'];
+		}
+		$page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+		$rows = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
+		$sort = isset($_POST['sort']) ? strval($_POST['sort']) : 't.addresspotensiid';
+		$order = isset($_POST['order']) ? strval($_POST['order']) : 'asc';
+		$offset = ($page-1) * $rows;
+		$page = isset($_GET['page']) ? intval($_GET['page']) : $page;
+		$rows = isset($_GET['rows']) ? intval($_GET['rows']) : $rows;
+		$sort = isset($_GET['sort']) ? strval($_GET['sort']) : $sort;
+		$order = isset($_GET['order']) ? strval($_GET['order']) : $order;
+		$offset = ($page-1) * $rows;
+		$result = array();
+		$row = array();
+		$cmd = Yii::app()->db->createCommand()
+				->select('count(1) as total')
+				->from('addresspotensi t')
+        ->leftjoin('groupline a','a.grouplineid = t.grouplineid')
+				->where('addressbookid = :abid',
+						array(':abid'=>$id))
+				->queryScalar();
+		$result['total'] = $cmd;
+		$cmd = Yii::app()->db->createCommand()
+				->select('t.*, a.groupname')			
+				->from('addresspotensi t')
+        ->leftjoin('groupline a','a.grouplineid = t.grouplineid')
+				->where('addressbookid = :abid',
+						array(':abid'=>$id))
+				->offset($offset)
+				->limit($rows)
+				->order($sort.' '.$order)
+				->queryAll();
+		foreach($cmd as $data) {	
+			$row[] = array(
+				'addresspotensiid'=>$data['addresspotensiid'],
+				'addressbookid'=>$data['addressbookid'],
+				'grouplineid'=>$data['grouplineid'],
+				'groupname'=>$data['groupname'],
+				'amount'=>$data['amount'],
+				'recordstatus'=>$data['recordstatus'],
+			);
+		}
+		$result=array_merge($result,array('rows'=>$row));;
+		echo CJSON::encode($result);
+	}
 	public function actiongetdata() {
 		if (!isset($_GET['id']))
 		{
@@ -492,7 +583,7 @@ class CustomerController extends Controller {
 			$command=$connection->createCommand($sql);
 		}
 		else {
-			$sql = 'call UpdateCustomer(:vid,:vfullname,:vtaxno,:vktpno,:vcreditlimit,:visstrictlimit,:vsalesareaid,:vpricecategoryid,:vgroupcustomerid,:vcustcategoryid,:vcustgradeid,:vbankname,:vbankaccountno,:vaccountowner,:voverdue,:vtaxid,:vpaymentmethodid,:vrecordstatus,:vcreatedby)';
+			$sql = 'call UpdateCustomer(:vid,:vfullname,:vtaxno,:vktpno,:vhusbandbirthdate,:vwifebirthdate,:vweddingdate,:vcreditlimit,:visstrictlimit,:vsalesareaid,:vpricecategoryid,:vgroupcustomerid,:vcustcategoryid,:vcustgradeid,:vbankname,:vbankaccountno,:vaccountowner,:voverdue,:vtaxid,:vpaymentmethodid,:vprovinceid,:vmarketareaid,:vcustomertypeid,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
@@ -500,20 +591,26 @@ class CustomerController extends Controller {
 		$command->bindvalue(':vfullname',$arraydata[1],PDO::PARAM_STR);
 		$command->bindvalue(':vtaxno',$arraydata[2],PDO::PARAM_STR);
 		$command->bindvalue(':vktpno',$arraydata[3],PDO::PARAM_STR);
-		$command->bindvalue(':vcreditlimit',$arraydata[4],PDO::PARAM_STR);
-		$command->bindvalue(':visstrictlimit',$arraydata[5],PDO::PARAM_STR);
-		$command->bindvalue(':vsalesareaid',$arraydata[6],PDO::PARAM_STR);
-		$command->bindvalue(':vpricecategoryid',$arraydata[7],PDO::PARAM_STR);
-		$command->bindvalue(':vgroupcustomerid',$arraydata[8],PDO::PARAM_STR);
-		$command->bindvalue(':vcustcategoryid',$arraydata[9],PDO::PARAM_STR);
-		$command->bindvalue(':vcustgradeid',$arraydata[10],PDO::PARAM_STR);
-		$command->bindvalue(':vbankname',$arraydata[11],PDO::PARAM_STR);
-		$command->bindvalue(':vbankaccountno',$arraydata[12],PDO::PARAM_STR);
-		$command->bindvalue(':vaccountowner',$arraydata[13],PDO::PARAM_STR);
-		$command->bindvalue(':voverdue',$arraydata[14],PDO::PARAM_STR);
-		$command->bindvalue(':vtaxid',$arraydata[15],PDO::PARAM_STR);
-		$command->bindvalue(':vpaymentmethodid',$arraydata[16],PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus',$arraydata[17],PDO::PARAM_STR);
+		$command->bindvalue(':vhusbandbirthdate',$arraydata[4],PDO::PARAM_STR);
+		$command->bindvalue(':vwifebirthdate',$arraydata[5],PDO::PARAM_STR);
+		$command->bindvalue(':vweddingdate',$arraydata[6],PDO::PARAM_STR);
+		$command->bindvalue(':vcreditlimit',$arraydata[7],PDO::PARAM_STR);
+		$command->bindvalue(':visstrictlimit',$arraydata[8],PDO::PARAM_STR);
+		$command->bindvalue(':vsalesareaid',$arraydata[9],PDO::PARAM_STR);
+		$command->bindvalue(':vpricecategoryid',$arraydata[10],PDO::PARAM_STR);
+		$command->bindvalue(':vgroupcustomerid',$arraydata[11],PDO::PARAM_STR);
+		$command->bindvalue(':vcustcategoryid',$arraydata[12],PDO::PARAM_STR);
+		$command->bindvalue(':vcustgradeid',$arraydata[13],PDO::PARAM_STR);
+		$command->bindvalue(':vbankname',$arraydata[14],PDO::PARAM_STR);
+		$command->bindvalue(':vbankaccountno',$arraydata[15],PDO::PARAM_STR);
+		$command->bindvalue(':vaccountowner',$arraydata[16],PDO::PARAM_STR);
+		$command->bindvalue(':voverdue',$arraydata[17],PDO::PARAM_STR);
+		$command->bindvalue(':vtaxid',$arraydata[18],PDO::PARAM_STR);
+		$command->bindvalue(':vpaymentmethodid',$arraydata[19],PDO::PARAM_STR);
+		$command->bindvalue(':vprovinceid',$arraydata[20],PDO::PARAM_STR);
+		$command->bindvalue(':vmarketareaid',$arraydata[21],PDO::PARAM_STR);
+		$command->bindvalue(':vcustomertypeid',$arraydata[22],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[23],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();		
 	}
@@ -595,7 +692,7 @@ class CustomerController extends Controller {
 			}
     }
 	}
-    public function actionUploadcustomerinfo() {
+  public function actionUploadcustomerinfo() {
 		parent::actionUpload();
 		$target_file = dirname('__FILES__').'/uploads/' . basename($_FILES["file2-customer"]["name"]);
 		if (move_uploaded_file($_FILES["file2-customer"]["tmp_name"], $target_file)) {
@@ -643,13 +740,17 @@ class CustomerController extends Controller {
 		$transaction=$connection->beginTransaction();
 		try {
 			$this->ModifyData($connection,array((isset($_POST['addressbookid'])?$_POST['addressbookid']:''),$_POST['fullname'],$_POST['taxno'],
-				$_POST['ktpno'],$_POST['creditlimit'],
+				$_POST['ktpno'],
+        date(Yii::app()->params['datetodb'],strtotime($_POST['husbandbirthdate'])),
+        date(Yii::app()->params['datetodb'],strtotime($_POST['wifebirthdate'])),
+        date(Yii::app()->params['datetodb'],strtotime($_POST['weddingdate'])),$_POST['creditlimit'],
 				isset($_POST['isstrictlimit'])?($_POST['isstrictlimit']=="on")?1:0:0,$_POST['salesareaid'],
 				$_POST['pricecategoryid'],$_POST['groupcustomerid'],
 				$_POST['custcategoryid'],$_POST['custgradeid'],
 				$_POST['bankname'],$_POST['bankaccountno'],
 				$_POST['accountowner'],$_POST['overdue'],
 				$_POST['taxid'],$_POST['paymentmethodid'],
+        $_POST['provinceid'],$_POST['marketareaid'],$_POST['customertypeid'],
 				isset($_POST['recordstatuscustomer'])?($_POST['recordstatuscustomer']=="on")?1:0:0));
 			$transaction->commit();
 			GetMessage(false,'insertsuccess');
@@ -737,7 +838,7 @@ class CustomerController extends Controller {
 			GetMessage(true,$e->getMessage());
 		}
 	}
-    private function ModifyDataDisc($connection,$arraydata) {
+  private function ModifyDataDisc($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
 			$sql = 'call Insertcustomerdisc(:vaddressbookid,:vmaterialtypeid,:vdiscvalue,:vsopaymethodid,:vrealpaymethodid,:vcreatedby)';
@@ -762,6 +863,38 @@ class CustomerController extends Controller {
 		$transaction=$connection->beginTransaction();
 		try {
 			$this->ModifyDataDisc($connection,array((isset($_POST['custdiscid'])?$_POST['custdiscid']:''),$_POST['addressbookid'],$_POST['materialtypeid'],$_POST['discvalue'],$_POST['sopaymethodid'],$_POST['realpaymethodid']));
+			$transaction->commit();
+			GetMessage(false,'insertsuccess');
+		}
+		catch (Exception $e) {
+			$transaction->rollBack();
+			GetMessage(true,$e->getMessage());
+		}
+	}
+  private function ModifyDataPotensi($connection,$arraydata) {
+		$id = (isset($arraydata[0])?$arraydata[0]:'');
+		if ($id == '') {
+			$sql = 'call Insertcustomerpotensi(:vaddressbookid,:vgrouplineid,:vamount,:vrecordstatus,:vcreatedby)';
+			$command=$connection->createCommand($sql);
+		}
+		else {
+			$sql = 'call Updatecustomerpotensi(:vid,:vaddressbookid,:vgrouplineid,:vamount,:vrecordstatus,:vcreatedby)';
+			$command=$connection->createCommand($sql);
+			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
+		}
+		$command->bindvalue(':vaddressbookid',$arraydata[1],PDO::PARAM_STR);
+		$command->bindvalue(':vgrouplineid',$arraydata[2],PDO::PARAM_STR);
+		$command->bindvalue(':vamount',$arraydata[3],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[4],PDO::PARAM_STR);
+		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
+		$command->execute();
+	}		
+	public function actionsavepotensi() {
+		parent::actionWrite();
+		$connection=Yii::app()->db;
+		$transaction=$connection->beginTransaction();
+		try {
+			$this->ModifyDataPotensi($connection,array((isset($_POST['addresspotensiid'])?$_POST['addresspotensiid']:''),$_POST['addressbookid'],$_POST['grouplineid'],$_POST['amount'],$_POST['recordstatus']));
 			$transaction->commit();
 			GetMessage(false,'insertsuccess');
 		}

@@ -2556,6 +2556,357 @@ class AttController extends Controller {
       $saldoakhir = 0;
       $per = $_GET['per'];
       $connection = Yii::app()->db;
+      $sqldata1 = "select t.*, b.accountname, substr(b.accountname,1,30) as sheettitle ";
+      $sqlcount1 = "select count(1) as total ";
+      $from = "from att t 
+              join account b on b.accountid = t.accheaderid
+              where isneraca = 0 and t.recordstatus = 1 and t.companyid = ".$companyid." order by t.nourut desc";
+      $total = $connection->createCommand($sqlcount1.$from)->queryScalar();
+      $res1 = $connection->createCommand($sqldata1.$from)->queryAll();
+      
+      if($plantid != '') {
+          $companyname = $connection->createCommand('select concat("PLANT : ",plantcode) from plant a where a.plantid = '.$plantid)->queryScalar();
+          $companyid = $plantid;
+      }
+      else
+      {
+          $companyname = $connection->createCommand('select companycode from company a where a.companyid='.$companyid)->queryScalar();
+      }
+      
+      if($plantid != '') {
+        $sqlcompanyid = ' a.plantid = '.$plantid;
+      }
+      else {
+        $sqlcompanyid = ' a.companyid = '.$_GET['company'];
+      }
+      $sqlactnettnow = "select sum(debit-credit)*-1
+                    from genledger a
+                    join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and b.journaldate between date_add(date_add('".date(Yii::app()->params['datetodb'],strtotime($date))."', interval 1 day), interval -1 month) and last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."') and b.recordstatus=3 
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $actnettnow = Yii::app()->db->createCommand($sqlactnettnow)->queryScalar();
+
+      $sqlactnettlast = "select sum(debit-credit)*-1
+                    from genledger a
+                    join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and b.journaldate between date_add(date_add('".date(Yii::app()->params['datetodb'],strtotime($date))."', interval 1 day), interval -2 month) and last_day(date_add(last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."'), interval -1 month)) and b.recordstatus=3 
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $actnettlast = Yii::app()->db->createCommand($sqlactnettlast)->queryScalar();
+        
+      $sqlactnettakum = "select sum(debit-credit)*-1
+                    from genledger a
+                    join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and b.journaldate between concat(year(last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."')),'-01-01') and last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."') and b.recordstatus=3 
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $actnettakum = Yii::app()->db->createCommand($sqlactnettakum)->queryScalar();
+
+
+      $sqlbudnettnow = "select sum(budgetamount)*-1
+                    from budget a
+                    -- join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and a.budgetdate between date_add(date_add('".date(Yii::app()->params['datetodb'],strtotime($date))."', interval 1 day), interval -1 month) and last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."') 
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $budnettnow = Yii::app()->db->createCommand($sqlbudnettnow)->queryScalar();
+
+      $sqlbudnettlast = "select sum(budgetamount)*-1
+                    from budget a
+                    -- join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and a.budgetdate between date_add(date_add('".date(Yii::app()->params['datetodb'],strtotime($date))."', interval 1 day), interval -2 month) and last_day(date_add(last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."'), interval -1 month))
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $budnettlast = Yii::app()->db->createCommand($sqlbudnettlast)->queryScalar();
+        
+      $sqlbudnettakum = "select sum(budgetamount)*-1
+                    from budget a
+                    -- join genjournal b on b.genjournalid = a.genjournalid
+                    where {$sqlcompanyid} and a.budgetdate between concat(year(last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."')),'-01-01') and last_day('".date(Yii::app()->params['datetodb'],strtotime($date))."')
+                    and a.accountcode between '31' and '3999999999999999999'";
+      $budnettakum = Yii::app()->db->createCommand($sqlbudnettakum)->queryScalar();
+      
+      $i=0;$j=2;
+      $style = array(
+        'alignment' => array(
+            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+        )
+      );
+      $x = 1;
+      foreach($res1 as $row1){
+        $myWorkSheet = new PHPExcel_Worksheet($this->phpExcel,$row1['sheettitle']);
+        $this->phpExcel->addSheet($myWorkSheet, $i);
+        $excel = $this->phpExcel->getSheetByName($row1['sheettitle']);
+        $excel->mergeCells('A2:O2');
+        $excel->mergeCells('A3:O3');
+        $excel->mergeCells('A4:O4');
+        $excel->mergeCells('A6:A7');
+        $excel->mergeCells('B6:B7');
+          
+        $excel->mergeCells('C6:G6');
+        $excel->mergeCells('H6:L6');
+        $excel->mergeCells('M6:Q6');
+          
+        $excel->getColumnDimension('A')->setWidth(5);
+        $excel->getColumnDimension('B')->setWidth(40);
+        $excel->getColumnDimension('C')->setWidth(15);
+        $excel->getColumnDimension('D')->setWidth(15);
+        $excel->getColumnDimension('E')->setWidth(15);
+        $excel->getColumnDimension('F')->setWidth(15);
+        $excel->getColumnDimension('G')->setWidth(15);
+        $excel->getColumnDimension('H')->setWidth(15);
+        $excel->getColumnDimension('I')->setWidth(15);
+        $excel->getColumnDimension('J')->setWidth(15);
+        $excel->getColumnDimension('K')->setWidth(15);
+        $excel->getColumnDimension('L')->setWidth(15);
+        $excel->getColumnDimension('M')->setWidth(15);
+        $excel->getColumnDimension('N')->setWidth(15);
+        $excel->getColumnDimension('O')->setWidth(15);
+        $excel->getColumnDimension('O')->setWidth(15);
+        $excel->getColumnDimension('P')->setWidth(15);
+        $excel->getColumnDimension('Q')->setWidth(15);
+        $excel->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('A4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('D6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('C6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('A6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('B6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('C7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('D7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('E7')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('C6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('H6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->getStyle('M6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $excel->
+            setCellValueByColumnAndRow($i, $j, $companyname)->
+            setCellValueByColumnAndRow($i, $j+1, 'MUTASI '.$row1['accountname'])->
+            setCellValueByColumnAndRow($i, $j+2, 'Per : '.date("t F Y", strtotime($_GET['date'])));
+          
+        $excel
+          ->setCellValueByColumnAndRow($i, $j+4, 'NO')
+          ->setCellValueByColumnAndRow($i+1, $j+4, 'KETERANGAN')
+          ->setCellValueByColumnAndRow($i+2, $j+4, 'BULAN INI')
+          ->setCellValueByColumnAndRow($i+7, $j+4, 'BULAN LALU')
+          ->setCellValueByColumnAndRow($i+12, $j+4, 'AKUMULATIF s/d BULAN INI');
+          
+        $excel
+          ->setCellValueByColumnAndRow($i+2, $j+5, 'Budget')
+          ->setCellValueByColumnAndRow($i+3, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+4, $j+5, 'Actual')
+          ->setCellValueByColumnAndRow($i+5, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+6, $j+5, 'Pencapaian')
+          ->setCellValueByColumnAndRow($i+7, $j+5, 'Budget')
+          ->setCellValueByColumnAndRow($i+8, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+9, $j+5, 'Actual')
+          ->setCellValueByColumnAndRow($i+10, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+11, $j+5, 'Pencapaian')
+          ->setCellValueByColumnAndRow($i+12, $j+5, 'Budget')
+          ->setCellValueByColumnAndRow($i+13, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+14, $j+5, 'Actual')
+          ->setCellValueByColumnAndRow($i+15, $j+5, '%')
+          ->setCellValueByColumnAndRow($i+16, $j+5, 'Pencapaian');
+              
+          // get all data
+        $sql2 = "select a.* from attdet a where a.isview = 1 and a.attid = ".$row1['attid']." order by a.nourut asc";
+        $res2 = $connection->createCommand($sql2)->queryAll();
+        
+        $subbudmonth = 0;
+        $subactmonth = 0;
+        $subbudlast = 0;
+        $subactlast = 0;
+        $subbudakum = 0;
+        $subactakum = 0;
+        $k = 8;
+        $l=1;
+        foreach($res2 as $row2){
+            if($row2['istotal']!=1){
+                if($plantid != '') {
+                    $sqlsaldoawal = "call hitungplmonthplant(:vaccountcode,:vdate,:vcompanyid,@vplmonth,@vpllastmonth)";
+                }
+                else {
+                    $sqlsaldoawal = "call hitungplmonth(:vaccountcode,:vdate,:vcompanyid,@vplmonth,@vpllastmonth)";
+                }
+                $command1 = $connection->createCommand($sqlsaldoawal);
+                $command1->bindvalue(':vaccountcode', $row2['accformula'], PDO::PARAM_STR);
+                $command1->bindvalue(':vdate',date(Yii::app()->params['datetodb'],strtotime($date)), PDO::PARAM_STR);
+                $command1->bindvalue(':vcompanyid', $companyid, PDO::PARAM_STR);
+                $command1->execute();
+
+                $sqlpl = "select @vplmonth as month, @vpllastmonth as lastmonth"; 
+                $stmt1 = Yii::app()->db->createCommand($sqlpl); 
+                $stmt1->execute(); 
+                $pl = $stmt1->queryRow();
+
+                if($plantid != '') {
+                    $sqldebitcredit = "call hitungplakumplant(:vaccountcode,:vdate,:vcompanyid,@vplakum)";
+                }
+                else {
+                    $sqldebitcredit = "call hitungplakum(:vaccountcode,:vdate,:vcompanyid,@vplakum)";  
+                }
+                $command2 = $connection->createCommand($sqldebitcredit);
+                $command2->bindvalue(':vaccountcode', $row2['accformula'], PDO::PARAM_STR);
+                $command2->bindvalue(':vdate',date(Yii::app()->params['datetodb'],strtotime($date)), PDO::PARAM_STR);
+                $command2->bindvalue(':vcompanyid', $companyid, PDO::PARAM_STR);
+                $command2->execute();
+
+                $sqlakum = "select @vplakum as plakum"; 
+                $stmt2 = Yii::app()->db->createCommand($sqlakum); 
+                $stmt2->execute(); 
+                $akum = $stmt2->queryRow();
+
+
+                if($plantid != '') {
+                    $sqlbudget = "call hitungbudgetmonthplant(:vaccountcode,:vdate,:vcompanyid,@vbudgetmonth,@vbudgetlastmonth)";  
+                }
+                else {
+                    $sqlbudget = "call hitungbudgetmonth(:vaccountcode,:vdate,:vcompanyid,@vbudgetmonth,@vbudgetlastmonth)";
+                }
+                $command1 = $connection->createCommand($sqlbudget);
+                $command1->bindvalue(':vaccountcode', $row2['accformula'], PDO::PARAM_STR);
+                $command1->bindvalue(':vdate',date(Yii::app()->params['datetodb'],strtotime($date)), PDO::PARAM_STR);
+                $command1->bindvalue(':vcompanyid', $companyid, PDO::PARAM_STR);
+                $command1->execute();
+
+                $sqlbud = "select @vbudgetmonth as month, @vbudgetlastmonth as lastmonth"; 
+                $stmt1 = Yii::app()->db->createCommand($sqlbud); 
+                $stmt1->execute(); 
+                $budget = $stmt1->queryRow();
+
+                if($plantid != '') {
+                    $sqlbudakum = "call hitungbudgetakumplant(:vaccountcode,:vdate,:vcompanyid,@vbudgetakum)";
+                }
+                else { 
+                    $sqlbudakum = "call hitungbudgetakum(:vaccountcode,:vdate,:vcompanyid,@vbudgetakum)";
+                }
+                
+                $command2 = $connection->createCommand($sqlbudakum);
+                $command2->bindvalue(':vaccountcode', $row2['accformula'], PDO::PARAM_STR);
+                $command2->bindvalue(':vdate',date(Yii::app()->params['datetodb'],strtotime($date)), PDO::PARAM_STR);
+                $command2->bindvalue(':vcompanyid', $companyid, PDO::PARAM_STR);
+                $command2->execute();
+
+                $sqlakum = "select @vbudgetakum as akum"; 
+                $stmt2 = Yii::app()->db->createCommand($sqlakum); 
+                $stmt2->execute(); 
+                $budgetakum = $stmt2->queryRow();
+							
+                $excel
+                ->setCellValueByColumnAndRow($i+0, $k, $l)
+                ->setCellValueByColumnAndRow($i+1, $k, $row2['accountname']);
+
+							if($row2['accformula']=='' || $row2['accformula']=='-'){
+									
+							}else{
+                                if(($budget['month']==0) || ($budget['lastmonth']==0) || ($budgetakum['akum']==0))
+                                {
+                                    $penc1 = 0;
+                                    $penc2 = 0;
+                                    $penc3 = 0;
+                                }
+                                if($budget['month']!=0)
+                                {
+                                    $penc1 = $pl['month']/$budget['month'];
+                                }
+                                if($budget['lastmonth']!=0)
+                                {
+                                    $penc2 = $pl['lastmonth']/$budget['lastmonth'];
+                                }
+                                if($budgetakum['akum']!=0)
+                                {
+                                    $penc3 = $akum['plakum']/$budgetakum['akum'];
+                                }
+                                
+                                $percent1 = 0; $percent2=0; $percent3=0; $percent4=0; $percent5=0; $percent6=0;
+                                if($budnettnow>0) {
+                                    $percent1 = ($budget['month']/$budnettnow)*100;
+                                }
+                                if($actnettnow>0) {
+                                    $percent2 = ($pl['month']/$actnettnow)*100;
+                                }
+                                if($budnettlast>0) {
+                                    $percent3 = ($budget['lastmonth']/$budnettlast)*100;
+                                }
+                                if($actnettlast>0) {
+                                    $percent4 = ($pl['lastmonth']/$actnettlast)*100;
+                                }
+                                if($budnettakum>0) {
+                                    $percent5 = ($budgetakum['akum']/$budnettakum)*100;
+                                }
+                                if($actnettakum>0) {
+                                    $percent6 = ($akum['plakum']/$actnettakum)*100;
+                                }
+                                
+                                $excel
+                                ->setCellValueByColumnAndRow($i+2, $k, $budget['month']/$per)
+                                ->setCellValueByColumnAndRow($i+3, $k, $percent1)
+                                ->setCellValueByColumnAndRow($i+4, $k, $pl['month']/$per)
+                                ->setCellValueByColumnAndRow($i+5, $k, $percent2)
+                                ->setCellValueByColumnAndRow($i+6, $k, $penc1*100)
+                                ->setCellValueByColumnAndRow($i+7, $k, $budget['lastmonth']/$per)
+                                ->setCellValueByColumnAndRow($i+8, $k, $percent3)
+                                ->setCellValueByColumnAndRow($i+9, $k, $pl['lastmonth']/$per)
+                                ->setCellValueByColumnAndRow($i+10, $k, $percent4)
+                                ->setCellValueByColumnAndRow($i+11, $k, $penc2*100)
+                                ->setCellValueByColumnAndRow($i+12, $k, $budgetakum['akum']/$per)
+                                ->setCellValueByColumnAndRow($i+13, $k, $percent5)
+                                ->setCellValueByColumnAndRow($i+14, $k, $akum['plakum']/$per)
+                                ->setCellValueByColumnAndRow($i+15, $k, $percent6)
+                                ->setCellValueByColumnAndRow($i+16, $k, $penc3*100);
+							}
+
+							$subbudmonth = $subbudmonth + $budget['month'];
+              $subactmonth = $subactmonth + $pl['month'];
+              $subbudlast = $subbudlast + $budget['lastmonth'];
+              $subactlast = $subactlast + $pl['lastmonth'];
+              $subbudakum = $subbudakum + $budgetakum['akum'];
+              $subactakum = $subactakum + $akum['plakum'];
+					}else{
+              if($budnettnow == 0){$perbudmonth = 0;}else{$perbudmonth=$subbudmonth/$budnettnow;}
+              if($actnettnow == 0){$peractmonth = 0;}else{$peractmonth=$subbudmonth/$actnettnow;}
+              if($subbudmonth == 0){$pencmonth = 0;}else{$pencmonth=$subactmonth/$subbudmonth;}
+              if($budnettlast == 0){$perbudlast = 0;}else{$perbudlast=$subbudlast/$budnettlast;}
+              if($actnettlast == 0){$peractlast = 0;}else{$peractlast=$subactlast/$actnettlast;}
+              if($subbudlast == 0){$penclast = 0;}else{$penclast=$subactlast/$subbudlast;}
+              if($subbudakum == 0){$pencakum = 0;}else{$pencakum=$subactakum/$subbudakum;}
+								
+							$excel
+                                ->setCellValueByColumnAndRow($i+2, $k, $subbudmonth/$per)
+                                ->setCellValueByColumnAndRow($i+3, $k, ($perbudmonth)*100)
+                                ->setCellValueByColumnAndRow($i+4, $k, $subactmonth/$per)
+                                ->setCellValueByColumnAndRow($i+5, $k, ($peractmonth)*100)
+                                ->setCellValueByColumnAndRow($i+6, $k, ($pencmonth)*100)
+                                ->setCellValueByColumnAndRow($i+7, $k, $subbudlast/$per)
+                                ->setCellValueByColumnAndRow($i+8, $k, ($perbudlast)*100)
+                                ->setCellValueByColumnAndRow($i+9, $k, $subactlast/$per)
+                                ->setCellValueByColumnAndRow($i+10, $k, ($peractlast)*100)
+                                ->setCellValueByColumnAndRow($i+11, $k, ($penclast)*100)
+                                ->setCellValueByColumnAndRow($i+12, $k, $subbudakum/$per)
+                                ->setCellValueByColumnAndRow($i+13, $k, $subactakum/$per)
+                                ->setCellValueByColumnAndRow($i+14, $k, ($pencakum)*100);
+							
+							
+                            $subbudmonth = 0;
+                            $subactmonth = 0;
+                            $subbudlast = 0;
+                            $subactlast = 0;
+                            $subbudakum = 0;
+                            $subactakum = 0;
+					}
+					$k++;
+					$l++;
+        }
+          $x++;
+       
+    }
+    $this->getFooterXLS($this->phpExcel);  
+  }
+/*  public function actionDownXlsPL1()	{
+      parent::actionDownXls();
+      //$this->menuname = 'lampiranlabarugi';
+      $companyid = $_GET['company'];
+      $plantid = $_GET['plant'];
+      $date = $_GET['date'];
+      $saldoawal = 0;
+      $saldoakhir = 0;
+      $per = $_GET['per'];
+      $connection = Yii::app()->db;
       $sqldata1 = "select t.*, a.companyname, b.accountname, substr(b.accountname,1,30) as sheettitle ";
       $sqlcount1 = "select count(1) as total ";
       $from = "from att t 
@@ -2898,4 +3249,4 @@ class AttController extends Controller {
     }
     $this->getFooterXLS($this->phpExcel);  
   }
-}
+*/}

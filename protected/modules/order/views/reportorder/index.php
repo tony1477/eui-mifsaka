@@ -6,76 +6,81 @@
 	<td><?php echo GetCatalog('reporttype')?><td>
 	<td><select class="easyui-combobox" id="listrepsales" name="listrepsales" data-options="required:true" style="width:600px;">
 			<option value="1">1.1.Rincian Penjualan Per Dokumen</option>
-      <option value="2">1.2.Rekap Penjualan Per Dokumen</option>
-      <option value="3">1.3.Rekap Penjualan Per Customer</option>
-      <option value="4">1.4.Rekap Penjualan Per Sales</option>
-      <option value="5">1.5.Rekap Penjualan Per Barang</option>
-      <option value="6">1.6.Rekap Penjualan Per Area</option>
-      <option value="7">1.7.Rekap Penjualan Per Customer Per Barang (Total)</option>
-      <option value="8">1.8.Rekap Penjualan Per Customer Per Barang (Rincian)</option>
-      <option value="9">1.9.Rekap Penjualan Per Sales Per Barang (Total)</option>
-      <option value="10">1.10.Rekap Penjualan Per Sales Per Barang (Rincian)</option>
-      <option value="11">1.11.Rekap Penjualan Per Area Per Barang (Total)</option>
-      <option value="12">1.12.Rekap Penjualan Per Area Per Barang (Rincian)</option>
-      <option value="40">1.13.Rekap Penjualan Per Customer Per Bulan Per Tahun</option>
-      <option value="43">1.14.Rekap Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="46">1.15.Rekap Total Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="49">1.16.Rekap Penjualan Per Barang Per Bulan (Qty)</option>
-      <option value="50">1.17.Rekap Penjualan Per Barang Per Bulan (Nilai)</option>
-      <option value="51">1.18.Rekap Penjualan Per Barang Per Bulan (Nilai & Qty)</option>
-      <option value="13">2.1.Rincian Retur Penjualan Per Dokumen</option>
-      <option value="14">2.2.Rekap Retur Penjualan Per Dokumen</option>
-      <option value="15">2.3.Rekap Retur Penjualan Per Customer</option>
-      <option value="16">2.4.Rekap Retur Penjualan Per Sales</option>
-      <option value="17">2.5.Rekap Retur Penjualan Per Barang</option>
-      <option value="18">2.6.Rekap Retur Penjualan Per Area</option>
-      <option value="19">2.7.Rekap Retur Penjualan Per Customer Per Barang (Total)</option>
-      <option value="20">2.8.Rekap Retur Penjualan Per Customer Per Barang (Rincian)</option>
-      <option value="21">2.9.Rekap Retur Penjualan Per Sales Per Barang (Total)</option>
-      <option value="22">2.10.Rekap Retur Penjualan Per Sales Per Barang (Rincian)</option>
-      <option value="23">2.11.Rekap Retur Penjualan Per Area Per Barang (Total)</option>
-      <option value="24">2.12.Rekap Retur Penjualan Per Area Per Barang (Rincian)</option>
-      <option value="41">2.13.Rekap Retur Penjualan Per Customer Per Bulan Per Tahun</option>
-      <option value="44">2.14.Rekap Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="47">2.15.Rekap Total Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="25">3.1.Rincian Penjualan - Retur Per Dokumen</option>
-      <option value="26">3.2.Rekap Penjualan - Retur Per Dokumen</option>
-      <option value="27">3.3.Rekap Penjualan - Retur Per Customer</option>
-      <option value="28">3.4.Rekap Penjualan - Retur Per Sales</option>
-      <option value="29">3.5.Rekap Penjualan - Retur Per Barang</option>
-      <option value="30">3.6.Rekap Penjualan - Retur Per Area</option>
-      <option value="31">3.7.Rekap Penjualan - Retur Per Barang Customer (Total)</option>
-      <option value="32">3.8.Rekap Penjualan - Retur Per Barang Per Customer (Rincian)</option>
-      <option value="33">3.9.Rekap Penjualan - Retur Per Sales Per Barang (Total)</option>
-      <option value="34">3.10.Rekap Penjualan - Retur Per Sales Per Barang (Rincian)</option>
-      <option value="35">3.11.Rekap Penjualan - Retur Per Area (Total)</option>
-      <option value="36">3.12.Rekap Penjualan - Retur Per Area (Rincian)</option>
-      <option value="42">3.13.Rekap Penjualan - Retur Penjualan Per Customer Per Bulan Per Tahun</option>
-      <option value="45">3.14.Rekap Penjualan Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="48">3.15.Rekap Total Penjualan - Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
-      <option value="52">3.19.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Total Nilai</option>
-      <option value="53">3.20.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Rincian Nilai</option>
-      <option value="54">3.21.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Total Qty</option>
-      <option value="55">3.22.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Rincian Qty</option>
-      <option value="58">3.23.Rekap Penjualan - Retur Per Sales Per Bulan Per Tahun Total</option>
-      <option value="59">3.24.Rekap Penjualan - Retur Per Sales Per Barang Per Bulan Per Tahun Total</option>
-      <option value="60">3.25.Rekap Penjualan - Retur Per Sales Per Customer Per Bulan Per Tahun Total</option>
-      <option value="61">3.26.Rekap Penjualan - Retur Area, Customer, Barang Per Bulan Per Tahun Rincian Nilai</option>
-      <option value="62">3.27.Rekap Penjualan - Retur Area, Customer, Barang Per Bulan Per Tahun Rincian Qty</option>
-      <option value="85">3.28.Laporan Penjualan - Retur Per Cabang Per Sales Per Group Material FG</option>
-      <option value="90">3.29.Rekap Penjualan - Retur Per Customer Per Jenis Material Per Bulan Per Tahun Total Nilai</option>
-      <option value="37">4.1.Rincian Sales Order Per Dokumen</option>
-      <option value="38">4.2.Rincian Sales Order Outstanding</option>
-      <option value="56">4.3.Rekap Sales Order Outstanding Per Barang</option>
-      <option value="91">4.4.Rekap Sales Order Outstanding Per Tanggal Kirim Per Barang</option>
-      <option value="39">5.1.Rekap Surat Jalan Belum Dibuatkan Faktur</option>
-      <option value="63">6.1.Laporan Customer Belum Lengkap Lokasi</option>
+			<option value="2">1.2.Rekap Penjualan Per Dokumen</option>
+			<option value="3">1.3.Rekap Penjualan Per Customer</option>
+			<option value="4">1.4.Rekap Penjualan Per Sales</option>
+			<option value="5">1.5.Rekap Penjualan Per Barang</option>
+			<option value="6">1.6.Rekap Penjualan Per Area</option>
+			<option value="7">1.7.Rekap Penjualan Per Customer Per Barang (Total)</option>
+			<option value="8">1.8.Rekap Penjualan Per Customer Per Barang (Rincian)</option>
+			<option value="9">1.9.Rekap Penjualan Per Sales Per Barang (Total)</option>
+			<option value="10">1.10.Rekap Penjualan Per Sales Per Barang (Rincian)</option>
+			<option value="11">1.11.Rekap Penjualan Per Area Per Barang (Total)</option>
+			<option value="12">1.12.Rekap Penjualan Per Area Per Barang (Rincian)</option>
+			<option value="40">1.13.Rekap Penjualan Per Customer Per Bulan Per Tahun</option>
+			<option value="43">1.14.Rekap Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="46">1.15.Rekap Total Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="49">1.16.Rekap Penjualan Per Barang Per Bulan (Qty)</option>
+			<option value="50">1.17.Rekap Penjualan Per Barang Per Bulan (Nilai)</option>
+			<option value="51">1.18.Rekap Penjualan Per Barang Per Bulan (Nilai & Qty)</option>
+			<option value="13">2.1.Rincian Retur Penjualan Per Dokumen</option>
+			<option value="14">2.2.Rekap Retur Penjualan Per Dokumen</option>
+			<option value="15">2.3.Rekap Retur Penjualan Per Customer</option>
+			<option value="16">2.4.Rekap Retur Penjualan Per Sales</option>
+			<option value="17">2.5.Rekap Retur Penjualan Per Barang</option>
+			<option value="18">2.6.Rekap Retur Penjualan Per Area</option>
+			<option value="19">2.7.Rekap Retur Penjualan Per Customer Per Barang (Total)</option>
+			<option value="20">2.8.Rekap Retur Penjualan Per Customer Per Barang (Rincian)</option>
+			<option value="21">2.9.Rekap Retur Penjualan Per Sales Per Barang (Total)</option>
+			<option value="22">2.10.Rekap Retur Penjualan Per Sales Per Barang (Rincian)</option>
+			<option value="23">2.11.Rekap Retur Penjualan Per Area Per Barang (Total)</option>
+			<option value="24">2.12.Rekap Retur Penjualan Per Area Per Barang (Rincian)</option>
+			<option value="41">2.13.Rekap Retur Penjualan Per Customer Per Bulan Per Tahun</option>
+			<option value="44">2.14.Rekap Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="47">2.15.Rekap Total Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="25">3.1.Rincian Penjualan - Retur Per Dokumen</option>
+			<option value="26">3.2.Rekap Penjualan - Retur Per Dokumen</option>
+			<option value="27">3.3.Rekap Penjualan - Retur Per Customer</option>
+			<option value="28">3.4.Rekap Penjualan - Retur Per Sales</option>
+			<option value="29">3.5.Rekap Penjualan - Retur Per Barang</option>
+			<option value="30">3.6.Rekap Penjualan - Retur Per Area</option>
+			<option value="31">3.7.Rekap Penjualan - Retur Per Barang Customer (Total)</option>
+			<option value="32">3.8.Rekap Penjualan - Retur Per Barang Per Customer (Rincian)</option>
+			<option value="33">3.9.Rekap Penjualan - Retur Per Sales Per Barang (Total)</option>
+			<option value="34">3.10.Rekap Penjualan - Retur Per Sales Per Barang (Rincian)</option>
+			<option value="35">3.11.Rekap Penjualan - Retur Per Area (Total)</option>
+			<option value="36">3.12.Rekap Penjualan - Retur Per Area (Rincian)</option>
+			<option value="42">3.13.Rekap Penjualan - Retur Penjualan Per Customer Per Bulan Per Tahun</option>
+			<option value="45">3.14.Rekap Penjualan Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="48">3.15.Rekap Total Penjualan - Retur Penjualan Per Jenis Customer Per Bulan Per Tahun</option>
+			<option value="52">3.19.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Total Nilai</option>
+			<option value="53">3.20.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Rincian Nilai</option>
+			<option value="54">3.21.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Total Qty</option>
+			<option value="55">3.22.Rekap Penjualan - Retur Per Customer Per Barang Per Bulan Per Tahun Rincian Qty</option>
+			<option value="58">3.23.Rekap Penjualan - Retur Per Sales Per Bulan Per Tahun Total</option>
+			<option value="59">3.24.Rekap Penjualan - Retur Per Sales Per Barang Per Bulan Per Tahun Total</option>
+			<option value="60">3.25.Rekap Penjualan - Retur Per Sales Per Customer Per Bulan Per Tahun Total</option>
+			<option value="61">3.26.Rekap Penjualan - Retur Area, Customer, Barang Per Bulan Per Tahun Rincian Nilai</option>
+			<option value="62">3.27.Rekap Penjualan - Retur Area, Customer, Barang Per Bulan Per Tahun Rincian Qty</option>
+			<option value="85">3.28.Laporan Penjualan - Retur Per Cabang Per Sales Per Group Material FG</option>
+			<option value="90">3.29.Rekap Penjualan - Retur Per Customer Per Jenis Material Per Bulan Per Tahun Total Nilai</option>
+			<option value="92">3.30.Rekap Penjualan - Retur Per Jenis Material Per Kasta Per Bulan</option>
+			<option value="93">3.31.Rekap Penjualan - Retur Per Kasta Per Group Material</option>
+			<option value="94">3.32.Rekap Penjualan - Retur Market Area, Customer, Barang Per Bulan - Rincian (Nilai)</option>
+			<option value="95">3.33.Rekap Penjualan - Retur Market Area, Customer, Barang Per Bulan - Rincian (Qty)</option>
+			<option value="37">4.1.Rincian Sales Order Per Dokumen</option>
+			<option value="38">4.2.Rincian Sales Order Outstanding</option>
+			<option value="56">4.3.Rekap Sales Order Outstanding Per Barang</option>
+			<option value="91">4.4.Rekap Sales Order Outstanding Per Tanggal Kirim Per Barang</option>
+			<option value="96">4.5.Rincian SO Paket Outstanding (Belum Terkirim Semua Barang Dalam Paket)</option>
+			<option value="39">5.1.Rekap Surat Jalan Belum Dibuatkan Faktur</option>
+			<option value="63">6.1.Laporan Customer Belum Lengkap Lokasi</option>
 			<option value="67">6.2.Laporan Customer Sudah Lengkap Lokasi</option>
-      <option value="64">6.3.Laporan Customer Belum Lengkap Foto</option>
+			<option value="64">6.3.Laporan Customer Belum Lengkap Foto</option>
 			<option value="68">6.4.Laporan Customer Sudah Lengkap Foto</option>
-      <option value="65">6.5.Laporan Customer Belum Ada KTP</option>
+			<option value="65">6.5.Laporan Customer Belum Ada KTP</option>
 			<option value="69">6.6.Laporan Customer Sudah Ada KTP</option>
-      <option value="66">6.7.Laporan Customer Belum Ada NPWP</option>
+			<option value="66">6.7.Laporan Customer Belum Ada NPWP</option>
 			<option value="70">6.8.Laporan Customer Sudah Ada NPWP</option>
 			<option value="81">6.9.Laporan Customer Belum Ada Kategori Customer</option>
 			<option value="82">6.10.Laporan Customer Sudah Ada Kategori Customer</option>
@@ -87,9 +92,9 @@
 			<option value="86">7.3.Rekap Realisasi Penjualan SPV Per Sales Per Group Material</option>
 			<option value="88">7.4.Rekap Sales Target Per Barang</option>
 			<option value="73">7.5.Rekap Penjualan VS Hasil Produksi VS Saldo Akhir</option>
-      <option value="57">8.1.	Rekap SO Per Dokumen Belum Status Max</option>
-      <option value="74">8.2.	Rekap TTNT Per Dokumen Belum Status Max</option>
-      <option value="75">8.3.	Rekap TTF Per Dokumen Belum Status Max</option>
+			<option value="57">8.1.	Rekap SO Per Dokumen Belum Status Max</option>
+			<option value="74">8.2.	Rekap TTNT Per Dokumen Belum Status Max</option>
+			<option value="75">8.3.	Rekap TTF Per Dokumen Belum Status Max</option>
 			<option value="76">8.4.Rekap Skala Komisi Penjualan Per Dokumen Belum Status Max</option>
 			<option value="77">8.5.Rekap Target Penjualan Per Dokumen Belum Status Max</option>
 			<option value="78">8.6.Rekap Perubahan Plafon Per Dokumen Belum Status Max</option>
@@ -150,7 +155,7 @@
 								pagination:true,
 								mode:'remote',
 								required:false,
-								url: '<?php echo Yii::app()->createUrl('common/materialgroup/indexfg',array('grid'=>true,'combo'=>true)) ?>',
+								url: '<?php echo Yii::app()->createUrl('common/materialgroup/indextrx',array('grid'=>true,'combo'=>true)) ?>',
 								method: 'get',
 								columns: [[
 										{field:'materialgroupid',title:'<?php echo GetCatalog('materialgroupid') ?>'},
@@ -283,16 +288,16 @@ hide: function(jq){
 }
 })
 
-var repsalessloc =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","42","49","50","51","52","53","54","55","56","58","59","60","61","62","80","85","90"];
-var repsalesmaterialgroup =  ["5","17","29","85"];
-var repsalescustomer =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","67","68","81","82","83","84","85","89","90","91"];
-var repsalessales =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","57","58","59","60","61","62","71","72","73","85","90","91"];
-var repsalesspv =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","61","62","79","86","90"];
-var repsalesproduct =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","58","59","60","61","62","85","90","91"];
-var repsalessalesarea =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","42","43","49","50","51","52","53","54","55","56","58","59","60","61","62","63","64","65","67","68","81","82","83","84","85","89","90"];
-var repsalesdisplay =  ["1","2","3","4","5","6","25","26","27","28","29","30","31","32","33","34","35","36","37","38","42","45","48","52","80"];
-var repsalesstart =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","61","62","63","64","67","68","74","75","76","77","78","80","85","87","88","90","91"];
-var repsalesend =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91"];
+var repsalessloc =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","42","49","50","51","52","53","54","55","56","58","59","60","61","62","80","85","90","93","94","95","96"];
+var repsalesmaterialgroup =  ["5","17","29","52","53","85","93"];
+var repsalescustomer =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","67","68","81","82","83","84","85","89","90","91","93","94","95","96"];
+var repsalessales =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","57","58","59","60","61","62","71","72","73","85","90","91","93","94","95"];
+var repsalesspv =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","61","62","79","86","90","92","93","94","95"];
+var repsalesproduct =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","49","50","51","52","53","54","55","56","58","59","60","61","62","85","90","91","93","94","95","96"];
+var repsalessalesarea =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","42","43","49","50","51","52","53","54","55","56","58","59","60","61","62","63","64","65","67","68","81","82","83","84","85","89","90","93","94","95","96"];
+var repsalesdisplay =  ["1","2","3","4","5","6","7","25","26","27","28","29","30","31","32","33","34","35","36","37","38","42","45","48","52","80","92","93"];
+var repsalesstart =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","61","62","63","64","67","68","74","75","76","77","78","80","85","87","88","90","91","92","93","96"];
+var repsalesend =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","93","94","95","96"];
 
 $(document).ready(function(){
     $('#listrepsales').combobox({

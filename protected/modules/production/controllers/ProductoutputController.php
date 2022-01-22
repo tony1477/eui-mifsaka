@@ -121,7 +121,7 @@ class ProductoutputController extends Controller
 				)
 				and t.recordstatus < {$maxstat}
 				and t.recordstatus in (".getUserRecordStatus('listop').") 
-				and t.companyid in (".getUserObjectValues('company').")";
+				and t.companyid in (".getUserObjectWfValues('company','appop').")";
 		$sqlcount = ' select count(1) as total '.$from.' '.$where;
 		$sql = ' 
 			select t.productoutputid,t.productplanid,t.productplanno,t.productoutputno,t.productoutputdate,t.description,t.companyname,

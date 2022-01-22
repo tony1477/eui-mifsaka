@@ -34,7 +34,7 @@ class CityController extends Controller {
 				->select('count(1) as total')	
 				->from('city t')
 				->join('province p', 't.provinceid=p.provinceid')
-				->where('(cityid like :cityid) or (citycode like :citycode) or (cityname like :cityname) or (p.provincename like :provincename)',
+				->where('(cityid like :cityid) and (citycode like :citycode) and (cityname like :cityname) and (p.provincename like :provincename)',
 						array(':cityid'=>'%'.$cityid.'%',':citycode'=>'%'.$citycode.'%',':cityname'=>'%'.$cityname.'%',':provincename'=>'%'.$provincename.'%'))
 				->queryScalar();
 		}
@@ -53,7 +53,7 @@ class CityController extends Controller {
 				->select('t.*,p.provincename')			
 				->from('city t')
 				->join('province p', 't.provinceid=p.provinceid')
-				->where('(cityid like :cityid) or (citycode like :citycode) or (cityname like :cityname) or (p.provincename like :provincename)',
+				->where('(cityid like :cityid) and (citycode like :citycode) and (cityname like :cityname) and (p.provincename like :provincename)',
 						array(':cityid'=>'%'.$cityid.'%',':citycode'=>'%'.$citycode.'%',':cityname'=>'%'.$cityname.'%',':provincename'=>'%'.$provincename.'%'))
 				->offset($offset)
 				->limit($rows)

@@ -131,6 +131,7 @@ class ProductplanController extends Controller
 				and (t.productplanid like '%".$productplanid."%') 
 				and (coalesce(b.fullname,'') like '%".$customer."%') and (coalesce(d.fullname,'') like '%".$foreman."%') and (coalesce(t.description,'') like '%".$description."%') 
 				and t.recordstatus in (".getUserRecordStatus('listprodplan').")
+				and t.companyid in (".getUserObjectWfValues('company','appprodplan').")
 				-- and t.recordstatus < {$maxstat}
         and t.companyid in (".getUserObjectValues('company').")
 				and t.productplanid in (select distinct a1.productplanid from productplanfg a1 WHERE a1.qty <> a1.qtyres AND a1.productplanid IS NOT null)

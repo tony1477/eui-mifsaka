@@ -51,7 +51,6 @@ class MaterialgroupController extends Controller {
 			$cmd = Yii::app()->db->createCommand()
 				->select('count(1) as total')	
 				->from('materialgroup t')
-				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
 				->where("((coalesce(t.materialgroupid,'') like :materialgroupid) and (coalesce(t.materialgroupcode,'') like :materialgroupcode) and (coalesce(t.description,'') like :description) and (coalesce(t.parentmatgroupid,'') like :parentmatgroup))",
 					array(':materialgroupcode'=>'%'.$materialgroupcode.'%',
 						':description'=>'%'.$description.'%',
@@ -64,7 +63,6 @@ class MaterialgroupController extends Controller {
 			$cmd = Yii::app()->db->createCommand()
 				->select('count(1) as total')	
 				->from('materialgroup t')
-				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
 				->where("((coalesce(t.materialgroupid,'') like :materialgroupid) and (coalesce(t.materialgroupcode,'') like :materialgroupcode) and (coalesce(t.description,'') like :description) and (coalesce(t.parentmatgroupid,'') like :parentmatgroup)) and t.recordstatus=1",
 					array(':materialgroupcode'=>'%'.$materialgroupcode.'%',
 						':description'=>'%'.$description.'%',
@@ -76,9 +74,8 @@ class MaterialgroupController extends Controller {
 		$result['total'] = $cmd;
 		if (!isset($_GET['combo'])) {
 			$cmd = Yii::app()->db->createCommand()
-				->select('t.*,a.materialtypecode,a.description as materialtypedesc,(select description from materialgroup z where z.materialgroupid = t.parentmatgroupid) as parentmatdesc')	
+				->select('t.*,(select description from materialgroup z where z.materialgroupid = t.parentmatgroupid) as parentmatdesc')	
 				->from('materialgroup t')
-				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
 				->where("((coalesce(t.materialgroupid,'') like :materialgroupid) and (coalesce(t.materialgroupcode,'') like :materialgroupcode) and (coalesce(t.description,'') like :description) and (coalesce(t.parentmatgroupid,'') like :parentmatgroup))",
 					array(':materialgroupcode'=>'%'.$materialgroupcode.'%',
 						':description'=>'%'.$description.'%',
@@ -92,9 +89,8 @@ class MaterialgroupController extends Controller {
 		}
 		else {
 			$cmd = Yii::app()->db->createCommand()
-				->select('t.*,a.materialtypecode,a.description as materialtypedesc,(select description from materialgroup z where z.materialgroupid = t.parentmatgroupid) as parentmatdesc')	
+				->select('t.*,(select description from materialgroup z where z.materialgroupid = t.parentmatgroupid) as parentmatdesc')	
 				->from('materialgroup t')
-				->leftjoin('materialtype a','a.materialtypeid = t.materialtypeid')
 				->where("((coalesce(t.materialgroupid,'') like :materialgroupid) and (coalesce(t.materialgroupcode,'') like :materialgroupcode) and (coalesce(t.description,'') like :description) and (coalesce(t.parentmatgroupid,'') like :parentmatgroup)) and t.recordstatus=1",
 					array(':materialgroupcode'=>'%'.$materialgroupcode.'%',
 						':description'=>'%'.$description.'%',
@@ -114,9 +110,6 @@ class MaterialgroupController extends Controller {
 				'parentmatgroupid'=>$data['parentmatgroupid'],
 				'parentmatgroupdesc'=>$data['parentmatdesc'],
 				'isfg'=>$data['isfg'],
-				'materialtypeid'=>$data['materialtypeid'],
-				'materialtypecode'=>$data['materialtypecode'],
-				'materialtypedesc'=>$data['materialtypedesc'],
 				'recordstatus'=>$data['recordstatus'],
 			);
 		}
@@ -248,11 +241,11 @@ class MaterialgroupController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql = 'call Insertmaterialgroup(:vmaterialgroupcode,:vparentmatgroupid,:vdescription,:visfg,:vmaterialtypeid,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Insertmaterialgroup(:vmaterialgroupcode,:vparentmatgroupid,:vdescription,:visfg,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
-			$sql = 'call Updatematerialgroup(:vid,:vmaterialgroupcode,:vparentmatgroupid,:vdescription,:visfg,:vmaterialtypeid,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Updatematerialgroup(:vid,:vmaterialgroupcode,:vparentmatgroupid,:vdescription,:visfg,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
@@ -261,8 +254,7 @@ class MaterialgroupController extends Controller {
 		$command->bindvalue(':vdescription',$arraydata[2],PDO::PARAM_STR);
 		$command->bindvalue(':vparentmatgroupid',$arraydata[3],PDO::PARAM_STR);
 		$command->bindvalue(':visfg',$arraydata[4],PDO::PARAM_STR);
-		$command->bindvalue(':vmaterialtypeid',$arraydata[5],PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus',$arraydata[6],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[5],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();			
 	}
@@ -286,10 +278,8 @@ class MaterialgroupController extends Controller {
 					$parentmatgroup = $objWorksheet->getCellByColumnAndRow(3, $row)->getValue();
 					$parentid = Yii::app()->db->createCommand("select materialgroupid from materialgroup where materialgroupcode = '".$parentmatgroup."'")->queryScalar();
 					$isfg = $objWorksheet->getCellByColumnAndRow(4, $row)->getValue();
-					$materialtypedesc = $objWorksheet->getCellByColumnAndRow(5, $row)->getValue();
-					$materialtypeid = Yii::app()->db->createCommand("select materialtypeid from materialtype where description = '".$materialtypedesc."'")->queryScalar();
-					$recordstatus = $objWorksheet->getCellByColumnAndRow(6, $row)->getValue();
-					$this->ModifyData($connection,array($id,$materialgroupcode,$description,$parentid,$isfg,$materialtypeid,$recordstatus));
+					$recordstatus = $objWorksheet->getCellByColumnAndRow(5, $row)->getValue();
+					$this->ModifyData($connection,array($id,$materialgroupcode,$description,$parentid,$isfg,$recordstatus));
 				}
 				$transaction->commit();
 				GetMessage(false,'insertsuccess');
@@ -305,7 +295,7 @@ class MaterialgroupController extends Controller {
 		$connection=Yii::app()->db;
 		$transaction=$connection->beginTransaction();
 		try {
-			$this->ModifyData($connection,array((isset($_POST['materialgroupid'])?$_POST['materialgroupid']:''),$_POST['materialgroupcode'],$_POST['description'],$_POST['parentmatgroupid'],$_POST['isfg'],$_POST['materialtypeid'],$_POST['recordstatus']));
+			$this->ModifyData($connection,array((isset($_POST['materialgroupid'])?$_POST['materialgroupid']:''),$_POST['materialgroupcode'],$_POST['description'],$_POST['parentmatgroupid'],$_POST['isfg'],$_POST['recordstatus']));
 			$transaction->commit();
 			GetMessage(false,'insertsuccess');
 		}
@@ -343,18 +333,14 @@ class MaterialgroupController extends Controller {
 	  $sql = "select a.materialgroupid,a.materialgroupcode,a.description,
 						ifnull((select z.description from materialgroup z where z.materialgroupid = a.parentmatgroupid),'-')as parentmatgroup,
 						case when a.isfg = 1 then 'Yes' else 'No' end as isfg,
-						b.description as materialtypedesc,
 						case when a.recordstatus = 1 then 'Yes' else 'No' end as recordstatus
-						from materialgroup a
-						left join materialtype b on b.materialtypeid = a.materialtypeid ";
+						from materialgroup a ";
 		$materialgroupid = filter_input(INPUT_GET,'materialgroupid');
 		$materialgroupcode = filter_input(INPUT_GET,'materialgroupcode');
 		$description = filter_input(INPUT_GET,'description');
-		$materialtypedesc = filter_input(INPUT_GET,'materialtypedesc');
 		$sql .= " where coalesce(a.materialgroupid,'') like '%".$materialgroupid."%' 
 			and coalesce(a.materialgroupcode,'') like '%".$materialgroupcode."%'
 			and coalesce(a.description,'') like '%".$description."%'
-			and coalesce(b.description,'') like '%".$materialtypedesc."%'
 			";
 		if ($_GET['id'] !== '') {
 				$sql = $sql . " and a.materialgroupid in (".$_GET['id'].")";
@@ -365,20 +351,19 @@ class MaterialgroupController extends Controller {
 		$this->pdf->title=GetCatalog('materialgroup');
 		$this->pdf->AddPage('P',array(350,250));
 		$this->pdf->setFont('Arial','B',10);
-		$this->pdf->colalign = array('L','L','L','L','L','L','L');
+		$this->pdf->colalign = array('L','L','L','L','L','L');
 		$this->pdf->colheader = array(GetCatalog('materialgroupid'),
 																	GetCatalog('materialgroupcode'),
 																	GetCatalog('description'),
 																	GetCatalog('parentmatgroup'),
 																	GetCatalog('isfg'),
-																	GetCatalog('materialtypedesc'),
 																	GetCatalog('recordstatus'));
-		$this->pdf->setwidths(array(15,55,95,95,15,30,20));
+		$this->pdf->setwidths(array(15,55,95,95,15,20));
 		$this->pdf->Rowheader();
 		$this->pdf->setFont('Arial','',10);
-		$this->pdf->coldetailalign = array('L','L','L','L','L','L','L');
+		$this->pdf->coldetailalign = array('L','L','L','L','L','L');
 		foreach($dataReader as $row1) {
-		  $this->pdf->row(array($row1['materialgroupid'],$row1['materialgroupcode'],$row1['description'],$row1['parentmatgroup'],$row1['isfg'],$row1['materialtypedesc'],$row1['recordstatus']));
+		  $this->pdf->row(array($row1['materialgroupid'],$row1['materialgroupcode'],$row1['description'],$row1['parentmatgroup'],$row1['isfg'],$row1['recordstatus']));
 		}
 		$this->pdf->Output();
 	}
@@ -388,10 +373,8 @@ class MaterialgroupController extends Controller {
 		$sql = "select a.materialgroupid,a.materialgroupcode,a.description,
 						ifnull((select z.description from materialgroup z where z.materialgroupid = a.parentmatgroupid),'-')as parentmatgroup,
 						case when a.isfg = 1 then 'Yes' else 'No' end as isfg,
-						b.description as materialtypedesc,
 						case when a.recordstatus = 1 then 'Yes' else 'No' end as recordstatus
-						from materialgroup a
-						left join materialtype b on b.materialtypeid = a.materialtypeid ";
+						from materialgroup a ";
 		$materialgroupid = filter_input(INPUT_GET,'materialgroupid');
 		$materialgroupcode = filter_input(INPUT_GET,'materialgroupcode');
 		$description = filter_input(INPUT_GET,'description');
@@ -411,8 +394,7 @@ class MaterialgroupController extends Controller {
 			->setCellValueByColumnAndRow(2,2,GetCatalog('description'))
 			->setCellValueByColumnAndRow(3,2,GetCatalog('parentmatgroup'))
 			->setCellValueByColumnAndRow(4,2,GetCatalog('isfg'))
-			->setCellValueByColumnAndRow(5,2,GetCatalog('materialtypedesc'))
-			->setCellValueByColumnAndRow(6,2,GetCatalog('recordstatus'));
+			->setCellValueByColumnAndRow(5,2,GetCatalog('recordstatus'));
 		foreach($dataReader as $row1) {
 			$this->phpExcel->setActiveSheetIndex(0)
 				->setCellValueByColumnAndRow(0, $i+1, $row1['materialgroupid'])
@@ -420,8 +402,7 @@ class MaterialgroupController extends Controller {
 				->setCellValueByColumnAndRow(2, $i+1, $row1['description'])
 				->setCellValueByColumnAndRow(3, $i+1, $row1['parentmatgroup'])
 				->setCellValueByColumnAndRow(4, $i+1, $row1['isfg'])
-				->setCellValueByColumnAndRow(5, $i+1, $row1['materialtypedesc'])
-				->setCellValueByColumnAndRow(6, $i+1, $row1['recordstatus']);
+				->setCellValueByColumnAndRow(5, $i+1, $row1['recordstatus']);
 			$i+=1;
 		}
 		$this->getFooterXLS($this->phpExcel);	

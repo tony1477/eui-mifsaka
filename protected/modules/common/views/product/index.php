@@ -90,7 +90,12 @@
         {
 			field:'k3lnumber',
 			title:'". GetCatalog('k3lnumber') ."',
-			editor:'text',
+			editor:{
+				type:'textbox',
+				options:{
+					required:true,
+				}
+			},
 			width:'150px',
 			sortable: true,
 			formatter: function(value,row,index){
@@ -245,6 +250,23 @@
 			sortable: true,
 			formatter: function(value,row,index){
 				return row.seriesdesc;
+		}},
+    {
+			field:'leadtime',
+			title:'". GetCatalog('leadtime') ."',
+			width:'100px',
+			editor:{
+				type:'numberbox',
+				options:{
+				precision:2,
+				decimalSeparator:',',
+				groupSeparator:'.',
+				}
+			},
+			align: 'right',
+			sortable: true,
+			formatter: function(value,row,index){
+			return value;
 		}},
 		{
 			field:'panjang',

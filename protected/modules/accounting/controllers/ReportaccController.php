@@ -2009,6 +2009,19 @@ class ReportaccController extends Controller
 																		and b.companyid = ".$companyid."
 																		and b.recordstatus = 3
 																		group by a.employeeid ) z
+												union
+															SELECT *
+																		FROM (SELECT a1.employeeid,sum(a1.debit) as amount
+																		FROM arbaddebtacc a1
+																		JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+																		JOIN account c1 ON c1.accountid=a1.accountid
+																		WHERE c1.accountname = 'piutang karyawan'
+																		AND a1.employeeid IS NOT NULL
+																		AND b1.docdate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																		AND b1.companyid = ".$companyid."
+																		AND b1.recordstatus = 5
+																		group by a1.employeeid ) z
+																where z. amount <> 0
 													) zz
 										left join employee j on j.employeeid=zz.employeeid
 										group by j.employeeid) zzz
@@ -2019,7 +2032,7 @@ class ReportaccController extends Controller
             $res = $connection->createCommand($sql1)->queryAll();
             foreach($res as $row1){
               $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'Piutang Karyawan' then a.amount else 0 end as debit,
+                    from (select a.cbaccid,case when b.accountname = 'Piutang Karyawan' then a.amount else 0 end as debit,
                     case when c.accountname = 'Piutang Karyawan' then a.amount else 0 end as credit, e.fullname, e.employeeid
                     from cbacc a
                     join account b on b.accountid = a.debitaccid
@@ -2027,8 +2040,18 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join employee e on e.employeeid = a.employeeid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
+                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid']."
+
+				union
+
+					SELECT a1.arbaddebtaccid,a1.debit, a1.credit, d1.fullname, d1.employeeid
+					FROM arbaddebtacc a1
+					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+					JOIN account c1 ON c1.accountid=a1.accountid
+					JOIN employee d1 ON d1.employeeid=a1.employeeid
+					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+					AND b1.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+					) z where debit <> 0 or credit <> 0";
             
             $totaldebit  = 0;
             $totalcredit = 0;
@@ -2041,7 +2064,7 @@ class ReportaccController extends Controller
             $this->pdf->text(150,$this->pdf->gety()+5,'Saldo Awal :  '.Yii::app()->format->formatCurrency($saldoawal/$per));
 
             $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'Piutang Karyawan' then a.amount else 0 end as debit,
+                    from (select a.cbaccid,a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'Piutang Karyawan' then a.amount else 0 end as debit,
                     case when c.accountname = 'Piutang Karyawan' then a.amount else 0 end as credit
                     from cbacc a
                     join account b on b.accountid = a.debitaccid
@@ -2049,8 +2072,18 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join employee e on e.employeeid = a.employeeid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
+                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid']."
+
+				union
+
+					SELECT a1.arbaddebtaccid,b1.headernote AS uraian, b1.headernote, b1.docdate, b1.docno AS cashbankno, '' AS reciptno, a1.debit, a1.credit
+					FROM arbaddebtacc a1
+					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+					JOIN account c1 ON c1.accountid=a1.accountid
+					JOIN employee d1 ON d1.employeeid=a1.employeeid
+					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+					AND b1.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+					) z where credit <> 0 or debit <> 0
 										order by docdate, cashbankno";
             $rows = $connection->createCommand($sql)->queryAll();
 
@@ -5775,6 +5808,19 @@ class ReportaccController extends Controller
 																		and b.companyid = ".$companyid."
 																		and b.recordstatus = 3
 																		group by a.employeeid ) z
+												union
+															SELECT *
+																		FROM (SELECT a1.employeeid,sum(a1.debit) as amount
+																		FROM arbaddebtacc a1
+																		JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+																		JOIN account c1 ON c1.accountid=a1.accountid
+																		WHERE c1.accountname = 'piutang karyawan'
+																		AND a1.employeeid IS NOT NULL
+																		AND b1.docdate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																		AND b1.companyid = ".$companyid."
+																		AND b1.recordstatus = 5
+																		group by a1.employeeid ) z
+																where z. amount <> 0
 													) zz
 										left join employee j on j.employeeid=zz.employeeid
 										group by j.employeeid) zzz
@@ -5793,7 +5839,7 @@ class ReportaccController extends Controller
             foreach($res as $row1)
             {
                 $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
+                    from (select a.cbaccid,case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
                     case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit, e.fullname, e.employeeid
                     from cbacc a
                     join account b on b.accountid = a.debitaccid
@@ -5801,8 +5847,18 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join employee e on e.employeeid = a.employeeid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
+                    and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid']."
+
+				union
+
+					SELECT a1.arbaddebtaccid,a1.debit, a1.credit, d1.fullname, d1.employeeid
+					FROM arbaddebtacc a1
+					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+					JOIN account c1 ON c1.accountid=a1.accountid
+					JOIN employee d1 ON d1.employeeid=a1.employeeid
+					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+					AND b1.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+					) z where debit <> 0 or credit <> 0";
             
                 $totaldebit  = 0;
                 $totalcredit = 0;
@@ -5825,7 +5881,7 @@ class ReportaccController extends Controller
                     ->setCellValueByColumnAndRow(6,$line,'Saldo');
 
                 $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
+                    from (select a.cbaccid,a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
                     case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit
                     from cbacc a
                     join account b on b.accountid = a.debitaccid
@@ -5833,8 +5889,18 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join employee e on e.employeeid = a.employeeid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
+                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid']."
+
+				union
+
+					SELECT a1.arbaddebtaccid,b1.headernote AS uraian, b1.headernote, b1.docdate, b1.docno AS cashbankno, '' AS reciptno, a1.debit, a1.credit
+					FROM arbaddebtacc a1
+					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+					JOIN account c1 ON c1.accountid=a1.accountid
+					JOIN employee d1 ON d1.employeeid=a1.employeeid
+					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+					AND b1.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+					) z where credit <> 0 or debit <> 0
                     order by docdate, cashbankno";
                 $rows = $connection->createCommand($sql)->queryAll();
                 $line++;

@@ -73,6 +73,20 @@ class InvoicearController extends Controller {
         ':fullname' => '%' . $giheaderid . '%',
         ':companyid' => $_GET['companyid']
       ))->queryScalar();
+    } else if(isset($_GET['baddebt'])) {
+      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
+      ->from('invoice t')
+      ->join('giheader j', 'j.giheaderid = t.giheaderid')
+      ->join('soheader k', 'k.soheaderid = j.soheaderid')
+      ->join('addressbook m', 'm.addressbookid = k.addressbookid')
+      ->where("((t.invoiceno like :invoiceno))
+					and k.companyid = :companyid and k.addressbookid = :addressbookid
+					and t.recordstatus = 3 and t.invoiceno is not null
+					and t.payamount < t.amount", array(
+        ':invoiceno' => '%' . $invoiceno . '%',
+        ':addressbookid' => $_GET['addressbookid'],
+        ':companyid' => $_GET['companyid']
+      ))->queryScalar();
     } else {
       $cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('invoice t')->leftjoin('giheader a', 'a.giheaderid = t.giheaderid')->leftjoin('soheader b', 'b.soheaderid = a.soheaderid')->leftjoin('company d', 'd.companyid = b.companyid')->leftjoin('addressbook c', 'c.addressbookid = b.addressbookid')->leftjoin('currency e', 'e.currencyid = t.currencyid')->
 			where("((coalesce(gino,'') like :gino) and 
@@ -112,6 +126,25 @@ class InvoicearController extends Controller {
 and t.payamount < t.amount", array(
         ':invoiceno' => '%' . $invoiceno . '%',
         ':fullname' => '%' . $giheaderid . '%',
+        ':companyid' => $_GET['companyid']
+      ))->offset($offset)->limit($rows)->order('t.invoicedate asc')->queryAll();
+    } else if(isset($_GET['baddebt'])) {
+      $cmd = Yii::app()->db->createCommand()->select('t.*,j.gino,k.sono,m.fullname,e.currencyname,t.currencyrate,(t.amount-t.payamount) as saldo,
+      case 
+        when t.amount > t.payamount then 1
+		    when t.amount = t.payamount then 2
+		  end as warna, (select x.companyname from company x where x.companyid=k.companyid) as companyname')
+      ->from('invoice t')
+      ->join('giheader j', 'j.giheaderid = t.giheaderid')
+      ->join('soheader k', 'k.soheaderid = j.soheaderid')
+      ->join('addressbook m', 'm.addressbookid = k.addressbookid')
+      ->leftjoin('currency e', 'e.currencyid = t.currencyid')
+      ->where("((t.invoiceno like :invoiceno))
+          and k.companyid = :companyid and k.addressbookid = :addressbookid
+					and t.recordstatus = 3 and t.invoiceno is not null
+					and t.payamount < t.amount", array(
+        ':invoiceno' => '%' . $invoiceno . '%',
+        ':addressbookid' => $_GET['addressbookid'],
         ':companyid' => $_GET['companyid']
       ))->offset($offset)->limit($rows)->order('t.invoicedate asc')->queryAll();
     } else {
@@ -364,9 +397,12 @@ and t.payamount < t.amount", array(
   }
   public function actionDownPDF() {
     parent::actionDownload();
-    $sql = "select f.companyid,a.amount,g.symbol,currencyrate,a.giheaderid,invoiceid,invoiceno,f.sono,d.fullname as customer,a.invoicedate,a.headernote, taxvalue,a.recordstatus,
+    $sql = "select a.approveby,f.companyid,a.amount,g.symbol,currencyrate,a.giheaderid,invoiceid,invoiceno,f.sono,d.fullname as customer,a.invoicedate,a.headernote, taxvalue,a.recordstatus,
 	   f.shipto as addressname,j.cityname,f.isdisplay,ifnull(count(packageid),0) as pkgid,
-		 a.recordstatus,date_add(a.invoicedate, INTERVAL e.paydays day) as duedate,b.gino,f.sono,f.soheaderid,h.fullname as sales,i.bankacc1,i.bankacc2,i.bankacc3,
+		 a.recordstatus,
+			if(a.companyid = 18,if(a.invoicedate < '2021-09-01',date_add(a.invoicedate, INTERVAL e.paydays day),if(e.paydays < 30,date_add(a.invoicedate, INTERVAL e.paydays day),if(f.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),date_add(a.invoicedate, INTERVAL 45 day),if(f.materialtypeid in (14,15,22,3),date_add(a.invoicedate, INTERVAL 30 day),date_add(a.invoicedate, INTERVAL 45 day))))),date_add(a.invoicedate, INTERVAL e.paydays day)) as duedate,
+		--  date_add(a.invoicedate, INTERVAL e.paydays day) as duedate,
+		 b.gino,f.sono,f.soheaderid,h.fullname as sales,i.bankacc1,i.bankacc2,i.bankacc3,
 		 (select headernote from packages s where s.packageid = f.packageid) as packagenote,(select packagename from packages s where s.packageid = f.packageid) as packagename,ifnull(qtypackage,0) as qtypackage
 		from invoice a 
 		left join giheader b on b.giheaderid = a.giheaderid
@@ -592,6 +628,42 @@ and t.payamount < t.amount", array(
 /*	  $this->pdf->row(array(
         ($row['pkgid']==1) ? "NOTE : ".$row['packagename']." (QTY : ".Yii::app()->format->formatCurrency($row['qtypackage']).") \n". $row['headernote'] : 'NOTE : ' . $row['headernote']
       ));*/
+	  
+	  if($row['companyid']==1) {
+          $x = 15;
+          $i = 0;
+          $y = 10;
+        if($row['approveby']>0) {
+            $arr = explode(',',$row['approveby']);
+            
+            $sqlsign1 = 'select username, realname, ifnull(signature,"") as signature from useraccess where useraccessid = '.$arr[0];
+            $qsign1 = Yii::app()->db->createCommand($sqlsign1)->queryRow();
+
+            if(!empty($arr[1])) {
+              $sqlsign2 = 'select username, realname, ifnull(signature,"") as signature from useraccess where useraccessid = '.$arr[1];
+              $qsign2 = Yii::app()->db->createCommand($sqlsign2)->queryRow();
+
+             
+            if ($qsign2['signature'] <> '') {
+              //foreach($data as $rowx){
+                  $this->pdf->Image('images/useraccess/'.$qsign2['signature'], 10, $this->pdf->gety()+5, 50,20,'PNG');
+                  //$this->pdf->Image('images/'.$rowx['signature'], 15, $this->pdf->gety(), 15);
+                  $this->pdf->text(25,$this->pdf->getY()+10+15,$qsign2['realname']);
+                  //$i=$i+20;
+                  $x=$x+50;
+            }
+          }
+          if ($qsign1['signature'] <> '') {
+            //foreach($data as $rowx){
+                $this->pdf->Image('images/useraccess/'.$qsign1['signature'], 155, $this->pdf->gety()+5, 50,20,'PNG');
+                //$this->pdf->Image('images/'.$rowx['signature'], 15, $this->pdf->gety(), 15);
+                $this->pdf->text(170,$this->pdf->getY()+10+15,$qsign1['realname']);
+                //$i=$i+20;
+                $x=$x+50;
+          }
+        }
+      }
+	  
       $this->pdf->checkNewPage(20);
       $this->pdf->text(25, $this->pdf->gety() + 5, 'Approved By');
       $this->pdf->text(170, $this->pdf->gety() + 5, 'Proposed By');
@@ -599,21 +671,24 @@ and t.payamount < t.amount", array(
       $this->pdf->text(170, $this->pdf->gety() + 25, '_____________');
       $this->pdf->text(10, $this->pdf->gety() + 30, 'Catatan:');
       $this->pdf->text(25, $this->pdf->gety() + 30, '- Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan');
+      $this->pdf->text(25, $this->pdf->gety() + 35, '- Pembayaran KE REKENING SALES atau DILUAR DARI REKENING yang TELAH DITENTUKAN, maka dianggap');
+      $this->pdf->text(25, $this->pdf->gety() + 40, '  TIDAK SAH / TIDAK DIAKUI sebagai PEMBAYARAN.');
       if ($row['bankacc1'] !== null ){
-      $this->pdf->text(25, $this->pdf->gety() + 35, '- Transfer Bank ke:');
-      $this->pdf->text(55, $this->pdf->gety() + 35, '~ Rekening '.$row['bankacc1']);}
-      if ($row['bankacc2'] !== null ){
-      $this->pdf->text(55, $this->pdf->gety() + 40, '~ Rekening '.$row['bankacc2']);}
+      $this->pdf->text(25, $this->pdf->gety() + 45, '- Transfer Bank ke:');
+      $this->pdf->text(55, $this->pdf->gety() + 45, '~ Rekening '.$row['bankacc1']);}
+      /*if ($row['bankacc2'] !== null ){
+      $this->pdf->text(55, $this->pdf->gety() + 50, '~ Rekening '.$row['bankacc2']);}
       if ($row['bankacc3'] !== null ){
-      $this->pdf->text(55, $this->pdf->gety() + 45, '~ Rekening '.$row['bankacc3']);}
+      $this->pdf->text(55, $this->pdf->gety() + 55, '~ Rekening '.$row['bankacc3']);}*/
     }
     $this->pdf->Output();
   }
   public function actionDownPDF1() {
     parent::actionDownload();
-    $sql = "select f.companyid,a.amount,g.symbol,currencyrate,a.giheaderid,invoiceid,invoiceno,f.sono,d.fullname as customer,a.invoicedate,a.headernote, taxvalue,a.recordstatus,
-	   f.shipto as addressname,j.cityname,f.isdisplay,
-		 a.recordstatus,date_add(a.invoicedate, INTERVAL e.paydays day) as duedate,b.gino,f.sono,f.soheaderid,h.fullname as sales,i.bankacc1,i.bankacc2,i.bankacc3
+    $sql = "select f.companyid,a.amount,g.symbol,currencyrate,a.giheaderid,invoiceid,invoiceno,f.sono,d.fullname as customer,a.invoicedate,a.headernote, taxvalue,a.recordstatus,f.shipto as addressname,j.cityname,f.isdisplay,
+		if(a.companyid = 18,if(a.invoicedate < '2021-09-01',date_add(a.invoicedate, INTERVAL e.paydays day),if(e.paydays < 30,date_add(a.invoicedate, INTERVAL e.paydays day),if(f.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),date_add(a.invoicedate, INTERVAL 45 day),if(f.materialtypeid in (14,15,22,3),date_add(a.invoicedate, INTERVAL 30 day),date_add(a.invoicedate, INTERVAL 45 day))))),date_add(a.invoicedate, INTERVAL e.paydays day)) as duedate,
+	-- date_add(a.invoicedate, INTERVAL e.paydays day) as duedate,
+	b.gino,f.sono,f.soheaderid,h.fullname as sales,i.bankacc1,i.bankacc2,i.bankacc3
 		from invoice a 
 		left join giheader b on b.giheaderid = a.giheaderid
 		left join soheader f on f.soheaderid = b.soheaderid
