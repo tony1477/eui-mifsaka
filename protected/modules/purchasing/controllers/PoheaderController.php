@@ -83,6 +83,7 @@ class PoheaderController extends Controller {
     $price        = '';
     $currencyid   = '';
     $currencyrate = '';
+    $current = 0;
     $cmd          = Yii::app()->db->createCommand()->select('a.productid,sum(a.poqty),a.netprice,a.currencyid,a.ratevalue')->from('podetail t')->where("t.poheaderid = '" . $_POST['poheaderid'] . "' and t.productid = '" . $_POST['productid'] . "'")->limit(1)->queryRow();
     $productid    = $cmd['productid'];
     $qty          = $cmd['poqty'];
