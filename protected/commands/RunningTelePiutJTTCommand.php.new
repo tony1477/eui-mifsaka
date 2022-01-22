@@ -1,0 +1,349 @@
+<?php
+class RunningtelepiutjttCommand extends CConsoleCommand
+{
+	public function run($args)
+	{
+		$connection=Yii::app()->db;
+		//$transaction=$connection->beginTransaction();
+		try
+		{
+			date_default_timezone_set('Asia/Jakarta');
+			$sqldatetoday = "SELECT DATE(NOW())";
+			$sqldateyesterday = "SELECT DATE_ADD(DATE(NOW()),INTERVAL -1 DAY)";
+			$enddate=$connection->createCommand($sqldatetoday)->queryScalar();
+				
+			$sql = "select a.companyid,a.companycode,a.bankacc1,a.bankacc2,a.bankacc3
+							from company a
+							where a.recordstatus = 1
+							order by a.nourut
+			";
+			$dataReader=$connection->createCommand($sql)->queryAll();
+			
+			foreach ($dataReader as $data)
+			{
+				$companyid = $data['companyid'];
+				$companycode = $data['companycode'];
+				$bankacc1 = $data['bankacc1'];
+				$bankacc2 = $data['bankacc2'];
+				$bankacc3 = $data['bankacc3'];
+				$sql1 = "select addressbookid,fullname,(select aa.wanumber from addresscontact aa where aa.addressbookid=z.addressbookid Limit 1) as wanumber
+						from (select c.addressbookid,b.giheaderid,a.invoiceno,a.invoicedate,e.paydays,
+						date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
+						datediff('{$enddate}',a.invoicedate) as umur,
+						datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,a.amount,ff.fullname as sales,
+						ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+						from cutarinv f
+						join cutar g on g.cutarid=f.cutarid
+						where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '{$enddate}'),0) as payamount,d.fullname	
+						from invoice a
+						inner join giheader b on b.giheaderid = a.giheaderid
+						inner join soheader c on c.soheaderid = b.soheaderid
+						inner join addressbook d on d.addressbookid = c.addressbookid
+						inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
+						inner join employee ff on ff.employeeid = c.employeeid
+						where a.recordstatus=3 and a.invoiceno is not null and c.companyid = {$companyid}
+						and a.invoicedate <= '{$enddate}')z
+						where amount > payamount
+						and umurtempo >= 0
+						group by fullname
+						order by wanumber desc
+				";
+				$dataReader1=$connection->createCommand($sql1)->queryAll();
+				
+				foreach ($dataReader1 as $data1)
+				{
+					$wanumber = $data1['wanumber'];
+					$pesantele=""; $pesantele1=""; $pesantele2=""; $pesantele3=""; $pesantele4=""; $pesantele5=""; $i=0; $total=0;
+					$sql2 = "select *, (amount-payamount) as sisa,(amount) as nilai
+							from (select b.giheaderid,a.invoiceno,a.invoicedate,e.paydays,
+							date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
+							datediff('{$enddate}',a.invoicedate) as umur,
+							datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,a.amount,ff.fullname as sales,
+							ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+							from cutarinv f
+							join cutar g on g.cutarid=f.cutarid
+							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '{$enddate}'),0) as payamount,d.fullname	
+							from invoice a
+							inner join giheader b on b.giheaderid = a.giheaderid
+							inner join soheader c on c.soheaderid = b.soheaderid
+							inner join addressbook d on d.addressbookid = c.addressbookid
+							inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
+							inner join employee ff on ff.employeeid = c.employeeid
+							where a.recordstatus=3 and a.invoiceno is not null and c.companyid = {$companyid}				
+							and a.invoicedate <= '{$enddate}'
+							and c.addressbookid = {$data1['addressbookid']})z
+							where amount > payamount
+							and umurtempo >= 0
+							order by umurtempo desc, invoiceno asc
+					";
+					$dataReader2=$connection->createCommand($sql2)->queryAll();
+					
+					foreach ($dataReader2 as $data2)
+					{
+						$i = $i + 1;
+						$amount = Yii::app()->numberFormatter->formatCurrency($data2['amount'],'Rp.');
+						$payamount = Yii::app()->numberFormatter->formatCurrency($data2['payamount'],'Rp.');
+						$jatuhtempo = date(Yii::app()->params['dateviewfromdb'],strtotime($data2['jatuhtempo']));
+						$sales = $data2['sales'];
+						if ($i < 41) {
+							$pesantele1 = $pesantele1 ."%0A {$i}. {$data2['invoiceno']} Tgl. JTT. {$jatuhtempo} {$amount} Kum. Bayar {$payamount} %0A";
+						} else
+						if ($i < 81) {
+							$pesantele2 = $pesantele2 ."%0A {$i}. {$data2['invoiceno']} Tgl. JTT. {$jatuhtempo} {$amount} Kum. Bayar {$payamount} %0A";
+						} else
+						if ($i < 121) {
+							$pesantele3 = $pesantele3 ."%0A {$i}. {$data2['invoiceno']} Tgl. JTT. {$jatuhtempo} {$amount} Kum. Bayar {$payamount} %0A";
+						} else
+						if ($i < 161) {
+							$pesantele4 = $pesantele4 ."%0A {$i}. {$data2['invoiceno']} Tgl. JTT. {$jatuhtempo} {$amount} Kum. Bayar {$payamount} %0A";
+						} else
+						if ($i < 201) {
+							$pesantele5 = $pesantele5 ."%0A {$i}. {$data2['invoiceno']} Tgl. JTT. {$jatuhtempo} {$amount} Kum. Bayar {$payamount} %0A";
+						}
+						$total += ($data2['amount'] - $data2['payamount']);
+					}
+					$totalamount = Yii::app()->numberFormatter->formatCurrency($total,'Rp.');
+					if ($bankacc1 == "")
+					{$norek1 = "";} else	{$norek1 = $bankacc1;}
+					if ($bankacc2 == "")
+					{$norek2 = "";} else	{$norek2 = $bankacc2;}
+					if ($bankacc3 == "")
+					{$norek3 = "";} else	{$norek3 = $bankacc3;}
+					
+					if ($wanumber != '')
+					{$sendtocustomer = "%0A%0A<b><i>SUDAH TERKIRIM ke No WA Customer</i></b>%0A".$wanumber;}
+					else
+					{$sendtocustomer = "%0A%0A<b><i>BELUM TERKIRIM ke No WA Customer</i></b>%0A".$wanumber;}
+				
+					$time = date('d-m-Y H:i:s');
+					
+					//$teleid = "-379058597"; //group develop
+					$teleid = "875856213"; //user ADS
+					//$teleid = "1021823837"; //user Adhi D S
+					if ($companyid == 1) {$telegroupid = "-426217078";} //AKA
+					else if ($companyid == 11) {$telegroupid = "-426217078";} //UD1
+					else if ($companyid == 12) {$telegroupid = "-426217078";} //UD2
+					else if ($companyid == 21) {$telegroupid = "-334252622";} //AKS
+					else if ($companyid == 17) {$telegroupid = "-444175167";} //AMIN
+					else if ($companyid == 20) {$telegroupid = "-412518882";} //AKM
+					else if ($companyid == 18) {$telegroupid = "-329101365";} //AJM
+					else if ($companyid == 7) {$telegroupid = "-439944673";} //AMI
+					else if ($companyid == 15) {$telegroupid = "-461058988";} //AGEM
+					else if ($companyid == 14) {$telegroupid = "-490976841";} //AKP
+					
+/*					if ($companyid == 1) {$telegroupid = "-400153522";} //AKA Tester
+					else if ($companyid == 11) {$telegroupid = "-393940074";} //UD1 Tester
+					else if ($companyid == 12) {$telegroupid = "-489286947";} //UD2 Tester
+					else if ($companyid == 21) {$telegroupid = "-447885870";} //AKS Tester
+					else if ($companyid == 17) {$telegroupid = "-388708629";} //AMIN Tester
+					else if ($companyid == 20) {$telegroupid = "-465505907";} //AKM Tester
+					else if ($companyid == 18) {$telegroupid = "-395367974";} //AJM Tester
+					else if ($companyid == 7) {$telegroupid = "-465982804";} //AMI Tester
+					else if ($companyid == 15) {$telegroupid = "-440886613";} //AGEM Tester
+					else if ($companyid == 14) {$telegroupid = "-426162559";} //AKP Tester
+*/
+					if ($i < 41) {
+						$telemessage1 = "<b>Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :</b>%0A{$data1['fullname']}.%0A{$pesantele1} %0AJumlah Piutang Telah Jatuh Tempo {$totalamount} %0A%0AAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:%0A{$norek1} %0A{$norek2} %0A{$norek3} %0A%0A<b><i>Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.</i></b>%0A%0APembayaran via Transfer diluar Rekening Resmi yang tertera diatas, <b>BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP</b>%0ATerima kasih.%0A%0A<b><i>Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)</i></b>%0A".$time.$sendtocustomer;
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage1."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage1."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+					} else
+
+					if ($i < 81) {
+						$telemessage2 = "<b>Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :</b>%0A{$data1['fullname']}.%0A{$pesantele1} %0A";
+						
+						$telemessage3 = "%0A{$pesantele2} %0AJumlah Piutang Telah Jatuh Tempo {$totalamount} %0A%0AAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:%0A{$norek1} %0A{$norek2} %0A{$norek3} %0A%0A<b><i>Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.</i></b>%0A%0APembayaran via Transfer diluar Rekening Resmi yang tertera diatas, <b>BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP</b>%0ATerima kasih.%0A%0A<b><i>Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)</i></b>%0A".$time.$sendtocustomer;
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage2."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage3."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage2."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage3."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+					} else
+
+					if ($i < 121) {
+						$telemessage4 = "<b>Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :</b>%0A{$data1['fullname']}.%0A{$pesantele1} %0A";
+						
+						$telemessage5 = "%0A{$pesantele2} %0A";
+						
+						$telemessage6 = "%0A{$pesantele3} %0AJumlah Piutang Telah Jatuh Tempo {$totalamount} %0A%0AAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:%0A{$norek1} %0A{$norek2} %0A{$norek3} %0A%0A<b><i>Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.</i></b>%0A%0APembayaran via Transfer diluar Rekening Resmi yang tertera diatas, <b>BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP</b>%0ATerima kasih.%0A%0A<b><i>Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)</i></b>%0A".$time.$sendtocustomer;
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage4."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage5."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage6."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage4."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage5."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage6."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+					} else
+
+					if ($i < 161) {
+						$telemessage7 = "<b>Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :</b>%0A{$data1['fullname']}.%0A {$pesantele1} %0A";
+						
+						$telemessage8 = "%0A {$pesantele2} %0A";
+						
+						$telemessage9 = "%0A {$pesantele3} %0A";
+						
+						$telemessage10 = "%0A {$pesantele4} %0AJumlah Piutang Telah Jatuh Tempo {$totalamount} %0A%0AAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:%0A {$norek1} %0A {$norek2} %0A {$norek3} %0A%0A<b><i>Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.</i></b>%0A%0APembayaran via Transfer diluar Rekening Resmi yang tertera diatas, <b>BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP</b>%0ATerima kasih.%0A%0A<b><i>Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)</i></b>%0A".$time.$sendtocustomer;
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage7."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+echo $pesantele2."\n\n";
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage8."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage9."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage10."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage7."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage8."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage9."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage10."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+					} else
+
+					if ($i < 201) {
+						$telemessage11 = "<b>Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :</b>%0A{$data1['fullname']}.%0A {$pesantele1} %0A";
+						
+						$telemessage12 = "%0A {$pesantele2} %0A";
+						
+						$telemessage13 = "%0A {$pesantele3} %0A";
+						
+						$telemessage14 = "%0A {$pesantele4} %0A";
+						
+						$telemessage15 = "%0A {$pesantele5} %0AJumlah Piutang Telah Jatuh Tempo {$totalamount} %0A%0AAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:%0A {$norek1} %0A {$norek2} %0A {$norek3} %0A%0A<b><i>Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.</i></b>%0A%0APembayaran via Transfer diluar Rekening Resmi yang tertera diatas, <b>BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP</b>%0ATerima kasih.%0A%0A<b><i>Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)</i></b>%0A".$time.$sendtocustomer;
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage11."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage12."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage13."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage14."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$teleid."&text=".$telemessage15."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						//echo " ius.tan ".$teleid." ".$companycode." ".$data1['fullname']." ".$wanumber."\n";
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage11."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage12."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage13."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage14."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+						
+						//Group
+						$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegroupid."&text=".$telemessage15."&parse_mode=html";
+						$ch = curl_init($url);
+						curl_exec($ch);
+					}
+					
+					sleep(10);
+				}
+			}
+			curl_close($ch);
+			//GetMessage(false, 'insertsuccess');
+			//$transaction->commit();
+		}
+		catch(Exception $e) // an exception is raised if a query fails
+		{
+			//$transaction->rollBack();
+      GetMessage(true, $e->getMessage());
+      echo $e->getMessage();
+		}
+	}
+}

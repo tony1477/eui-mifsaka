@@ -1,0 +1,66 @@
+body
+{
+	margin: 0;
+	padding: 0;
+	color: #555;
+	font: normal 10pt Arial,Helvetica,sans-serif;
+	background: #EFEFEF;
+}
+
+.portlet{
+	-webkit-box-shadow:#F9F9F9 0 1px 0 inset;
+	border:1px solid #E0ECFF;
+	border-radius:3px;
+	box-shadow:#F9F9F9 0 1px 0 inset;
+	margin-bottom:20px;
+	min-height:40px;
+	width: 250px;
+
+}
+
+.portlet-decoration{
+	border-bottom:1px solid #DDD;
+	background-color: #0000FF;
+	background-image: -moz-linear-gradient(top, #0000FF, #E0ECFF);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0000FF), to(#E0ECFF));
+	background-image: -webkit-linear-gradient(top, #0000FF, #E0ECFF);
+	background-image: -o-linear-gradient(top, #0000FF, #E0ECFF);
+	background-image: linear-gradient(to bottom, #0000FF, #E0ECFF);
+	background-repeat: repeat-x;
+	filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffF1F1F1', endColorstr='#ffDBDBDB', GradientType=0);
+	padding:10px;
+}
+
+.portlet-decoration [class^="icon-"], .portlet-decoration [class*=" icon-"] {
+
+  	margin-right:5px;
+
+}
+.portlet-content{
+	padding:5px;
+	font: normal 12pt Arial,Helvetica,sans-serif;
+}
+
+.portlet-title{
+	color: white;
+	font: normal 16pt Arial,Helvetica,sans-serif;
+	font-weight: bold;
+}
+
+div.login
+{
+        border: 20px dashed white;
+        background-color: #E0ECFF;
+        box-shadow:0px 10px 10px 0px #AAA;
+	margin: 35px;
+}
+
+div.login1
+{
+        border: 20px dashed #E0ECFF;
+        margin: 50px;
+        padding: 15px;
+        background-color: #B7D6E7;
+        text-align: center;
+        box-shadow:0px 5px 5px 0px #AAA;
+}
