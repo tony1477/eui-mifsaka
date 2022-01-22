@@ -9,74 +9,78 @@ class RepprodController extends Controller
   public function actionDownPDF()
   {
     parent::actionDownload();
-    if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['fullname']) && isset($_GET['product']) && isset($_GET['startdate']) && isset($_GET['enddate'])) 
+    if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['fullname']) && isset($_GET['product']) && isset($_GET['productcollectid']) && isset($_GET['startdate']) && isset($_GET['enddate'])) 
     {
       if ($_GET['lro'] == 1) {
-        $this->RincianProduksiPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianProduksiPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 2) {
-        $this->RekapProduksiPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerGroupMaterialPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 3) {
-        $this->RincianPemakaianPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianPemakaianPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 4) {
-        $this->RekapPemakaianPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapPemakaianPerGudangPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 5) {
-        $this->PerbandinganPlanningOutput($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->PerbandinganPlanningOutput($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 6) {
-        $this->RwBelumAdaGudangAsal($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RwBelumAdaGudangAsal($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 7) {
-        $this->RwBelumAdaGudangTujuan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RwBelumAdaGudangTujuan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 8) {
-        $this->PendinganProduksi($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->PendinganProduksi($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 9) {
-        $this->RincianPendinganProduksiPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianPendinganProduksiPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 10) {
-        $this->RekapPendinganProduksiPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapPendinganProduksiPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 11) {
-        $this->RekapProduksiPerBarangPerHari($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerBarangPerHari($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 12) {
-        $this->RekapHasilProduksiPerDokumentBelumStatusMax($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapHasilProduksiPerDokumentBelumStatusMax($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 13) {
-        $this->RekapProduksiPerBarangPerBulan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerBarangPerBulan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 14) {
-        $this->JadwalProduksi($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->JadwalProduksi($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 15) {
-        $this->LaporanSPPStatusBelumMax($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanSPPStatusBelumMax($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 16) {
-        $this->LaporanPerbandingan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanPerbandingan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 17) {
-        $this->LaporanMaterialSPP($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanMaterialSPP($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 18) {
-        $this->LaporanHasilScan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanHasilScan($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 19) {
-        $this->LaporanHasilOperatorPerManPower($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanHasilOperatorPerManPower($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 20) {
-        $this->LaporanCTPerForemanPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanCTPerForemanPerDokumen($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 21) {
-        $this->LaporanRincianHasilProduksiPerGMprocess($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanRincianHasilProduksiPerGMprocess($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 22) {
-        $this->LaporanRekapHasilProduksiPerGMprocess($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanRekapHasilProduksiPerGMprocess($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
+      } else if ($_GET['lro'] == 23) {
+        $this->RekapPemakaianPerBarang($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 99) {
-        $this->LaporanProductDetailSPP($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanProductDetailSPP($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else {
         echo GetCatalog('reportdoesnotexist');
       }
     }
   }
   //1
-  public function RincianProduksiPerDokumen($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianProduksiPerDokumen($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
-    $sql        = "select distinct a.productoutputno,a.productoutputdate,a.productoutputid,e.productplanno as spp
+    $sql = "select distinct a.productoutputno,a.productoutputdate,a.productoutputid,e.productplanno as spp
 				from productoutput a
 				join productoutputfg b on b.productoutputid = a.productoutputid
 				join product c on c.productid = b.productid
 				join sloc d on d.slocid = b.slocid
 				join productplan e on e.productplanid = a.productplanid
-				where a.recordstatus = 3 and a.productoutputno is not null and d.sloccode like '%" . $sloc . "%' and
-				e.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and
-				a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productoutputdate";
-    $command    = $this->connection->createCommand($sql);
+        join employee f on f.employeeid = e.employeeid
+				where a.recordstatus = 3 and a.productoutputno is not null and d.sloccode like '%" . $sloc . "%' 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%'
+				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and f.fullname like '%{$fullname}%' order by productoutputdate";
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -98,7 +102,7 @@ class RepprodController extends Controller
 						join unitofmeasure c on c.unitofmeasureid = a.uomid
 						join sloc d on d.slocid = a.slocid
 						where b.productname like '%" . $product . "%' and a.productoutputid = " . $row['productoutputid'];
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $total       = 0;
       $i           = 0;
@@ -163,13 +167,14 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //2
-  public function RekapProduksiPerBarang($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerGroupMaterialPerBarang($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
+    $wherecom = " and a9.isgroup = 1"; $wherecom1 = " and a9.isgroup = 1}";
       //$product = getSymbolicWord('&product=','&startdate=');
 		$totalqty1=0;
 		$totalct1=0;
-    $sql        = "select distinct g.materialgroupid,g.description
+    $sql = "select distinct g.materialgroupid,g.description
 				from productoutput a
 				join productoutputfg b on b.productoutputid = a.productoutputid
 				join product c on c.productid = b.productid
@@ -177,23 +182,25 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
+        left join employee h on h.employeeid = a.employeeid
+				where a.productoutputno is not null  and a.recordstatus = 3 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and h.fullname like '%{$fullname}%'
 				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" .$product. "%' 
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				order by g.description";
-    $command    = $this->connection->createCommand($sql);
-    $dataReader = $command->queryAll();
+    $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
     }
-    $this->pdf->title    = 'Rekap Produksi Per Barang';
+    $this->pdf->title    = 'Rekap Produksi Per Material Group Per Barang';
     $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
     $this->pdf->AddPage('P');
     foreach ($dataReader as $row) {
       $this->pdf->SetFont('Arial', '', 10);
-      $this->pdf->text(10, $this->pdf->gety() + 10, 'Divisi');
-      $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['description']);
+      $this->pdf->text(10, $this->pdf->gety() + 10, 'MATERIAL GROUP');
+      $this->pdf->text(45, $this->pdf->gety() + 10, ': ' . $row['description']);
       $sql1        = "select distinct productname,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput, sum(qtyoutput*cycletime)/60 as cycletime from  
 					(select distinct b.productname,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid,cycletime
 					from productoutputfg a
@@ -203,15 +210,16 @@ class RepprodController extends Controller
 					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
 					join sloc f on f.slocid = a.slocid
 					join productplan g on g.productplanid = d.productplanid 
+					left join employee h on h.employeeid = d.employeeid
 					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-					and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+					and h.fullname like '%{$fullname}%' ".getFieldTable($productcollectid,'b','productcollectid')."
+          ".getCompanyGroup($companyid,'d')." and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . ") z 
 					group by productname,uomcode,materialgroupid";
-      $command1    = $this->connection->createCommand($sql1);
-      $dataReader1 = $command1->queryAll();
-      $totalqty    = 0;
+      $dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+      $totalqty   = 0;
       $totalct    = 0;
-      $i           = 0;
+      $i          = 0;
       $this->pdf->sety($this->pdf->gety() + 15);
       $this->pdf->setFont('Arial', 'B', 8);
       $this->pdf->colalign = array(
@@ -278,111 +286,8 @@ class RepprodController extends Controller
 		));
     $this->pdf->Output();
   }
-  /*public function RekapProduksiPerBarang($companyid, $sloc, $fullname, $product, $startdate, $enddate)
-  {
-    parent::actionDownload();
-		$totalqty1=0;
-    $sql        = "select distinct g.materialgroupid,g.description
-				from productoutput a
-				join productoutputfg b on b.productoutputid = a.productoutputid
-				join product c on c.productid = b.productid
-				join sloc d on d.slocid = b.slocid
-				join productplan e on e.productplanid = a.productplanid
-				join productplant f on f.productid = b.productid
-				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
-				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
-				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-				order by g.description";
-    $command    = $this->connection->createCommand($sql);
-    $dataReader = $command->queryAll();
-    foreach ($dataReader as $row) {
-      $this->pdf->companyid = $companyid;
-    }
-    $this->pdf->title    = 'Rekap Produksi Per Barang';
-    $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
-    $this->pdf->AddPage('P');
-    foreach ($dataReader as $row) {
-      $this->pdf->SetFont('Arial', '', 10);
-      $this->pdf->text(10, $this->pdf->gety() + 10, 'Divisi');
-      $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['description']);
-      $sql1        = "select distinct productname,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput from 
-					(select distinct b.productname,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid
-					from productoutputfg a
-					inner join product b on b.productid = a.productid
-					inner join productoutput d on d.productoutputid = a.productoutputid
-					inner join unitofmeasure e on e.unitofmeasureid = a.uomid
-					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
-					join sloc f on f.slocid = a.slocid
-					join productplan g on g.productplanid = d.productplanid 
-					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-					and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . ") z 
-					group by productname,uomcode,materialgroupid";
-      $command1    = $this->connection->createCommand($sql1);
-      $dataReader1 = $command1->queryAll();
-      $totalqty    = 0;
-      $i           = 0;
-      $this->pdf->sety($this->pdf->gety() + 15);
-      $this->pdf->setFont('Arial', 'B', 8);
-      $this->pdf->colalign = array(
-        'C',
-        'C',
-        'C',
-        'C'
-      );
-      $this->pdf->setwidths(array(
-        10,
-        120,
-        30,
-        30
-      ));
-      $this->pdf->colheader = array(
-        'No',
-        'Nama Barang',
-        'Satuan',
-        'Qty'
-      );
-      $this->pdf->RowHeader();
-      $this->pdf->coldetailalign = array(
-        'L',
-        'L',
-        'C',
-        'R'
-      );
-      $this->pdf->setFont('Arial', '', 8);
-      foreach ($dataReader1 as $row1) {
-        $i += 1;
-        $this->pdf->row(array(
-          $i,
-          $row1['productname'],
-          $row1['uomcode'],
-          Yii::app()->format->formatNumber($row1['qtyoutput'])
-        ));
-        $totalqty += $row1['qtyoutput'];
-      }
-      $this->pdf->row(array(
-        '',
-        'Total ' . $row['description'],
-        '',
-        Yii::app()->format->formatNumber($totalqty)
-      ));
-			$totalqty1 += $totalqty;
-      $this->pdf->checkPageBreak(20);
-    }
-		$this->pdf->sety($this->pdf->gety()+5);
-		$this->pdf->setFont('Arial', 'B', 9);
-		$this->pdf->row(array(
-			'',
-			'GRAND TOTAL ',
-			'',
-			Yii::app()->format->formatNumber($totalqty1)
-		));
-    $this->pdf->Output();
-  }*/
   //3
-  public function RincianPemakaianPerDokumen($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianPemakaianPerDokumen($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct a.productoutputid,a.productoutputno as dokumen,a.productoutputdate as tanggal,e.sloccode
@@ -390,12 +295,14 @@ class RepprodController extends Controller
 				join productplan b on b.productplanid = a.productplanid
 				join productoutputdetail c on c.productoutputid = a.productoutputid
 				join product d on d.productid = c.productid
-				join sloc e on e.slocid = c.toslocid 
-				where a.productoutputno is not null and b.companyid = " . $companyid . " and e.sloccode like '%" . $sloc . "%' 
-				and d.productname like '%" . $product . "%' 
+				join sloc e on e.slocid = c.toslocid
+        left join employee f on f.employeeid = a.employeeid
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'d','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and e.sloccode like '%" . $sloc . "%' 
+				and d.productname like '%" . $product . "%' and f.fullname like '%{$fullname}%'
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productoutputdate";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -422,8 +329,9 @@ class RepprodController extends Controller
 						join sloc f on f.slocid = d.slocid
 						join productoutput g on g.productoutputid = a.productoutputid
 						join productplan h on h.productplanid = g.productplanid
-						where a.productoutputid = " . $row['productoutputid'];
-      $command1    = $this->connection->createCommand($sql1);
+						where a.productoutputid = " . $row['productoutputid']."
+            ".getFieldTable($productcollectid,'b','productcollectid')."";
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $total       = 0;
       $i           = 0;
@@ -501,7 +409,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //4
-  public function RekapPemakaianPerBarang($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapPemakaianPerGudangPerBarang($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct a.toslocid,a.fromslocid,
@@ -514,16 +422,19 @@ class RepprodController extends Controller
 					join productoutput c on c.productoutputid = a.productoutputid
 					join sloc e on e.slocid = a.fromslocid
 					join sloc f on f.slocid = a.toslocid
-					where c.companyid = {$companyid} and c.recordstatus = 3 and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
+          left join employee g on g.employeeid = c.employeeid
+					where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+          ".getCompanyGroup($companyid,'c')." and g.fullname like '%{$fullname}%'
+          and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
 					and b.productname like '%" . $product . "%' and c.productoutputdate between 
 					'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
 					'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
     }
-    $this->pdf->title    = 'Rekap Pemakaian Per Barang';
+    $this->pdf->title    = 'Rekap Pemakaian Per Gudang Per Barang';
     $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
     $this->pdf->AddPage('P');
     foreach ($dataReader as $row) {
@@ -537,11 +448,14 @@ class RepprodController extends Controller
 						join product b on b.productid = a.productid
 						join productoutput c on c.productoutputid = a.productoutputid
 						join unitofmeasure d on d.unitofmeasureid = a.uomid
-						where c.recordstatus = 3 and a.fromslocid = " . $row['fromslocid'] . " and a.toslocid = " . $row['toslocid'] . " and b.productname like '%" . $product . "%' and c.productoutputdate between 
+            left join employee e on e.employeeid = c.employeeid
+						where c.recordstatus = 3 and a.fromslocid = " . $row['fromslocid'] . " and a.toslocid = " . $row['toslocid'] . " 
+            ".getFieldTable($productcollectid,'b','productcollectid')." and e.fullname like '%{$fullname}%'
+            and b.productname like '%" . $product . "%' and c.productoutputdate between 
 						'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
 						'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 						group by productid,productname";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $totalqty    = 0;
       $i           = 0;
@@ -594,7 +508,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //5
-  public function PerbandinganPlanningOutput($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function PerbandinganPlanningOutput($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct a.productplanno,a.productplandate,a.productplanid,d.sloccode,d.description as slocdesc
@@ -602,10 +516,14 @@ class RepprodController extends Controller
 				join productplanfg b on b.productplanid = a.productplanid
 				join product c on c.productid = b.productid
 				join sloc d on d.slocid = b.slocid
-				where a.recordstatus = 3 and a.productplanno is not null and a.companyid = " . $companyid . " and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' and
+        left join employee e on e.employeeid = a.employeeid
+				where a.recordstatus = 3 and a.productplanno is not null 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and e.fullname like '%{$fullname}%'
+         and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' and
 				a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -632,8 +550,12 @@ class RepprodController extends Controller
 					inner join product b on b.productid = a.productid 
 					inner join unitofmeasure d on d.unitofmeasureid = a.uomid
 					inner join sloc f on f.slocid = a.slocid
-					where a.productplanid = " . $row['productplanid'];
-      $command1     = $this->connection->createCommand($sql1);
+          join productplan h on h.productplanid = a.productplanid
+          left join employee i on i.employeeid = h.employeeid
+					where a.productplanid = " . $row['productplanid']."
+          ".getFieldTable($productcollectid,'b','productcollectid')."
+          and i.fullname like '%{$fullname}%'";
+      $command1     = Yii::app()->db->createCommand($sql1);
       $dataReader1  = $command1->queryAll();
       $totalqtyplan = 0;
       $i            = 0;
@@ -690,7 +612,7 @@ class RepprodController extends Controller
         ''
       ));
       $this->pdf->text(10, $this->pdf->gety() + 5, 'Detail');
-      $sql2          = "select distinct b.productname, a.qty as qtyplan,ifnull(f.qty,0) as qtyout, c.uomcode, a.description		
+      $sql2          = "select distinct b.productname, a.qty as qtyplan,ifnull(f.qty,0) as qtyout, c.uomcode, a.description
 				from productplandetail a
 				left join productoutputdetail f on f.productplandetailid = a.productplandetailid
 				left join product b on b.productid = a.productid
@@ -698,8 +620,11 @@ class RepprodController extends Controller
 				left join billofmaterial d on d.bomid = a.bomid
 				left join sloc e on e.slocid = a.fromslocid 
 				left join productoutput g on g.productoutputid=f.productoutputid
-				where g.recordstatus = 3 and b.isstock = 1 and g.productplanid = " . $row['productplanid'];
-      $command2      = $this->connection->createCommand($sql2);
+        left join employee h on h.employeeid = g.employeeid
+				where g.recordstatus = 3 and b.isstock = 1 
+        ".getFieldTable($productcollectid,'b','productcollectid')."        
+        and g.productplanid = " . $row['productplanid'];
+      $command2      = Yii::app()->db->createCommand($sql2);
       $dataReader2   = $command2->queryAll();
       $totalqtyplan1 = 0;
       $ii            = 0;
@@ -760,7 +685,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //6
-  public function RwBelumAdaGudangAsal($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RwBelumAdaGudangAsal($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct a.productplanno,a.productplandate,a.productplanid
@@ -772,8 +697,9 @@ class RepprodController extends Controller
 				and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%'
 				and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'				
-				and b.fromslocid not in (select xx.slocid from productplant xx where xx.productid = b.productid and xx.recordstatus=1)";
-    $command    = $this->connection->createCommand($sql);
+				and b.fromslocid not in (select xx.slocid from productplant xx where xx.productid = b.productid and xx.recordstatus=1)
+        ";
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -799,7 +725,7 @@ class RepprodController extends Controller
 						and d.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and a.productplanid = " . $row['productplanid'] . "
 						and a.fromslocid not in (select x.slocid from productplant x where x.productid = a.productid and x.recordstatus=1)";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $total       = 0;
       $i           = 0;
@@ -864,7 +790,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //7
-  public function RwBelumAdaGudangTujuan($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RwBelumAdaGudangTujuan($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct a.productplanno,a.productplandate,a.productplanid,a.recordstatus
@@ -877,7 +803,7 @@ class RepprodController extends Controller
 				and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				and b.toslocid not in (select xx.slocid from productplant xx where xx.productid = b.productid)";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -903,7 +829,7 @@ class RepprodController extends Controller
 						and d.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 						and a.toslocid not in (select x.slocid from productplant x where x.productid = a.productid)";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $total       = 0;
       $i           = 0;
@@ -968,7 +894,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //8
-  public function PendinganProduksi($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function PendinganProduksi($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql = "select distinct a.productplanno,a.productplandate,a.productplanid
@@ -976,12 +902,14 @@ class RepprodController extends Controller
 			   join productplanfg b on b.productplanid = a.productplanid
 			   join product c on c.productid = b.productid
 			   join sloc d on d.slocid = b.slocid
+         left join employee e on e.employeeid = a.employeeid
 			   where a.recordstatus = 3 and a.productplanno is not null and d.sloccode like '%" . $sloc . "%' 
-			   and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
-			   and b.startdate <= curdate()
+			   ".getFieldTable($productcollectid,'c','productcollectid')."
+         ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+			   and b.startdate <= curdate() and e.fullname like '%{$fullname}%'
 				 and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 			   and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productplanno";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -997,18 +925,20 @@ class RepprodController extends Controller
       $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['productplanno']);
       $this->pdf->text(10, $this->pdf->gety() + 15, 'Tanggal');
       $this->pdf->text(30, $this->pdf->gety() + 15, ': ' . date(Yii::app()->params['dateviewfromdb'], strtotime($row['productplandate'])));
-      $sql1           = "select b.productname,a.qty,a.qtyres as qtyoutput,(a.qty-a.qtyres) as selisih,c.uomcode,d.description as sloc						
+      $sql1           = "select b.productname,a.qty,a.qtyres as qtyoutput,(a.qty-a.qtyres) as selisih,c.uomcode,d.description as sloc
 						from productplanfg a						
 						join product b on b.productid = a.productid						
 						join unitofmeasure c on c.unitofmeasureid = a.uomid						
 						join sloc d on d.slocid = a.slocid
 						join productplan e on e.productplanid = a.productplanid						
+            left join employee f on f.employeeid = e.employeeid
 						where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-						and e.companyid = " . $companyid . " and e.recordstatus = 3
-						and a.startdate <= curdate()
+						".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
+						and a.startdate <= curdate() and f.fullname like '%{$fullname}%'
 						and e.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and a.productplanid = " . $row['productplanid'];
-      $command1       = $this->connection->createCommand($sql1);
+      $command1       = Yii::app()->db->createCommand($sql1);
       $dataReader1    = $command1->queryAll();
       $total          = 0;
       $i              = 0;
@@ -1090,22 +1020,24 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //9
-  public function RincianPendinganProduksiPerBarang($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianPendinganProduksiPerBarang($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $subtotalqty       = 0;
     $subtotalqtyoutput = 0;
     $subtotalselisih   = 0;
-    $sql               = "select distinct d.description,d.slocid
+    $sql = "select distinct d.description,d.slocid
 						 from productplan a
 						 join productplanfg b on b.productplanid = a.productplanid
 						 join product c on c.productid = b.productid
 						 join sloc d on d.slocid = b.slocid
+             left join employee e on e.employeeid = a.employeeid
 						 where a.recordstatus = 3 and d.sloccode like '%" . $sloc . "%' 
-						 and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+						 ".getFieldTable($productcollectid,'c','productcollectid')." and e.fullname like '%{$fullname}%'
+             ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
 						 and b.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command           = $this->connection->createCommand($sql);
+    $command           = Yii::app()->db->createCommand($sql);
     $dataReader        = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -1119,19 +1051,20 @@ class RepprodController extends Controller
       $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['description']);
       $this->pdf->SetFont('Arial', '', 9);
       $sql1           = "select distinct b.productname,b.productid
-                                from productplanfg a	
-                                join product b on b.productid = a.productid	
-                                join unitofmeasure c on c.unitofmeasureid = a.uomid	
-                                join sloc d on d.slocid = a.slocid
-                                join productplan e on e.productplanid = a.productplanid	
-                                where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-                                and e.companyid = " . $companyid . " and e.recordstatus = 3
-                                and e.productplanno is not null
-                                and a.startdate <= now() and a.startdate >= date_sub(now(),interval 1 MONTH)
-                                and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                                and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
-                                and a.slocid = " . $row['slocid'] . " ";
-      $command1       = $this->connection->createCommand($sql1);
+                        from productplanfg a	
+                        join product b on b.productid = a.productid	
+                        join unitofmeasure c on c.unitofmeasureid = a.uomid	
+                        join sloc d on d.slocid = a.slocid
+                        join productplan e on e.productplanid = a.productplanid	
+                        left join employee f on f.employeeid = e.employeeid
+                        where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres ".getFieldTable($productcollectid,'b','productcollectid')."
+                        ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
+                        and e.productplanno is not null and f.fullname like '%{$fullname}%'
+                        and a.startdate <= now() and a.startdate >= date_sub(now(),interval 1 MONTH)
+                        and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                        and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
+                        and a.slocid = " . $row['slocid'] . " ";
+      $command1       = Yii::app()->db->createCommand($sql1);
       $dataReader1    = $command1->queryAll();
       $totalqty       = 0;
       $totalqtyoutput = 0;
@@ -1157,7 +1090,7 @@ class RepprodController extends Controller
                                             and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
                                             and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
                                             and b.productid = " . $row1['productid'] . " and d.slocid = " . $row['slocid'] . "";
-        $command2    = $this->connection->createCommand($sql2);
+        $command2    = Yii::app()->db->createCommand($sql2);
         $dataReader2 = $command2->queryAll();
         $this->pdf->sety($this->pdf->gety() + 18);
         $this->pdf->setFont('Arial', '', 8);
@@ -1267,7 +1200,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //10
-  public function RekapPendinganProduksiPerBarang($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapPendinganProduksiPerBarang($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $subtotalqty       = 0;
@@ -1278,11 +1211,13 @@ class RepprodController extends Controller
 						 join productplanfg b on b.productplanid = a.productplanid
 						 join product c on c.productid = b.productid
 						 join sloc d on d.slocid = b.slocid
+             left join employee e on e.employeeid = a.employeeid
 						 where a.recordstatus = 3 and d.sloccode like '%" . $sloc . "%' 
-						 and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+						 ".getFieldTable($productcollectid,'c','productcollectid')." and e.fullname like '%{$fullname}%'
+             ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
 						 and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productplanno";
-    $command           = $this->connection->createCommand($sql);
+    $command           = Yii::app()->db->createCommand($sql);
     $dataReader        = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -1302,14 +1237,16 @@ class RepprodController extends Controller
                                     join product b on b.productid = a.productid	
                                     join unitofmeasure c on c.unitofmeasureid = a.uomid	
                                     join sloc d on d.slocid = a.slocid
-                                    join productplan e on e.productplanid = a.productplanid	
-                                    where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-                                    and e.companyid = " . $companyid . " and e.recordstatus = 3
+                                    join productplan e on e.productplanid = a.productplanid
+                                    left join employee f on f.employeeid = e.employeeid
+                                    where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres and f.fullname like '%{$fullname}%'
+                                    ".getFieldTable($productcollectid,'b','productcollectid')."
+                                    ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
                                     and e.productplanno is not null
                                     and e.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
                                     and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
                                     and a.slocid = " . $row['slocid'] . " order by productname) z group by productname";
-      $command1       = $this->connection->createCommand($sql1);
+      $command1       = Yii::app()->db->createCommand($sql1);
       $dataReader1    = $command1->queryAll();
       $totalqty       = 0;
       $i              = 0;
@@ -1394,7 +1331,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //11
-  public function RekapProduksiPerBarangPerHari($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerBarangPerHari($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct g.materialgroupid,g.description
@@ -1405,31 +1342,33 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
+        left join employee h on h.employeeid = a.employeeid
+				where a.productoutputno is not null and a.companyid = {$companyid}
+        and a.recordstatus = 3 and h.fullname like '%{$fullname}%'
 				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
     }
-    $this->pdf->title    = 'Rekap Produksi Per Barang Per Hari';
+    $this->pdf->title    = 'Rekap Produksi Per Material Group Per Barang Per Hari';
     $this->pdf->subtitle = 'Periode : ' . date('F Y',strtotime($enddate));
     $this->pdf->AddPage('L', 'Legal');
     foreach ($dataReader as $row)
     {
       $this->pdf->SetFont('Arial', '', 7);
-      $this->pdf->text(10, $this->pdf->gety() + 10, 'Divisi');
-      $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['description']);
-      $sql1        = "select distinct productname,productid,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput,d1, 																						d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 from 
+      $this->pdf->text(10, $this->pdf->gety() + 10, 'MATERIAL GROUP');
+      $this->pdf->text(45, $this->pdf->gety() + 10, ': ' . $row['description']);
+      $sql1 = "select distinct productname,productid,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 from 
 								(select distinct b.productname,b.productid,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid,(select ifnull(sum(k.qtyoutput),0)
 								from productoutputfg k
 								join productoutput l on l.productoutputid = k.productoutputid
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and day(l.productoutputdate) = 1 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d1,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1438,7 +1377,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and day(l.productoutputdate) = 2 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d2,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1447,7 +1386,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 3 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d3,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1456,7 +1395,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and day(l.productoutputdate) = 4 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d4,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1465,7 +1404,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 5 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d5,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1474,7 +1413,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 6 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d6,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1483,7 +1422,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 7 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d7,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1492,7 +1431,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 8 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d8,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1501,7 +1440,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 9 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d9,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1510,7 +1449,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 10 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d10,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1519,7 +1458,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 11 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d11,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1528,7 +1467,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 12 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d12,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1537,7 +1476,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 13 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d13,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1546,7 +1485,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 14 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d14,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1555,7 +1494,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 15 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d15,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1564,7 +1503,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 16 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d16,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1573,7 +1512,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 17
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d17,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1582,7 +1521,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 18 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d18,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1591,7 +1530,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 19 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d19,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1600,7 +1539,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 20 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d20,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1609,7 +1548,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 21 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d21,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1618,7 +1557,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 22 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d22,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1627,7 +1566,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 23 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d23,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1636,7 +1575,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 24 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d24,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1645,7 +1584,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 25 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d25,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1654,7 +1593,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 26 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d26,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1663,7 +1602,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 27 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d27,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1672,7 +1611,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 28 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d28,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1681,7 +1620,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 29 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d29,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1690,7 +1629,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 30 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								) as d30,
 
 								(select ifnull(sum(k.qtyoutput),0)
@@ -1699,7 +1638,7 @@ class RepprodController extends Controller
 								where year(l.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') 
 								and month(l.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 								and day(l.productoutputdate) = 31 
-								and l.recordstatus = 3 and k.productid = a.productid
+								and l.recordstatus = 3 and k.productid = a.productid and l.companyid = d.companyid 
 								)as d31
 
 								from productoutputfg a
@@ -1710,10 +1649,9 @@ class RepprodController extends Controller
 								join sloc f on f.slocid = a.slocid
 								join productplan g on g.productplanid = d.productplanid 
 								where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-								and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . " ) z 
+								and g.companyid = " . $companyid . " and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and month(d.productoutputdate) = month('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . " ) z 
 								group by productname,uomcode,materialgroupid";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $totalqty    = 0;
       $i           = 0;
@@ -1921,7 +1859,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //12
-  public function RekapHasilProduksiPerDokumentBelumStatusMax($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapHasilProduksiPerDokumentBelumStatusMax($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct b.productoutputid,b.productoutputid,b.recordstatus,
@@ -1937,7 +1875,7 @@ class RepprodController extends Controller
 					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 					and b.recordstatus between 1 and (3-1) and b.productplanid is not null 
 					order by b.recordstatus";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -2015,7 +1953,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //13
-  public function RekapProduksiPerBarangPerBulan($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerBarangPerBulan($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct g.materialgroupid,g.description
@@ -2026,17 +1964,18 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and a.recordstatus = 3
 				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
 				and year(a.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 				order by g.description
 		";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
     }
-    $this->pdf->title    = 'Rekap Produksi Per Barang Per Bulan';
+    $this->pdf->title    = 'Rekap Produksi Per Material Group Per Barang Per Bulan';
     $this->pdf->subtitle = 'Per Tahun : ' . date('Y', strtotime($enddate));
     $this->pdf->AddPage('L','F4');
     $grandtotaljanuari = 0;
@@ -2055,8 +1994,8 @@ class RepprodController extends Controller
         
     foreach ($dataReader as $row) {
       $this->pdf->SetFont('Arial', '', 10);
-      $this->pdf->text(10, $this->pdf->gety() + 10, 'Divisi');
-      $this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['description']);
+      $this->pdf->text(10, $this->pdf->gety() + 10, 'MATERIAL GROUP');
+      $this->pdf->text(45, $this->pdf->gety() + 10, ': ' . $row['description']);
       $sql1        = "select *
 					from (select distinct b.productname,e.uomcode,
 					ifnull((select sum(k.qtyoutput)
@@ -2209,10 +2148,12 @@ class RepprodController extends Controller
 					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
 					join sloc f on f.slocid = a.slocid
 					join productplan g on g.productplanid = d.productplanid 
+          left join employee h on h.employeeid = d.employeeid
 					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-					and g.companyid = " . $companyid . " and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . ") z 
+					".getFieldTable($productcollectid,'b','productcollectid')." and h.fullname like '%{$fullname}%'
+          ".getCompanyGroup($companyid,'d')." and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . ") z 
 					group by productname,uomcode";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $totaljanuari=0;$totalfebruari=0;$totalmaret=0;$totalapril=0;$totalmei=0;$totaljuni=0;$totaljuli=0;$totalagustus=0;$totalseptember=0;$totaloktober=0;$totalnopember=0;$totaldesember=0;$totaljumlah=0;
       $i           = 0;
@@ -2383,7 +2324,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //14
-  public function JadwalProduksi($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function JadwalProduksi($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct startdate
@@ -2394,7 +2335,7 @@ class RepprodController extends Controller
                   where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                   and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' 
                   and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) 
     {
@@ -2419,14 +2360,14 @@ class RepprodController extends Controller
                       and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."'
                       and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
                       order by description";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       foreach ($dataReader1 as $row1)
       {
         $this->pdf->SetFont('Arial', 'B', 10);
         $this->pdf->sety($this->pdf->gety()+5);
         $this->pdf->text(10, $this->pdf->gety()+5, 'Material Group');
-        $this->pdf->text(35, $this->pdf->gety()+5, ': ' . $row1['description']);
+        $this->pdf->text(45, $this->pdf->gety()+5, ': ' . $row1['description']);
         $this->pdf->sety($this->pdf->gety()+7);        
         $this->pdf->setFont('Arial', 'B', 8);
         $this->pdf->colalign = array('C','C','C','C','C','C','C','C');
@@ -2446,7 +2387,7 @@ class RepprodController extends Controller
                         where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                         and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."' and f.materialgroupid = ".$row1['materialgroupid']."
                         and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-        $command2    = $this->connection->createCommand($sql2);
+        $command2    = Yii::app()->db->createCommand($sql2);
         $dataReader2 = $command2->queryAll();
         $i=0;$totalqty=0;$totalct=0;
         foreach ($dataReader2 as $row2)
@@ -2482,7 +2423,7 @@ class RepprodController extends Controller
     }
     $this->pdf->Output();
   }
-  /*public function JadwalProduksi($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  /*public function JadwalProduksi($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $sql        = "select distinct startdate
@@ -2493,7 +2434,7 @@ class RepprodController extends Controller
                   where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                   and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' 
                   and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-    $command    = $this->connection->createCommand($sql);
+    $command    = Yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) 
     {
@@ -2518,14 +2459,14 @@ class RepprodController extends Controller
                       and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."'
                       and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
                       order by description";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = Yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       foreach ($dataReader1 as $row1)
       {
         $this->pdf->SetFont('Arial', 'B', 10);
         $this->pdf->sety($this->pdf->gety()+5);
         $this->pdf->text(10, $this->pdf->gety()+5, 'Material Group');
-        $this->pdf->text(35, $this->pdf->gety()+5, ': ' . $row1['description']);
+        $this->pdf->text(45, $this->pdf->gety()+5, ': ' . $row1['description']);
         $this->pdf->sety($this->pdf->gety()+7);        
         $this->pdf->setFont('Arial', 'B', 8);
         $this->pdf->colalign = array('C','C','C','C','C','C','C');
@@ -2545,7 +2486,7 @@ class RepprodController extends Controller
                         where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                         and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."' and f.materialgroupid = ".$row1['materialgroupid']."
                         and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-        $command2    = $this->connection->createCommand($sql2);
+        $command2    = Yii::app()->db->createCommand($sql2);
         $dataReader2 = $command2->queryAll();
         $i=0;$totalqty=0;
         foreach ($dataReader2 as $row2)
@@ -2579,7 +2520,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }*/
   //15
-  public function LaporanSPPStatusBelumMax($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanSPPStatusBelumMax($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 			parent::actionDownload();
 			$sql = "select distinct a.productplanid,a.companyid, a.productplanno, a.statusname, productplandate, a.description, a.recordstatus, group_concat(c.productname) as productname, d.sloccode, e.companycode
@@ -2597,7 +2538,7 @@ class RepprodController extends Controller
 							group by a.productplanid 
 							order by a.productplanid desc";
 			
-			$command=$this->connection->createCommand($sql);
+			$command=Yii::app()->db->createCommand($sql);
             $dataReader=$command->queryAll();
 			foreach ($dataReader as $row) 
             {
@@ -2620,56 +2561,56 @@ class RepprodController extends Controller
 		'C',
 		'C',
 		'C'
-	);
-	$this->pdf->setwidths(array(
-		15,
-		35,
-		25,
-		25,
-		70,
-		30,
-		40,
-		30
-	));
-	$this->pdf->colheader = array(
-		'No',
-		'ID',
-		'NO SPP',
-        'Tanggal SPP',
-		'Product',
-		'Gudang',
-		'Keterangan',
-		'Status'
-	);
-	$this->pdf->RowHeader();        
-	$i=1;
-	$this->pdf->coldetailalign = array(
-		'L',
-		'L',
-		'L',
-		'L',
-		'L',
-		'L',
-		'L',
-		'L'
-	);
-	foreach($dataReader as $row){
-			 $this->pdf->row(array(
-			$i,
-			$row['productplanid'],
-			$row['productplanno'],
-			date(Yii::app()->params['dateviewfromdb'], strtotime($row['productplandate'])),
-			$row['productname'],
-			$row['sloccode'],
-			$row['description'],
-			$row['statusname']
-            ));
-			$i++;
-	}
-	$this->pdf->Output();
+    );
+    $this->pdf->setwidths(array(
+      15,
+      35,
+      25,
+      25,
+      70,
+      30,
+      40,
+      30
+    ));
+    $this->pdf->colheader = array(
+      'No',
+      'ID',
+      'NO SPP',
+          'Tanggal SPP',
+      'Product',
+      'Gudang',
+      'Keterangan',
+      'Status'
+    );
+    $this->pdf->RowHeader();        
+    $i=1;
+    $this->pdf->coldetailalign = array(
+      'L',
+      'L',
+      'L',
+      'L',
+      'L',
+      'L',
+      'L',
+      'L'
+    );
+    foreach($dataReader as $row){
+        $this->pdf->row(array(
+        $i,
+        $row['productplanid'],
+        $row['productplanno'],
+        date(Yii::app()->params['dateviewfromdb'], strtotime($row['productplandate'])),
+        $row['productname'],
+        $row['sloccode'],
+        $row['description'],
+        $row['statusname']
+              ));
+        $i++;
+    }
+    $this->pdf->Output();
 	}
   //16
-  public function LaporanPerbandingan($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanPerbandingan($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 			parent::actionDownload();
 			$sql = "select *, qtystock-pendinganso as lbstock
@@ -2700,314 +2641,314 @@ class RepprodController extends Controller
 							or a.productname like 'sandaran%')
 							order by productname) z";
 			
-			$command=$this->connection->createCommand($sql);$dataReader=$command->queryAll();
+			$command=Yii::app()->db->createCommand($sql);$dataReader=$command->queryAll();
 			foreach ($dataReader as $row) 
-	{
-					$this->pdf->companyid = $companyid;
-			}
-			
-			$this->pdf->title    = 'Laporan Perbandingan';
-			$this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
-			$this->pdf->text(10, $this->pdf->gety() + 10, 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)));
-			$this->pdf->AddPage('L',array(200,355));
-			$this->pdf->sety($this->pdf->gety() + 5);
-			$this->pdf->SetFont('Arial','',10);
-			$y = $this->pdf->getY();
-			
-			
-			$this->pdf->text(15,$y,'No'); 
-			$this->pdf->text(40,$y,'Product');
-			$this->pdf->text(85,$y,'Stok Awal');
-			$this->pdf->text(105,$y,'Pendingan');
-			$this->pdf->text(125,$y,'Lebih /');
-			$this->pdf->text(160,$y,'WIP '); 
-			$this->pdf->text(195,$y,'WIP '); 
-			$this->pdf->text(228,$y,'WIP ');
-			$this->pdf->text(263,$y,'WIP ');
-			$this->pdf->text(295,$y,'WIP ');
-			$this->pdf->text(332,$y,'WIP ');
-			
-			$y = $this->pdf->getY()+5;
-			$this->pdf->text(110,$y,'SO');
-			$this->pdf->text(125,$y,'Kurang');
-			$this->pdf->text(160,$y,'Kain ');
-			$this->pdf->text(190,$y,'Rangka Per');
-			$this->pdf->text(215,$y,'Rangka Bed Sorong');
-			$this->pdf->text(255,$y,'Rangka Divan');
-			$this->pdf->text(285,$y,'Rangka Sandaran');
-			$this->pdf->text(330,$y,'Centian');
-	
-			$this->pdf->setY($this->pdf->getY()+7);
-			//$this->pdf->setX(-1);
-			$this->pdf->colalign = array(
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C'
-            );
-            $this->pdf->setwidths(array(
-                15,
-                60,
-                20,
-                20,
-                20,
-                35,
-                35,
-                35,
-                35,
-                35,
-                36,
-            ));
-			
-	       $this->pdf->RowHeader();        
-           $i=1;
-           $this->pdf->coldetailalign = array(
-                'C',
-                'L',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C',
-                'C'
-            );
-	       foreach($dataReader as $row){
-			if($row['lbstock']<0) {
-					$sqlwipkain = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'wip kain%'";
-					$res_kain = $this->connection->createCommand($sqlwipkain)->queryAll();
-					//$wipkain=$res->queryAll();
-					$wipkain = '';
-					foreach($res_kain as $row_kain){
-									$sqldetail_kain = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-									from productstockdet g
-								    where g.productid=".$row_kain['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query = $this->connection->createCommand($sqldetail_kain)->queryAll();
-									foreach($query as $row2_kain){
-											$wipkain .= $row2_kain['ukuran'].' => '.number_format($row2_kain['qty'],1)." \n";
-									}
-					}
-					
-			}else{
-					$wipkain = 0;
-			}
-			
-			if($row['lbstock']<0) {
-					$sqlwiprangkaper = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 
-										 AND a.productname like 'rangka per%'";
-					$res_rangkaper= $this->connection->createCommand($sqlwiprangkaper)->queryAll();
-					//$wipkain=$res->queryAll();
-					$wiprangkaper = '';
-					foreach($res_rangkaper as $row_rangkaper){
-									$sqldetail_rangkaper = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-									from productstockdet g
-								    where g.productid=".$row_rangkaper['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query_rangkaper = $this->connection->createCommand($sqldetail_rangkaper)->queryAll();
-									foreach($query_rangkaper as $row2_rangkaper){
-											$wiprangkaper .= $row2_rangkaper['ukuran'].' => '.number_format($row2_rangkaper['qty'],1)." \n";
-									}
-					}
-					
-			}else{
-					$wiprangkaper = 0;
-			}
-			
-			if($row['lbstock']<0) {
-					$sqlwiprangkabed = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'rangka bed sorong%'";
-					$res_rangkabed= $this->connection->createCommand($sqlwiprangkabed)->queryAll();
-					//$wipkain=$res->queryAll();
-					$wiprangkabed = '';
-					foreach($res_rangkabed as $row_rangkabed){
-									$sqldetail_rangkabed = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-                                    from productstockdet g
-									where g.productid=".$row_rangkabed['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query_rangkabed = $this->connection->createCommand($sqldetail_rangkabed)->queryAll();
-									foreach($query_rangkabed as $row2_rangkabed){
-											$wiprangkabed .= $row2_rangkabed['ukuran'].' => '.number_format($row2_rangkabed['qty'],1)." \n";
-									}
-					}
-					
-			}else{
-					$wiprangkabed = 0;
-			}
-			
-			if($row['lbstock']<0) {
-					$sqlwiprangkadivan = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 
-										 AND a.productname like 'rangka divan%'";
-					$res_rangkadivan= $this->connection->createCommand($sqlwiprangkadivan)->queryAll();
-					$sqlcount_divan = "select ifnull(count(1),0)
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'rangka divan%'";
-					//$wipkain=$res->queryAll();
-					$count_divan = $this->connection->createCommand($sqlcount_divan)->queryScalar();
-					$wiprangkadivan = '';
-					if($count_divan=='0'){
-									$wiprangkadivan = '-';
-							}else{
-					foreach($res_rangkadivan as $row_rangkadivan){
-									$sqldetail_rangkadivan = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-                                    from productstockdet g
-								    where g.productid=".$row_rangkadivan['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query_rangkadivan = $this->connection->createCommand($sqldetail_rangkadivan)->queryAll();
-									foreach($query_rangkadivan as $row2_rangkadivan){
-											$wiprangkadivan .= $row2_rangkadivan['ukuran'].' => '.number_format($row2_rangkadivan['qty'],1)." \n";
-									}
-							}
-					}
-					
-			}else{
-					$wiprangkadivan = 0;
-			}
-			
-			if($row['lbstock']<0) {
-					$sqlwiprangkasandaran = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'sandaran%'";
-					$sqlcount_sandaran = "select ifnull(count(1),0)
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'sandaran%'";
-					$count_sandaran = $this->connection->createCommand($sqlcount_sandaran)->queryScalar();
-					$res_rangkasandaran= $this->connection->createCommand($sqlwiprangkasandaran)->queryAll();
-					//$wipkain=$res->queryAll();
-					$wiprangkasandaran = '';
-					if($count_sandaran=='0'){
-									$wiprangkasandaran = '-';
-							}else{
-							foreach($res_rangkasandaran as $row_rangkasandaran){
-									$sqldetail_rangkasandaran = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-                                    from productstockdet g
-								    where g.productid=".$row_rangkasandaran['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query_rangkasandaran = $this->connection->createCommand($sqldetail_rangkasandaran)->queryAll();
-									foreach($query_rangkasandaran as $row2_rangkasandaran){
-											$wiprangkasandaran .= $row2_rangkasandaran['ukuran'].' => '.number_format($row2_rangkasandaran['qty'],1)." \n";
-									}
-							}
-					}
-					
-			}else{
-					$wiprangkasandaran = 0;
-			}
-			
-			if($row['lbstock']<0) {
-					$sqlwipcentian = "select c.productid as idwip, a.productname, b.productid
-										 from billofmaterial b
-										 left join bomdetail c on c.bomid = b.bomid
-										 left join product a on a.productid = c.productid 
-										 where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'centian%'";
-					$res_centian= $this->connection->createCommand($sqlwipcentian)->queryAll();
-					//$wipkain=$res->queryAll();
-					$wipcentian = '';
-					foreach($res_centian as $row_centian){
-									$sqldetail_centian = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
-                                    from productstockdet g
-									where g.productid=".$row_centian['idwip']."
-									and g.transdate<='2017-08-13'";
-									$query_centian = $this->connection->createCommand($sqldetail_centian)->queryAll();
-									foreach($query_centian as $row2_centian){
-											$wipcentian .= $row2_centian['ukuran'].' => '.number_format($row2_centian['qty'],1)." \n";
-									}
-					}
-					
-			}else{
-					$wipcentian = 0;
-			}
-			
-            $this->pdf->setFont('Arial','',8);
-			$this->pdf->row(array(
-			$i,
-			$row['productname'],
-			number_format($row['qtystock'],0),
-			number_format($row['pendinganso'],0),
-			number_format($row['lbstock'],0),
-			$wipkain,
-			$wiprangkaper,
-			$wiprangkabed,
-			$wiprangkadivan,
-			$wiprangkasandaran,
-			$wipcentian
-					));
-			$i++;
-	}
+      {
+              $this->pdf->companyid = $companyid;
+          }
+          
+          $this->pdf->title    = 'Laporan Perbandingan';
+          $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+          $this->pdf->text(10, $this->pdf->gety() + 10, 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)));
+          $this->pdf->AddPage('L',array(200,355));
+          $this->pdf->sety($this->pdf->gety() + 5);
+          $this->pdf->SetFont('Arial','',10);
+          $y = $this->pdf->getY();
+          
+          
+          $this->pdf->text(15,$y,'No'); 
+          $this->pdf->text(40,$y,'Product');
+          $this->pdf->text(85,$y,'Stok Awal');
+          $this->pdf->text(105,$y,'Pendingan');
+          $this->pdf->text(125,$y,'Lebih /');
+          $this->pdf->text(160,$y,'WIP '); 
+          $this->pdf->text(195,$y,'WIP '); 
+          $this->pdf->text(228,$y,'WIP ');
+          $this->pdf->text(263,$y,'WIP ');
+          $this->pdf->text(295,$y,'WIP ');
+          $this->pdf->text(332,$y,'WIP ');
+          
+          $y = $this->pdf->getY()+5;
+          $this->pdf->text(110,$y,'SO');
+          $this->pdf->text(125,$y,'Kurang');
+          $this->pdf->text(160,$y,'Kain ');
+          $this->pdf->text(190,$y,'Rangka Per');
+          $this->pdf->text(215,$y,'Rangka Bed Sorong');
+          $this->pdf->text(255,$y,'Rangka Divan');
+          $this->pdf->text(285,$y,'Rangka Sandaran');
+          $this->pdf->text(330,$y,'Centian');
+      
+          $this->pdf->setY($this->pdf->getY()+7);
+          //$this->pdf->setX(-1);
+          $this->pdf->colalign = array(
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C'
+                );
+                $this->pdf->setwidths(array(
+                    15,
+                    60,
+                    20,
+                    20,
+                    20,
+                    35,
+                    35,
+                    35,
+                    35,
+                    35,
+                    36,
+                ));
+          
+            $this->pdf->RowHeader();        
+              $i=1;
+              $this->pdf->coldetailalign = array(
+                    'C',
+                    'L',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C',
+                    'C'
+                );
+            foreach($dataReader as $row){
+          if($row['lbstock']<0) {
+              $sqlwipkain = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'wip kain%'";
+              $res_kain = Yii::app()->db->createCommand($sqlwipkain)->queryAll();
+              //$wipkain=$res->queryAll();
+              $wipkain = '';
+              foreach($res_kain as $row_kain){
+                      $sqldetail_kain = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                      from productstockdet g
+                        where g.productid=".$row_kain['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query = Yii::app()->db->createCommand($sqldetail_kain)->queryAll();
+                      foreach($query as $row2_kain){
+                          $wipkain .= $row2_kain['ukuran'].' => '.number_format($row2_kain['qty'],1)." \n";
+                      }
+              }
+              
+          }else{
+              $wipkain = 0;
+          }
+          
+          if($row['lbstock']<0) {
+              $sqlwiprangkaper = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 
+                        AND a.productname like 'rangka per%'";
+              $res_rangkaper= Yii::app()->db->createCommand($sqlwiprangkaper)->queryAll();
+              //$wipkain=$res->queryAll();
+              $wiprangkaper = '';
+              foreach($res_rangkaper as $row_rangkaper){
+                      $sqldetail_rangkaper = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                      from productstockdet g
+                        where g.productid=".$row_rangkaper['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query_rangkaper = Yii::app()->db->createCommand($sqldetail_rangkaper)->queryAll();
+                      foreach($query_rangkaper as $row2_rangkaper){
+                          $wiprangkaper .= $row2_rangkaper['ukuran'].' => '.number_format($row2_rangkaper['qty'],1)." \n";
+                      }
+              }
+              
+          }else{
+              $wiprangkaper = 0;
+          }
+          
+          if($row['lbstock']<0) {
+              $sqlwiprangkabed = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'rangka bed sorong%'";
+              $res_rangkabed= Yii::app()->db->createCommand($sqlwiprangkabed)->queryAll();
+              //$wipkain=$res->queryAll();
+              $wiprangkabed = '';
+              foreach($res_rangkabed as $row_rangkabed){
+                      $sqldetail_rangkabed = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                                        from productstockdet g
+                      where g.productid=".$row_rangkabed['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query_rangkabed = Yii::app()->db->createCommand($sqldetail_rangkabed)->queryAll();
+                      foreach($query_rangkabed as $row2_rangkabed){
+                          $wiprangkabed .= $row2_rangkabed['ukuran'].' => '.number_format($row2_rangkabed['qty'],1)." \n";
+                      }
+              }
+              
+          }else{
+              $wiprangkabed = 0;
+          }
+          
+          if($row['lbstock']<0) {
+              $sqlwiprangkadivan = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 
+                        AND a.productname like 'rangka divan%'";
+              $res_rangkadivan= Yii::app()->db->createCommand($sqlwiprangkadivan)->queryAll();
+              $sqlcount_divan = "select ifnull(count(1),0)
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'rangka divan%'";
+              //$wipkain=$res->queryAll();
+              $count_divan = Yii::app()->db->createCommand($sqlcount_divan)->queryScalar();
+              $wiprangkadivan = '';
+              if($count_divan=='0'){
+                      $wiprangkadivan = '-';
+                  }else{
+              foreach($res_rangkadivan as $row_rangkadivan){
+                      $sqldetail_rangkadivan = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                                        from productstockdet g
+                        where g.productid=".$row_rangkadivan['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query_rangkadivan = Yii::app()->db->createCommand($sqldetail_rangkadivan)->queryAll();
+                      foreach($query_rangkadivan as $row2_rangkadivan){
+                          $wiprangkadivan .= $row2_rangkadivan['ukuran'].' => '.number_format($row2_rangkadivan['qty'],1)." \n";
+                      }
+                  }
+              }
+              
+          }else{
+              $wiprangkadivan = 0;
+          }
+          
+          if($row['lbstock']<0) {
+              $sqlwiprangkasandaran = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'sandaran%'";
+              $sqlcount_sandaran = "select ifnull(count(1),0)
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'sandaran%'";
+              $count_sandaran = Yii::app()->db->createCommand($sqlcount_sandaran)->queryScalar();
+              $res_rangkasandaran= Yii::app()->db->createCommand($sqlwiprangkasandaran)->queryAll();
+              //$wipkain=$res->queryAll();
+              $wiprangkasandaran = '';
+              if($count_sandaran=='0'){
+                      $wiprangkasandaran = '-';
+                  }else{
+                  foreach($res_rangkasandaran as $row_rangkasandaran){
+                      $sqldetail_rangkasandaran = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                                        from productstockdet g
+                        where g.productid=".$row_rangkasandaran['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query_rangkasandaran = Yii::app()->db->createCommand($sqldetail_rangkasandaran)->queryAll();
+                      foreach($query_rangkasandaran as $row2_rangkasandaran){
+                          $wiprangkasandaran .= $row2_rangkasandaran['ukuran'].' => '.number_format($row2_rangkasandaran['qty'],1)." \n";
+                      }
+                  }
+              }
+              
+          }else{
+              $wiprangkasandaran = 0;
+          }
+          
+          if($row['lbstock']<0) {
+              $sqlwipcentian = "select c.productid as idwip, a.productname, b.productid
+                        from billofmaterial b
+                        left join bomdetail c on c.bomid = b.bomid
+                        left join product a on a.productid = c.productid 
+                        where b.productid = ".$row['productid']." and a.isstock = 1 and a.productname like 'centian%'";
+              $res_centian= Yii::app()->db->createCommand($sqlwipcentian)->queryAll();
+              //$wipkain=$res->queryAll();
+              $wipcentian = '';
+              foreach($res_centian as $row_centian){
+                      $sqldetail_centian = "select sum(g.qty) as qty, concat('Uk. ',right(g.productname,7)) as ukuran
+                                        from productstockdet g
+                      where g.productid=".$row_centian['idwip']."
+                      and g.transdate<='2017-08-13'";
+                      $query_centian = yii::app()->db->createCommand($sqldetail_centian)->queryAll();
+                      foreach($query_centian as $row2_centian){
+                          $wipcentian .= $row2_centian['ukuran'].' => '.number_format($row2_centian['qty'],1)." \n";
+                      }
+              }
+              
+          }else{
+              $wipcentian = 0;
+          }
+          
+                $this->pdf->setFont('Arial','',8);
+          $this->pdf->row(array(
+          $i,
+          $row['productname'],
+          number_format($row['qtystock'],0),
+          number_format($row['pendinganso'],0),
+          number_format($row['lbstock'],0),
+          $wipkain,
+          $wiprangkaper,
+          $wiprangkabed,
+          $wiprangkadivan,
+          $wiprangkasandaran,
+          $wipcentian
+              ));
+          $i++;
+      }
 			/*
-	foreach($dataReader as $row){
-			if($row['lbstock']<0) {
-					$sqlwip = "SELECT IFNULL(COUNT(1),0) as jumlah, c.productid as idwip, a.productname, b.productid
-										 FROM billofmaterial b
-										 LEFT JOIN bomdetail c ON c.bomid = b.bomid
-										 LEFT JOIN product a ON a.productid = c.productid 
-										 WHERE b.productid = ".$row['productid']." AND a.isstock = 1 
-										 AND a.productname like 'wip kain%'";
-					$res = $this->connection->createCommand($sqlwip);
-					$wipkain=$res->queryAll();
-					foreach($wipkain as $row1){
-							$sqldetail = "SELECT SUM(g.qty)
-													FROM productstockdet g
-													WHERE g.productid=".$row1['idwip']."
-													AND g.transdate<='2017-08-13'";
-							$query = array();
-							$query[] = $this->connection->createCommand($sqldetail)->queryScalar();
-							
-					}
-					
-			}else{
-					$wipkain = 0;
-			}
-			 $this->pdf->row(array(
-			$i,
-			$row['productname'].' '.$row['productid'],
-			$row['qtystock'],
-			$row['pendinganso'],
-			$row['lbstock'],
-			$wipkain,
-			$row['pendinganso'],
-			$row['pendinganso'],
-			$row['pendinganso'],
-			$row['pendinganso'],
-			$row['pendinganso']
-					));
-			$i++;
-	}
-	*/
-	$this->pdf->Output();
+    foreach($dataReader as $row){
+        if($row['lbstock']<0) {
+            $sqlwip = "SELECT IFNULL(COUNT(1),0) as jumlah, c.productid as idwip, a.productname, b.productid
+                      FROM billofmaterial b
+                      LEFT JOIN bomdetail c ON c.bomid = b.bomid
+                      LEFT JOIN product a ON a.productid = c.productid 
+                      WHERE b.productid = ".$row['productid']." AND a.isstock = 1 
+                      AND a.productname like 'wip kain%'";
+            $res = yii::app()->db->createCommand($sqlwip);
+            $wipkain=$res->queryAll();
+            foreach($wipkain as $row1){
+                $sqldetail = "SELECT SUM(g.qty)
+                            FROM productstockdet g
+                            WHERE g.productid=".$row1['idwip']."
+                            AND g.transdate<='2017-08-13'";
+                $query = array();
+                $query[] = yii::app()->db->createCommand($sqldetail)->queryScalar();
+                
+            }
+            
+        }else{
+            $wipkain = 0;
+        }
+        $this->pdf->row(array(
+        $i,
+        $row['productname'].' '.$row['productid'],
+        $row['qtystock'],
+        $row['pendinganso'],
+        $row['lbstock'],
+        $wipkain,
+        $row['pendinganso'],
+        $row['pendinganso'],
+        $row['pendinganso'],
+        $row['pendinganso'],
+        $row['pendinganso']
+            ));
+        $i++;
+    }
+    */
+    $this->pdf->Output();
 	}
   //17
-  public function LaporanMaterialSPP($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanMaterialSPP($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 			parent::actionDownload();
 			$id = '';
@@ -3026,7 +2967,7 @@ class RepprodController extends Controller
 			$command=Yii::app()->db->createCommand($sql);
 			$dataReader=$command->queryAll();
 			foreach ($dataReader as $row) 
-	{
+	    {
 					$this->pdf->companyid = $companyid;
 			}
 			foreach($dataReader as $row){
@@ -3050,79 +2991,79 @@ class RepprodController extends Controller
 		'C',
 		'C',
         'C'
-	);
-	$this->pdf->setwidths(array(
-		15,
-		100,
-		25,
-		25,
-		25,
-		27,
-		30,
-        20
-	));
-			
-	$this->pdf->colheader = array(
-		'NO',
-		'Product Name',
-		'Satuan',
-		'Jumlah (SPP)',
-		'Qty Needed',
-		'Stock',
-		'Plus/Minus',
-        'Link SPP'
-	);
+      );
+      $this->pdf->setwidths(array(
+        15,
+        100,
+        25,
+        25,
+        25,
+        27,
+        30,
+            20
+      ));
+          
+      $this->pdf->colheader = array(
+        'NO',
+        'Product Name',
+        'Satuan',
+        'Jumlah (SPP)',
+        'Qty Needed',
+        'Stock',
+        'Plus/Minus',
+            'Link SPP'
+      );
 
-	$this->pdf->RowHeader();        
-	$i=1;
-	$this->pdf->coldetailalign = array(
-		'C',
-		'L',
-		'C',
-		'C',
-		'R',
-		'R',
-		'R',
-        'C'
-	);
-			$sql1 = "select b.productid, b.productname, sum(qty-qtyres) as qtyneed, c.uomcode,group_concat(distinct a.productplanid) as count
-							from productplandetail a
-							join product b on a.productid = b.productid
-							join unitofmeasure c on c.unitofmeasureid = a.uomid
-							where productplanfgid in (".$id.") and b.isstock = 1
-							group by productid 
-							having qtyneed > 0
-							order by productname ";
-			
-			$cmd1 = Yii::app()->db->createCommand($sql1)->queryAll();
-			foreach($cmd1 as $row1){
-					$explode = explode(',',$row1['count'],-1);
-					$count = count($explode);
-					$sqlstock = "select sum(qty+qtyinprogress)
-											from productstock
-											where productid =".$row1['productid']."";
-					$stock = Yii::app()->db->createCommand($sqlstock)->queryScalar();
-                    $url = '&company='.$companyid.'&sloc='.$sloc.'&product='.$row1['productname'].'&startdate='.$startdate.'&enddate='.$enddate;
-                    $this->pdf->checkNewPage(10);
-                    $this->pdf->Cell(260,5,'Lihat ','','','R',false,Yii::app()->createUrl('production/repprod/downpdf?lro=99'.$url)); 
-                    $this->pdf->setX(5);
-                    $this->pdf->row(array(
-                        $i,
-                        $row1['productname'],
-                        //.$row1['productid'],
-                        $row1['uomcode'],
-                        ($count+1),
-                        number_format($row1['qtyneed'],4),
-                        number_format($stock,4),
-                        number_format($stock - $row1['qtyneed'],4),
-                    ));
-			$i++;
-	}
+      $this->pdf->RowHeader();        
+      $i=1;
+      $this->pdf->coldetailalign = array(
+        'C',
+        'L',
+        'C',
+        'C',
+        'R',
+        'R',
+        'R',
+            'C'
+      );
+          $sql1 = "select b.productid, b.productname, sum(qty-qtyres) as qtyneed, c.uomcode,group_concat(distinct a.productplanid) as count
+                  from productplandetail a
+                  join product b on a.productid = b.productid
+                  join unitofmeasure c on c.unitofmeasureid = a.uomid
+                  where productplanfgid in (".$id.") and b.isstock = 1
+                  group by productid 
+                  having qtyneed > 0
+                  order by productname ";
+          
+          $cmd1 = Yii::app()->db->createCommand($sql1)->queryAll();
+          foreach($cmd1 as $row1){
+              $explode = explode(',',$row1['count'],-1);
+              $count = count($explode);
+              $sqlstock = "select sum(qty+qtyinprogress)
+                          from productstock
+                          where productid =".$row1['productid']."";
+              $stock = Yii::app()->db->createCommand($sqlstock)->queryScalar();
+                        $url = '&company='.$companyid.'&sloc='.$sloc.'&product='.$row1['productname'].'&startdate='.$startdate.'&enddate='.$enddate;
+                        $this->pdf->checkNewPage(10);
+                        $this->pdf->Cell(260,5,'Lihat ','','','R',false,Yii::app()->createUrl('production/repprod/downpdf?lro=99'.$url)); 
+                        $this->pdf->setX(5);
+                        $this->pdf->row(array(
+                            $i,
+                            $row1['productname'],
+                            //.$row1['productid'],
+                            $row1['uomcode'],
+                            ($count+1),
+                            number_format($row1['qtyneed'],4),
+                            number_format($stock,4),
+                            number_format($stock - $row1['qtyneed'],4),
+                        ));
+          $i++;
+      }
 			
 			$this->pdf->Output();
 	}
   //18
-  public function LaporanHasilScan($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanHasilScan($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     parent::actionDownload();
     $subtotalqty       = 0;
@@ -3134,11 +3075,13 @@ class RepprodController extends Controller
 							join sloc d on d.slocid=c.slocid
 							join product e on e.productid=c.productid
 							join unitofmeasure f on f.unitofmeasureid=c.uomid
-						 where b.companyid = " . $companyid . " and d.sloccode like '%" . $sloc . "%' 
-						 and e.productname like '%" . $product . "%'
-						 and b.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by slocid";
-    $command           = $this->connection->createCommand($sql);
+              left join employee g on g.employeeid = b.employeeid
+						  where d.sloccode like '%" . $sloc . "%' ".getFieldTable($productcollectid,'e','productcollectid')."
+              ".getCompanyGroup($companyid,'b')."
+						  and e.productname like '%" . $product . "%' and g.fullname like '%{$fullname}%'
+						  and b.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+						  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by slocid";
+    $command           = yii::app()->db->createCommand($sql);
     $dataReader        = $command->queryAll();
     foreach ($dataReader as $row) {
       $this->pdf->companyid = $companyid;
@@ -3156,13 +3099,15 @@ class RepprodController extends Controller
 												join sloc c on c.slocid=b.slocid
 												join product d on d.productid=b.productid
 												join unitofmeasure e on e.unitofmeasureid=b.uomid
-						 where a.companyid = " . $companyid . " and c.slocid = ".$row['slocid']." and c.sloccode like '%" . $sloc . "%' 
+                        left join employee f on f.employeeid = a.employeeid
+						 where c.slocid = ".$row['slocid']." ".getFieldTable($productcollectid,'d','productcollectid')."
+            ".getCompanyGroup($companyid,'a')." and c.sloccode like '%" . $sloc . "%' 
 						 and d.productname like '%" . $product . "%'
 						 and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 						 group by productname,uomcode,productoutputno
 						 order by productname,productoutputdate,productoutputno";
-      $command1       = $this->connection->createCommand($sql1);
+      $command1       = yii::app()->db->createCommand($sql1);
       $dataReader1    = $command1->queryAll();
       $totalqty       = 0;
       $i              = 0;
@@ -3247,7 +3192,7 @@ class RepprodController extends Controller
     $this->pdf->Output();
   }
   //19
-  public function LaporanHasilOperatorPerManPower($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanHasilOperatorPerManPower($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       parent::actionDownload();
       $day1 = 420;
@@ -3264,7 +3209,6 @@ class RepprodController extends Controller
             join employee c on c.employeeid = a.employeeid
             join sloc e on e.slocid = b.slocid
             where b.opoutputdate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."'
-            and b.companyid = {$companyid}
             and c.fullname like '%{$fullname}%'
             and e.sloccode like '%{$sloc}%'
             and b.recordstatus= getwfmaxstatbywfname('appopoutput')
@@ -3284,7 +3228,7 @@ class RepprodController extends Controller
             group by employeeid,isover
             order by fullname";
       
-      $command = $this->connection->createCommand($sql);
+      $command = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       foreach ($dataReader as $row) {
         $this->pdf->companyid = $companyid;
@@ -3354,7 +3298,7 @@ class RepprodController extends Controller
                 group by b.standardopoutputid,opoutputdate
                 order by opoutputdate";
 
-          $command1 = $this->connection->createCommand($sql1);
+          $command1 = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           $i=0;
           //$totalqty1 = 0;
@@ -3407,7 +3351,7 @@ class RepprodController extends Controller
               $sql2 = "select ifnull(count(1),0)
                       from operatoroutputissue a
                       where a.operatoroutputdetid = ".$row1['operatoroutputdetid'];
-              $getcount = $this->connection->createCommand($sql2)->queryScalar();
+              $getcount = yii::app()->db->createCommand($sql2)->queryScalar();
               $this->pdf->row(array(
                 $i,
                 $row1['opoutputdate'],
@@ -3419,7 +3363,7 @@ class RepprodController extends Controller
               if($getcount>0)
               {
                 $sql3 = "select description, cycletime from operatoroutputissue where operatoroutputdetid = ".$row1['operatoroutputdetid'];
-                $command3 = $this->connection->createCommand($sql3);
+                $command3 = yii::app()->db->createCommand($sql3);
                 $dataReader3 = $command3->queryAll();
                 foreach($dataReader3 as $row3)
                 {
@@ -3537,7 +3481,7 @@ class RepprodController extends Controller
       
   }
   //20
-  public function LaporanCTPerForemanPerDokumen($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanCTPerForemanPerDokumen($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       parent::actionDownload();
       $insentif = 0;
@@ -3790,8 +3734,8 @@ class RepprodController extends Controller
       }
       $this->pdf->Output();
   }
-	//21
-  public function LaporanRincianHasilProduksiPerGMprocess($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //21
+  public function LaporanRincianHasilProduksiPerGMprocess($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 		parent::actionDownload();
 		$i=0;$qtyoutput1=0;$qtyoutput2=0;$qtyoutput3=0;$qtyoutput4=0;$qtyoutput5=0;$qtyoutput6=0;
@@ -3937,8 +3881,8 @@ class RepprodController extends Controller
 		));
 		$this->pdf->Output();
   }
-	//22
-  public function LaporanRekapHasilProduksiPerGMprocess($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //22
+  public function LaporanRekapHasilProduksiPerGMprocess($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 		parent::actionDownload();
 		$i=0;$qtyoutput1=0;$qtyoutput2=0;$qtyoutput3=0;$qtyoutput4=0;$qtyoutput5=0;$qtyoutput6=0;
@@ -4080,8 +4024,104 @@ class RepprodController extends Controller
 		));
 		$this->pdf->Output();
   }
-	//99
-  public function LaporanProductDetailSPP($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //23
+  public function RekapPemakaianPerBarang($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
+  {
+    parent::actionDownload();
+    if($companyid > 0){$joincom = ""; $wherecom = " and c.companyid = ".$companyid." ";}else{$joincom = " join company a9 on a9.companyid=c.companyid "; $wherecom = " and a9.isgroup = 1";}
+      $sql        = "select distinct a.toslocid,a.fromslocid,
+            e.sloccode fromsloccode,
+        e.description as fromslocdesc,
+        f.sloccode as tosloccode,	
+        f.description as toslocdesc
+            from productoutputdetail a
+            join product b on b.productid = a.productid
+            join productoutput c on c.productoutputid = a.productoutputid
+            join sloc e on e.slocid = a.fromslocid
+            join sloc f on f.slocid = a.toslocid
+            where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'c')."
+            -- and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
+            and b.productname like '%" . $product . "%' and c.productoutputdate between 
+            '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
+            '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+            limit 1
+    ";
+    $command    = yii::app()->db->createCommand($sql);
+    $dataReader = $command->queryAll();
+    foreach ($dataReader as $row) {
+      $this->pdf->companyid = $companyid;
+    }
+    $this->pdf->title    = 'Rekap Pemakaian Per Barang';
+    $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+    $this->pdf->AddPage('P');
+    foreach ($dataReader as $row) {
+      $this->pdf->SetFont('Arial', '', 10);
+      //$this->pdf->text(10, $this->pdf->gety() + 10, 'Asal');
+      //$this->pdf->text(30, $this->pdf->gety() + 10, ': ' . $row['fromsloccode'] . ' - ' . $row['fromslocdesc']);
+      //$this->pdf->text(10, $this->pdf->gety() + 15, 'Tujuan');
+      //$this->pdf->text(30, $this->pdf->gety() + 15, ': ' . $row['tosloccode'] . ' - ' . $row['toslocdesc']);
+      $sql1        = "select distinct a.productid,b.productname,d.uomcode,sum(a.qty) as qty
+						from productoutputdetail a
+						join product b on b.productid = a.productid
+						join productoutput c on c.productoutputid = a.productoutputid
+						join unitofmeasure d on d.unitofmeasureid = a.uomid
+						where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'c')."
+						-- and a.fromslocid = " . $row['fromslocid'] . " and a.toslocid = " . $row['toslocid'] . "
+						and b.productname like '%" . $product . "%' and c.productoutputdate between 
+						'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
+						'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						group by productname,uomcode";
+      $command1    = yii::app()->db->createCommand($sql1);
+      $dataReader1 = $command1->queryAll();
+      $totalqty    = 0;
+      $i           = 0;
+      $this->pdf->sety($this->pdf->gety() + 20);
+      $this->pdf->setFont('Arial', 'B', 8);
+      $this->pdf->colalign = array(
+        'C',
+        'C',
+        'C',
+        'C'
+      );
+      $this->pdf->setwidths(array(
+        10,
+        120,
+        30,
+        30
+      ));
+      $this->pdf->colheader = array(
+        'No',
+        'Nama Barang',
+        'Satuan',
+        'Qty'
+      );
+      $this->pdf->RowHeader();
+      $this->pdf->coldetailalign = array(
+        'L',
+        'L',
+        'C',
+        'R'
+      );
+      $this->pdf->setFont('Arial', '', 8);
+      foreach ($dataReader1 as $row1) {
+        $i += 1;
+        $this->pdf->row(array(
+          $i,
+          $row1['productname'],
+          $row1['uomcode'],
+          Yii::app()->format->formatNumber($row1['qty'])
+        ));
+        $totalqty += $row1['qty'];
+      }
+      //$this->pdf->row(array('','Total','',Yii::app()->format->formatNumber($totalqty)));
+      $this->pdf->checkPageBreak(20);
+    }
+    $this->pdf->Output();
+  }
+  //99
+  public function LaporanProductDetailSPP($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       parent::actionDownload();
       $sql = "select * from (select a.productplanno, productplandate, b.startdate, b.enddate, a.description, sum(g.qtyoutput) as qtyoutput, b.qty
@@ -4093,15 +4133,15 @@ class RepprodController extends Controller
               join product d on d.productid = c.productid
               join sloc e on e.slocid = b.slocid
               where d.productname like '%{$product}%' 
-              and a.productplandate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."' and a.companyid = {$companyid}
+              and a.productplandate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."' ".getFieldTable($productcollectid,'d','productcollectid')." ".getCompanyGroup($companyid,'f')."
               and e.sloccode like '%{$sloc}%' and a.recordstatus=3 and f.recordstatus=3
               group by a.productplanid) z where z.qty > z.qtyoutput";
       
-      $command=$this->connection->createCommand($sql);
+      $command=yii::app()->db->createCommand($sql);
       $dataReader=$command->queryAll();
       foreach ($dataReader as $row) 
       {
-		$this->pdf->companyid = $companyid;
+		    $this->pdf->companyid = $companyid;
       }
 			
       $this->pdf->title    = 'Laporan Detail SPP. Product ('.$product.')';
@@ -4113,14 +4153,14 @@ class RepprodController extends Controller
       $this->pdf->colalign = array('C','L','L','C','C','C','C','C','C');
       $this->pdf->setwidths(array(15,25,25,25,25,35,35,35,35));
       $this->pdf->colheader = array(
-		'No',
-		'NO SPP',
+        'No',
+        'NO SPP',
         'Tanggal SPP',
-		'Tanggal Mulai',
-		'Tanggal Selesai',
-		'Keterangan',
+        'Tanggal Mulai',
+        'Tanggal Selesai',
+        'Keterangan',
         'Qty SPP',
-		'Qty Output',
+        'Qty Output',
         'Sisa'
       );
       $this->pdf->RowHeader();        
@@ -4143,7 +4183,7 @@ class RepprodController extends Controller
         $totalqty +=$row['qty'];
         $totalqtyoutput +=$row['qtyoutput'];
         $i++;
-	}
+	  }
     $this->pdf->setFont('Arial','B',10);
     $this->pdf->row(array(
             '',
@@ -4161,56 +4201,58 @@ class RepprodController extends Controller
     if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['fullname']) && isset($_GET['product']) && isset($_GET['startdate']) && isset($_GET['enddate']))
     {
       if ($_GET['lro'] == 1) {
-        $this->RincianProduksiPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianProduksiPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 2) {
-        $this->RekapProduksiPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerGroupMaterialPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 3) {
-        $this->RincianPemakaianPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianPemakaianPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 4) {
-        $this->RekapPemakaianPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapPemakaianPerGudangPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 5) {
-        $this->PerbandinganPlanningOutputXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->PerbandinganPlanningOutputXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 6) {
-        $this->RwBelumAdaGudangAsalXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RwBelumAdaGudangAsalXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 7) {
-        $this->RwBelumAdaGudangTujuanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RwBelumAdaGudangTujuanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 8) {
-        $this->PendinganProduksiXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->PendinganProduksiXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 9) {
-        $this->RincianPendinganProduksiPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RincianPendinganProduksiPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 10) {
-        $this->RekapPendinganProduksiPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapPendinganProduksiPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 11) {
-        $this->RekapProduksiPerBarangPerHariXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerBarangPerHariXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 12) {
-        $this->RekapHasilProduksiPerDokumentBelumStatusMaxXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapHasilProduksiPerDokumentBelumStatusMaxXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 13) {
-        $this->RekapProduksiPerBarangPerBulanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->RekapProduksiPerBarangPerBulanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 14) {
-        $this->JadwalProduksiXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->JadwalProduksiXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 15) {
-        $this->LaporanSPPStatusBelumMaxXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanSPPStatusBelumMaxXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 16) {
-        $this->LaporanPerbandinganXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanPerbandinganXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 17) {
-        $this->LaporanMaterialSPPXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanMaterialSPPXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 18) {
-        $this->LaporanHasilScanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanHasilScanXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 19) {
-        $this->LaporanHasilOperatorPerManPowerXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanHasilOperatorPerManPowerXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 20) {
-        $this->LaporanCTPerForemanPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanCTPerForemanPerDokumenXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 21) {
-        $this->LaporanRincianHasilProduksiPerGMprocessXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanRincianHasilProduksiPerGMprocessXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 22) {
-        $this->LaporanRekapHasilProduksiPerGMprocessXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanRekapHasilProduksiPerGMprocessXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
+      } else if ($_GET['lro'] == 23) {
+        $this->RekapPemakaianPerBarangXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       } else if ($_GET['lro'] == 99) {
-        $this->LaporanProductDetailSPPXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['startdate'], $_GET['enddate']);
+        $this->LaporanProductDetailSPPXLS($_GET['company'], $_GET['sloc'], $_GET['fullname'], $_GET['product'], $_GET['productcollectid'], $_GET['startdate'], $_GET['enddate']);
       }
     }
   }
   //1
-  public function RincianProduksiPerDokumenXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianProduksiPerDokumenXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'rincianproduksiperdokumen';
     parent::actionDownxls();
@@ -4218,17 +4260,19 @@ class RepprodController extends Controller
     $totalnetto     = 0;
     $totalallqty    = 0;
     $totalalljumlah = 0;
-    $sql            = "select distinct a.productoutputno,a.productoutputdate,a.productoutputid,e.productplanno as spp,e.productplandate
-					from productoutput a
-					join productoutputfg b on b.productoutputid = a.productoutputid
-					join product c on c.productid = b.productid
-					join sloc d on d.slocid = b.slocid
-					join productplan e on e.productplanid = a.productplanid
-					where a.recordstatus = 3 and a.productoutputno is not null and d.sloccode like '%" . $sloc . "%' and
-					e.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and
-					a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productoutputdate";
-    $command        = $this->connection->createCommand($sql);
+    $sql = "select distinct a.productoutputno,a.productoutputdate,a.productoutputid,e.productplanno as spp
+				from productoutput a
+				join productoutputfg b on b.productoutputid = a.productoutputid
+				join product c on c.productid = b.productid
+				join sloc d on d.slocid = b.slocid
+				join productplan e on e.productplanid = a.productplanid
+        join employee f on f.employeeid = e.employeeid
+				where a.recordstatus = 3 and a.productoutputno is not null and d.sloccode like '%" . $sloc . "%' 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%'
+				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and f.fullname like '%{$fullname}%' order by productoutputdate";
+    $command        = yii::app()->db->createCommand($sql);
     $dataReader     = $command->queryAll();
     $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
     $line = 4;
@@ -4247,7 +4291,7 @@ class RepprodController extends Controller
 						join unitofmeasure c on c.unitofmeasureid = a.uomid
 						join sloc d on d.slocid = a.slocid
 						where b.productname like '%" . $product . "%' and a.productoutputid = " . $row['productoutputid'];
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       foreach ($dataReader1 as $row1) {
         $i += 1;
@@ -4261,11 +4305,12 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //2
-  public function RekapProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerGroupMaterialPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
-    $this->menuname = 'rekapproduksiperbarang';
+    $this->menuname = 'rekapproduksipergroupmaterialperbarang';
     parent::actionDownxls();
-    $sql        = "select distinct g.materialgroupid,g.description
+	  if($companyid > 0){$joincom = ""; $joincom1 = ""; $wherecom = " and e.companyid = ".$companyid." "; $wherecom1 = " and g.companyid = ".$companyid." ";}else{$joincom = " join company a9 on a9.companyid=e.companyid "; $joincom1 = " join company a9 on a9.companyid=g.companyid "; $wherecom = " and a9.isgroup = 1"; $wherecom1 = " and a9.isgroup = 1";}
+    $sql = "select distinct g.materialgroupid,g.description
 				from productoutput a
 				join productoutputfg b on b.productoutputid = a.productoutputid
 				join product c on c.productid = b.productid
@@ -4273,36 +4318,39 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
-				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
+        left join employee h on h.employeeid = a.employeeid
+				where a.productoutputno is not null  and a.recordstatus = 3 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and h.fullname like '%{$fullname}%'
+				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" .$product. "%' 
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				order by g.description";
-    $command    = $this->connection->createCommand($sql);
-    $dataReader = $command->queryAll();
+    $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
     $line = 4;
     foreach ($dataReader as $row) {
-      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Divisi')->setCellValueByColumnAndRow(1, $line, ': ' . $row['description']);
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'MATERIAL GROUP')->setCellValueByColumnAndRow(1, $line, ': ' . $row['description']);
       $line++;
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Satuan')->setCellValueByColumnAndRow(3, $line, 'Qty')->setCellValueByColumnAndRow(4, $line, 'Cycletime');
       $line++;
-      $sql1        = "select distinct productname,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput,sum(qtyoutput*cycletime)/60 as cycletime  from 
-								(select distinct b.productname,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid,a.cycletime
-								from productoutputfg a
-								inner join product b on b.productid = a.productid
-								inner join productoutput d on d.productoutputid = a.productoutputid
-								inner join unitofmeasure e on e.unitofmeasureid = a.uomid
-								inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
-								join sloc f on f.slocid = a.slocid
-								join productplan g on g.productplanid = d.productplanid 
-								where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-								and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . ") z 
-								group by productname,uomcode,materialgroupid";
-      $command1    = $this->connection->createCommand($sql1);
-      $dataReader1 = $command1->queryAll();
+      $sql1        = "select distinct productname,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput, sum(qtyoutput*cycletime)/60 as cycletime from  
+					(select distinct b.productname,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid,cycletime
+					from productoutputfg a
+					inner join product b on b.productid = a.productid
+					inner join productoutput d on d.productoutputid = a.productoutputid
+					inner join unitofmeasure e on e.unitofmeasureid = a.uomid
+					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
+					join sloc f on f.slocid = a.slocid
+					join productplan g on g.productplanid = d.productplanid 
+					left join employee h on h.employeeid = d.employeeid
+					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
+					and h.fullname like '%{$fullname}%' ".getFieldTable($productcollectid,'b','productcollectid')."
+          ".getCompanyGroup($companyid,'d')." and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . ") z 
+					group by productname,uomcode,materialgroupid";
+      $dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
       $totalqty    = 0;
       $totalct    = 0;
       $i           = 0;
@@ -4318,7 +4366,7 @@ class RepprodController extends Controller
     }
     $this->getFooterXLS($this->phpExcel);
   }
-  /*public function RekapProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  /*public function RekapProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'rekapproduksiperbarang';
     parent::actionDownxls();
@@ -4335,13 +4383,13 @@ class RepprodController extends Controller
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				order by g.description";
-    $command    = $this->connection->createCommand($sql);
+    $command    = yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
     $line = 4;
     foreach ($dataReader as $row) {
-      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Divisi')->setCellValueByColumnAndRow(1, $line, ': ' . $row['description']);
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'MATERIAL GROUP')->setCellValueByColumnAndRow(1, $line, ': ' . $row['description']);
       $line++;
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Satuan')->setCellValueByColumnAndRow(3, $line, 'Qty');
       $line++;
@@ -4358,7 +4406,7 @@ class RepprodController extends Controller
 								and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . ") z 
 								group by productname,uomcode,materialgroupid";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $totalqty    = 0;
       $i           = 0;
@@ -4374,7 +4422,7 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }*/
   //3
-  public function RincianPemakaianPerDokumenXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianPemakaianPerDokumenXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'rincianpemakaianperdokumen';
     parent::actionDownxls();
@@ -4383,12 +4431,14 @@ class RepprodController extends Controller
 				join productplan b on b.productplanid = a.productplanid
 				join productoutputdetail c on c.productoutputid = a.productoutputid
 				join product d on d.productid = c.productid
-				join sloc e on e.slocid = c.toslocid 
-				where a.productoutputno is not null and b.companyid = " . $companyid . " and e.sloccode like '%" . $sloc . "%' 
-				and d.productname like '%" . $product . "%' 
+				join sloc e on e.slocid = c.toslocid
+        left join employee f on f.employeeid = a.employeeid
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'d','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and e.sloccode like '%" . $sloc . "%' 
+				and d.productname like '%" . $product . "%' and f.fullname like '%{$fullname}%'
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productoutputdate";
-    $command    = $this->connection->createCommand($sql);
+    $command    = yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(7, 1, GetCompanyCode($companyid));
@@ -4403,27 +4453,19 @@ class RepprodController extends Controller
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Qty')->setCellValueByColumnAndRow(3, $line, 'Satuan')->setCellValueByColumnAndRow(4, $line, 'Rak')->setCellValueByColumnAndRow(5, $line, 'Asal')->setCellValueByColumnAndRow(6, $line, 'Tujuan')->setCellValueByColumnAndRow(7, $line, 'Keterangan');
       $line++;
       $sql1        = "select distinct b.productname,a.qty,c.uomcode,e.description as rak,a.description,
-								(
-								select z.description from sloc z
-								where z.slocid = a.fromslocid
-								) as sumber,
-								(
-								select z.description from sloc z
-								where z.slocid = a.toslocid
-								) as tujuan
-								from productoutputdetail a
-								join product b on b.productid = a.productid
-								join unitofmeasure c on c.unitofmeasureid = a.uomid
-								join productplant d on d.productid = a.productid
-								join storagebin e on e.storagebinid = a.storagebinid
-								join sloc f on f.slocid = d.slocid
-								join productoutput g on g.productoutputid = a.productoutputid
-								join productplan h on h.productplanid = g.productplanid
-								where f.sloccode like '%" . $sloc . "%' and  b.productname like '%" . $product . "%' and h.companyid = " . $companyid . "
-								and g.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-								and a.productoutputid = " . $row['productoutputid'];
-      $command1    = $this->connection->createCommand($sql1);
+					getslocdesc(a.fromslocid) as sumber,
+					getslocdesc(a.toslocid) as tujuan
+						from productoutputdetail a
+						join product b on b.productid = a.productid
+						join unitofmeasure c on c.unitofmeasureid = a.uomid
+						join productplant d on d.productid = a.productid
+						join storagebin e on e.storagebinid = a.storagebinid
+						join sloc f on f.slocid = d.slocid
+						join productoutput g on g.productoutputid = a.productoutputid
+						join productplan h on h.productplanid = g.productplanid
+						where a.productoutputid = " . $row['productoutputid']."
+            ".getFieldTable($productcollectid,'b','productcollectid')."";
+      $command1    = yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $total       = 0;
       $i           = 0;
@@ -4440,9 +4482,9 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //4
-  public function RekapPemakaianPerBarangXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapPemakaianPerGudangPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
-    $this->menuname = 'rekappemakaianperbarang';
+    $this->menuname = 'rekappemakaianpergudangperbarang';
     parent::actionDownxls();
     $sql        = "select distinct a.toslocid,a.fromslocid,
 					e.sloccode fromsloccode,
@@ -4454,11 +4496,14 @@ class RepprodController extends Controller
 					join productoutput c on c.productoutputid = a.productoutputid
 					join sloc e on e.slocid = a.fromslocid
 					join sloc f on f.slocid = a.toslocid
-					where c.companyid = {$companyid} and c.recordstatus = 3 and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
+          left join employee g on g.employeeid = c.employeeid
+					where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+          ".getCompanyGroup($companyid,'c')." and g.fullname like '%{$fullname}%'
+          and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
 					and b.productname like '%" . $product . "%' and c.productoutputdate between 
 					'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
 					'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command    = $this->connection->createCommand($sql);
+    $command    = yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
@@ -4472,16 +4517,18 @@ class RepprodController extends Controller
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Satuan')->setCellValueByColumnAndRow(3, $line, 'Qty');
       $line++;
       $sql1        = "select distinct a.productid,b.productname,d.uomcode,sum(a.qty) as qty
-								from productoutputdetail a
-								join product b on b.productid = a.productid
-								join productoutput c on c.productoutputid = a.productoutputid
-								join unitofmeasure d on d.unitofmeasureid = a.uomid
-								where c.recordstatus = 3 and a.fromslocid = " . $row['fromslocid'] . " and 
-								a.toslocid = " . $row['toslocid'] . " and c.productoutputdate between 
-								'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
-								'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-								group by productid,productname";
-      $command1    = $this->connection->createCommand($sql1);
+						from productoutputdetail a
+						join product b on b.productid = a.productid
+						join productoutput c on c.productoutputid = a.productoutputid
+						join unitofmeasure d on d.unitofmeasureid = a.uomid
+            left join employee e on e.employeeid = c.employeeid
+						where c.recordstatus = 3 and a.fromslocid = " . $row['fromslocid'] . " and a.toslocid = " . $row['toslocid'] . " 
+            ".getFieldTable($productcollectid,'b','productcollectid')." and e.fullname like '%{$fullname}%'
+            and b.productname like '%" . $product . "%' and c.productoutputdate between 
+						'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
+						'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						group by productid,productname";
+      $command1    = yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       $totalqty    = 0;
       $i           = 0;
@@ -4497,19 +4544,23 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //5
-  public function PerbandinganPlanningOutputXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function PerbandinganPlanningOutputXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'perbandinganplanningoutput';
     parent::actionDownxls();
     $sql        = "select distinct a.productplanno,a.productplandate,a.productplanid,d.sloccode,d.description as slocdesc
-						from productplan a
-						join productplanfg b on b.productplanid = a.productplanid
-						join product c on c.productid = b.productid
-						join sloc d on d.slocid = b.slocid
-						where a.recordstatus = 3 and a.productplanno is not null and a.companyid = " . $companyid . " and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' and
-						a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-    $command    = $this->connection->createCommand($sql);
+				from productplan a
+				join productplanfg b on b.productplanid = a.productplanid
+				join product c on c.productid = b.productid
+				join sloc d on d.slocid = b.slocid
+        left join employee e on e.employeeid = a.employeeid
+				where a.recordstatus = 3 and a.productplanno is not null 
+        ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and e.fullname like '%{$fullname}%'
+         and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' and
+				a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
+    $command    = yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
@@ -4524,17 +4575,21 @@ class RepprodController extends Controller
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Qty Plan')->setCellValueByColumnAndRow(3, $line, 'Qty Out')->setCellValueByColumnAndRow(4, $line, 'Satuan');
       $line++;
       $sql1         = "select b.productname,a.qty as qtyplan, (
-								select ifnull(sum(ifnull(c.qtyoutput,0)),0)
-								from productoutputfg c
-								join productoutput g on g.productoutputid = c.productoutputid 
-								where c.productplanfgid = a.productplanfgid and g.recordstatus = 3
-								) as qtyout,d.uomcode,f.sloccode,f.description as slocdesc
-								from productplanfg a 
-								inner join product b on b.productid = a.productid 
-								inner join unitofmeasure d on d.unitofmeasureid = a.uomid
-								inner join sloc f on f.slocid = a.slocid
-								where a.productplanid = " . $row['productplanid'];
-      $command1     = $this->connection->createCommand($sql1);
+					select ifnull(sum(ifnull(c.qtyoutput,0)),0)
+					from productoutputfg c
+					join productoutput g on g.productoutputid = c.productoutputid 
+					where c.productplanfgid = a.productplanfgid and g.productplanid=a.productplanid and g.recordstatus = 3
+					) as qtyout,d.uomcode,f.sloccode,f.description as slocdesc
+					from productplanfg a 
+					inner join product b on b.productid = a.productid 
+					inner join unitofmeasure d on d.unitofmeasureid = a.uomid
+					inner join sloc f on f.slocid = a.slocid
+          join productplan h on h.productplanid = a.productplanid
+          left join employee i on i.employeeid = h.employeeid
+					where a.productplanid = " . $row['productplanid']."
+          ".getFieldTable($productcollectid,'b','productcollectid')."
+          and i.fullname like '%{$fullname}%'";
+      $command1     = yii::app()->db->createCommand($sql1);
       $dataReader1  = $command1->queryAll();
       $totalqtyplan = 0;
       $i            = 0;
@@ -4552,11 +4607,7 @@ class RepprodController extends Controller
       $line++;
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Qty Plan')->setCellValueByColumnAndRow(3, $line, 'Qty Out')->setCellValueByColumnAndRow(4, $line, 'Satuan');
       $line++;
-      $sql2          = "select distinct b.productname, a.qty as qtyplan,ifnull(f.qty,0) as qtyout, c.uomcode, a.description,
-				(select sloccode from sloc d where d.slocid = a.fromslocid) as fromsloccode,
-				(select description from sloc d where d.slocid = a.fromslocid) as fromslocdesc,
-				(select sloccode from sloc d where d.slocid = a.toslocid) as tosloccode,	
-				(select description from sloc d where d.slocid = a.toslocid) as toslocdesc			
+      $sql2          = "select distinct b.productname, a.qty as qtyplan,ifnull(f.qty,0) as qtyout, c.uomcode, a.description
 				from productplandetail a
 				left join productoutputdetail f on f.productplandetailid = a.productplandetailid
 				left join product b on b.productid = a.productid
@@ -4564,8 +4615,11 @@ class RepprodController extends Controller
 				left join billofmaterial d on d.bomid = a.bomid
 				left join sloc e on e.slocid = a.fromslocid 
 				left join productoutput g on g.productoutputid=f.productoutputid
-				where g.recordstatus = 3 and b.isstock = 1 and a.productplanid = " . $row['productplanid'];
-      $command2      = $this->connection->createCommand($sql2);
+        left join employee h on h.employeeid = g.employeeid
+				where g.recordstatus = 3 and b.isstock = 1 
+        ".getFieldTable($productcollectid,'b','productcollectid')."        
+        and g.productplanid = " . $row['productplanid'];
+      $command2      = yii::app()->db->createCommand($sql2);
       $dataReader2   = $command2->queryAll();
       $totalqtyplan1 = 0;
       $ii            = 0;
@@ -4583,7 +4637,7 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //6
-  public function RwBelumAdaGudangAsalXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RwBelumAdaGudangAsalXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rawbelumadagudangasal';
       parent::actionDownxls();
@@ -4598,7 +4652,7 @@ class RepprodController extends Controller
 				and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				and b.fromslocid not in (select xx.slocid from productplant xx where xx.productid = b.productid and xx.recordstatus=1)";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       $line = 4;
       foreach($dataReader as $row)
@@ -4634,7 +4688,7 @@ class RepprodController extends Controller
 						and d.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and a.productplanid = " . $row['productplanid'] . "
 						and a.fromslocid not in (select x.slocid from productplant x where x.productid = a.productid and x.recordstatus=1)";
-          $command1    = $this->connection->createCommand($sql1);
+          $command1    = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           $i=0;
           foreach($dataReader1 as $row1)
@@ -4659,7 +4713,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //7
-  public function RwBelumAdaGudangTujuanXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RwBelumAdaGudangTujuanXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rawbelumadagudangtujuan';
       parent::actionDownxls();
@@ -4674,7 +4728,7 @@ class RepprodController extends Controller
 				and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 				and b.toslocid not in (select xx.slocid from productplant xx where xx.productid = b.productid)";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       $line = 4;
       foreach($dataReader as $row)
@@ -4710,7 +4764,7 @@ class RepprodController extends Controller
 						and d.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 						and a.toslocid not in (select x.slocid from productplant x where x.productid = a.productid)";
-          $command1    = $this->connection->createCommand($sql1);
+          $command1    = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           $i=0;
           foreach($dataReader1 as $row1)
@@ -4735,22 +4789,25 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //8
-  public function PendinganProduksiXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function PendinganProduksiXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'pendinganproduksi';
     parent::actionDownxls();
     $alltotalqty = 0;
     $alltotalqtyoutput = 0; 
-    $sql        = "select distinct a.productplanno,a.productplandate,a.productplanid
+    $sql = "select distinct a.productplanno,a.productplandate,a.productplanid
 			   from productplan a
 			   join productplanfg b on b.productplanid = a.productplanid
 			   join product c on c.productid = b.productid
 			   join sloc d on d.slocid = b.slocid
+         left join employee e on e.employeeid = a.employeeid
 			   where a.recordstatus = 3 and a.productplanno is not null and d.sloccode like '%" . $sloc . "%' 
-			   and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
-			   and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+			   ".getFieldTable($productcollectid,'c','productcollectid')."
+         ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+			   and b.startdate <= curdate() and e.fullname like '%{$fullname}%'
+				 and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 			   and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productplanno";
-    $command    = $this->connection->createCommand($sql);
+    $command    = yii::app()->db->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(6, 1, GetCompanyCode($companyid));
@@ -4762,17 +4819,20 @@ class RepprodController extends Controller
       $line++;
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Qty')->setCellValueByColumnAndRow(3, $line, 'QtyOutput')->setCellValueByColumnAndRow(4, $line, 'Satuan')->setCellValueByColumnAndRow(5, $line, 'Gudang')->setCellValueByColumnAndRow(6, $line, 'Selisih');
       $line++;
-      $sql1           = "select b.productname,a.qty,a.qtyres as qtyoutput,(a.qty-a.qtyres) as selisih,c.uomcode,d.description as sloc						
-								from productplanfg a						
-								join product b on b.productid = a.productid						
-								join unitofmeasure c on c.unitofmeasureid = a.uomid						
-								join sloc d on d.slocid = a.slocid
-								join productplan e on e.productplanid = a.productplanid						
-								where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-								and e.companyid = " . $companyid . " and e.recordstatus = 3
-								and e.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and a.productplanid = " . $row['productplanid'];
-      $command1       = $this->connection->createCommand($sql1);
+      $sql1           = "select b.productname,a.qty,a.qtyres as qtyoutput,(a.qty-a.qtyres) as selisih,c.uomcode,d.description as sloc
+						from productplanfg a						
+						join product b on b.productid = a.productid						
+						join unitofmeasure c on c.unitofmeasureid = a.uomid						
+						join sloc d on d.slocid = a.slocid
+						join productplan e on e.productplanid = a.productplanid						
+            left join employee f on f.employeeid = e.employeeid
+						where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
+						".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
+						and a.startdate <= curdate() and f.fullname like '%{$fullname}%'
+						and e.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+						and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and a.productplanid = " . $row['productplanid'];
+      $command1       = yii::app()->db->createCommand($sql1);
       $dataReader1    = $command1->queryAll();
       $total          = 0;
       $i              = 0;
@@ -4800,7 +4860,7 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //9
-  public function RincianPendinganProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RincianPendinganProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rincianpendinganproduksiperbarang';
       parent::actionDownxls();
@@ -4808,16 +4868,18 @@ class RepprodController extends Controller
       $subtotalqty       = 0;
       $subtotalqtyoutput = 0;
       $subtotalselisih   = 0;
-      $sql               = "select distinct d.description,d.slocid
+      $sql = "select distinct d.description,d.slocid
 						 from productplan a
 						 join productplanfg b on b.productplanid = a.productplanid
 						 join product c on c.productid = b.productid
 						 join sloc d on d.slocid = b.slocid
+             left join employee e on e.employeeid = a.employeeid
 						 where a.recordstatus = 3 and d.sloccode like '%" . $sloc . "%' 
-						 and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+						 ".getFieldTable($productcollectid,'c','productcollectid')." and e.fullname like '%{$fullname}%'
+             ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
 						 and b.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-      $command           = $this->connection->createCommand($sql);
+      $command           = yii::app()->db->createCommand($sql);
       $dataReader        = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -4832,20 +4894,21 @@ class RepprodController extends Controller
                 ->setCellValueByColumnAndRow(1, $line, ': '.$row['description']);
           
             $line+=2;
-            $sql1 = "select distinct b.productname,b.productid
-                                from productplanfg a	
-                                join product b on b.productid = a.productid	
-                                join unitofmeasure c on c.unitofmeasureid = a.uomid	
-                                join sloc d on d.slocid = a.slocid
-                                join productplan e on e.productplanid = a.productplanid	
-                                where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-                                and e.companyid = " . $companyid . " and e.recordstatus = 3
-                                and e.productplanno is not null
-                                and a.startdate <= now() and a.startdate >= date_sub(now(),interval 1 MONTH)
-                                and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                                and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
-                                and a.slocid = " . $row['slocid'] . " ";
-          $command1       = $this->connection->createCommand($sql1);
+            $sql1           = "select distinct b.productname,b.productid
+                        from productplanfg a	
+                        join product b on b.productid = a.productid	
+                        join unitofmeasure c on c.unitofmeasureid = a.uomid	
+                        join sloc d on d.slocid = a.slocid
+                        join productplan e on e.productplanid = a.productplanid	
+                        left join employee f on f.employeeid = e.employeeid
+                        where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres ".getFieldTable($productcollectid,'b','productcollectid')."
+                        ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
+                        and e.productplanno is not null and f.fullname like '%{$fullname}%'
+                        and a.startdate <= now() and a.startdate >= date_sub(now(),interval 1 MONTH)
+                        and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                        and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
+                        and a.slocid = " . $row['slocid'] . " ";
+          $command1       = yii::app()->db->createCommand($sql1);
           $dataReader1    = $command1->queryAll();
           $totalqty       = 0;
           $totalqtyoutput = 0;
@@ -4872,7 +4935,7 @@ class RepprodController extends Controller
                                             and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
                                             and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
                                             and b.productid = " . $row1['productid'] . " and d.slocid = " . $row['slocid'] . "";
-              $command2    = $this->connection->createCommand($sql2);
+              $command2    = yii::app()->db->createCommand($sql2);
               $dataReader2 = $command2->queryAll();
               
               $this->phpExcel->setActiveSheetIndex(0)
@@ -4936,23 +4999,25 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //10
-  public function RekapPendinganProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapPendinganProduksiPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
     $this->menuname = 'rekappendinganproduksiperbarang';
     parent::actionDownxls();
     $subqty        = 0;
     $subqtyoutput  = 0;
     $subqtyselisih = 0;
-    $sql           = "select distinct d.description,d.slocid
+    $sql               = "select distinct d.description,d.slocid
 						 from productplan a
 						 join productplanfg b on b.productplanid = a.productplanid
 						 join product c on c.productid = b.productid
 						 join sloc d on d.slocid = b.slocid
+             left join employee e on e.employeeid = a.employeeid
 						 where a.recordstatus = 3 and d.sloccode like '%" . $sloc . "%' 
-						 and a.companyid = " . $companyid . " and c.productname like '%" . $product . "%' and b.qty > b.qtyres
+						 ".getFieldTable($productcollectid,'c','productcollectid')." and e.fullname like '%{$fullname}%'
+             ".getCompanyGroup($companyid,'a')." and c.productname like '%" . $product . "%' and b.qty > b.qtyres
 						 and a.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by productplanno";
-    $command       = $this->connection->createCommand($sql);
+    $command       = yii::app()->db->createCommand($sql);
     $dataReader    = $command->queryAll();
     foreach ($dataReader as $row)
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
@@ -4962,7 +5027,7 @@ class RepprodController extends Controller
       $line++;
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Satuan')->setCellValueByColumnAndRow(3, $line, 'Qty')->setCellValueByColumnAndRow(4, $line, 'Qty SPP')->setCellValueByColumnAndRow(5, $line, 'Selisi');
       $line++;
-      $sql1            = "select *,sum(qty) as sumqty,sum(qtyoutput) as sumqtyoutput,sum(selisih) as sumselisih
+      $sql1           = "select *,sum(qty) as sumqty,sum(qtyoutput) as sumqtyoutput,sum(selisih) as sumselisih
                                     from
                                      (select e.productplanid,b.productname,a.qty,a.qtyres as qtyoutput,(a.qty-a.qtyres) as selisih,
                                     c.uomcode,d.description as sloc,e.productplanno,e.productplandate	
@@ -4970,15 +5035,16 @@ class RepprodController extends Controller
                                     join product b on b.productid = a.productid	
                                     join unitofmeasure c on c.unitofmeasureid = a.uomid	
                                     join sloc d on d.slocid = a.slocid
-                                    join productplan e on e.productplanid = a.productplanid	
-                                    where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres
-                                    and e.companyid = " . $companyid . " and e.recordstatus = 3
+                                    join productplan e on e.productplanid = a.productplanid
+                                    left join employee f on f.employeeid = e.employeeid
+                                    where b.productname like '%" . $product . "%' and d.sloccode like '%" . $sloc . "%' and a.qty > a.qtyres and f.fullname like '%{$fullname}%'
+                                    ".getFieldTable($productcollectid,'b','productcollectid')."
+                                    ".getCompanyGroup($companyid,'e')." and e.recordstatus = 3
                                     and e.productplanno is not null
                                     and e.productplandate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
                                     and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
-                                    and a.slocid = " . $row['slocid'] . " order by productname) z group by productname
-                                            ";
-      $command1        = $this->connection->createCommand($sql1);
+                                    and a.slocid = " . $row['slocid'] . " order by productname) z group by productname";
+      $command1        = yii::app()->db->createCommand($sql1);
       $dataReader1     = $command1->queryAll();
       $totalqty        = 0;
       $i               = 0;
@@ -5003,12 +5069,12 @@ class RepprodController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //11
-  public function RekapProduksiPerBarangPerHariXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerBarangPerHariXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rekapproduksiperbarangperhari';
       parent::actionDownxls();
       
-      $sql = "select distinct g.materialgroupid,g.description
+      $sql        = "select distinct g.materialgroupid,g.description
 				from productoutput a
 				join productoutputfg b on b.productoutputid = a.productoutputid
 				join product c on c.productid = b.productid
@@ -5016,11 +5082,13 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
+        left join employee h on h.employeeid = a.employeeid
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and a.recordstatus = 3 and h.fullname like '%{$fullname}%'
 				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
 				and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 				and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -5030,11 +5098,11 @@ class RepprodController extends Controller
       foreach($dataReader as $row)
       {
           $this->phpExcel->setActiveSheetIndex(0)
-               ->setCellValueByColumnAndRow(0, $line, 'Divisi ')
+               ->setCellValueByColumnAndRow(0, $line, 'MATERIAL GROUP ')
                ->setCellValueByColumnAndRow(1, $line, $row['description']);
           $line++;
           
-          $sql1 = "select distinct productname,productid,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput, d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 from 
+          $sql1        = "select distinct productname,productid,uomcode,materialgroupid,sum(qtyoutput) as qtyoutput,d1, 																						d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19,d20,d21,d22,d23,d24,d25,d26,d27,d28,d29,d30,d31 from 
 								(select distinct b.productname,b.productid,a.qtyoutput,e.uomcode,c.materialgroupid,a.productoutputfgid,(select ifnull(sum(k.qtyoutput),0)
 								from productoutputfg k
 								join productoutput l on l.productoutputid = k.productoutputid
@@ -5320,12 +5388,14 @@ class RepprodController extends Controller
 								inner join unitofmeasure e on e.unitofmeasureid = a.uomid
 								inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
 								join sloc f on f.slocid = a.slocid
-								join productplan g on g.productplanid = d.productplanid 
+								join productplan g on g.productplanid = d.productplanid
+                left join employee h on h.employeeid = d.employeeid
 								where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-								and g.companyid = " . $companyid . " and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+								".getFieldTable($productcollectid,'b','productcollectid')."
+                ".getCompanyGroup($companyid,'d')." and h.fullname like '%{$fullname}%' and d.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
 								and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and c.materialgroupid = " . $row['materialgroupid'] . " ) z 
 								group by productname,uomcode,materialgroupid";
-          $command1    = $this->connection->createCommand($sql1);
+          $command1    = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           $totalqty    = 0;
           $i           = 0;
@@ -5420,7 +5490,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //12
-  public function RekapHasilProduksiPerDokumentBelumStatusMaxXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapHasilProduksiPerDokumentBelumStatusMaxXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rekaphasilproduksiperdokumentbelumstatusmax';
       parent::actionDownxls();
@@ -5438,7 +5508,7 @@ class RepprodController extends Controller
 					and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
 					and b.recordstatus between 1 and (3-1) and b.productplanid is not null 
 					order by b.recordstatus";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -5475,12 +5545,12 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //13
-  public function RekapProduksiPerBarangPerBulanXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function RekapProduksiPerBarangPerBulanXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'rekapproduksiperbarangperbulan';
       parent::actionDownxls();
       
-      $sql = "select distinct g.materialgroupid,g.description
+      $sql        = "select distinct g.materialgroupid,g.description
 				from productoutput a
 				join productoutputfg b on b.productoutputid = a.productoutputid
 				join product c on c.productid = b.productid
@@ -5488,12 +5558,13 @@ class RepprodController extends Controller
 				join productplan e on e.productplanid = a.productplanid
 				join productplant f on f.productid = b.productid
 				join materialgroup g on g.materialgroupid = f.materialgroupid
-				where a.productoutputno is not null and e.companyid = " . $companyid . " and a.recordstatus = 3
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and a.recordstatus = 3
 				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
 				and year(a.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
 				order by g.description
 			";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $grandtotaljanuari = 0;
@@ -5517,11 +5588,11 @@ class RepprodController extends Controller
       foreach($dataReader as $row)
       {
           $this->phpExcel->setActiveSheetIndex(0)
-               ->setCellValueByColumnAndRow(0, $line, 'Divisi')
-               ->setCellValueByColumnAndRow(1, $line, $row['description']);
+               ->setCellValueByColumnAndRow(0, $line, 'MATERIAL GROUP')
+               ->setCellValueByColumnAndRow(1, $line, ': '. $row['description']);
           $line++;
           
-          $sql1 = "select *
+          $sql1        = "select *
 					from (select distinct b.productname,e.uomcode,
 					ifnull((select sum(k.qtyoutput)
 						from productoutputfg k
@@ -5673,10 +5744,328 @@ class RepprodController extends Controller
 					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
 					join sloc f on f.slocid = a.slocid
 					join productplan g on g.productplanid = d.productplanid 
+          left join employee h on h.employeeid = d.employeeid
 					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
-					and g.companyid = " . $companyid . " and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . ") z 
+					".getFieldTable($productcollectid,'b','productcollectid')." and h.fullname like '%{$fullname}%'
+          ".getCompanyGroup($companyid,'d')." and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . ") z 
 					group by productname,uomcode";
-      $command1    = $this->connection->createCommand($sql1);
+      $command1    = yii::app()->db->createCommand($sql1);
+      $dataReader1 = $command1->queryAll();
+      
+      $totaljanuari=0;$totalfebruari=0;$totalmaret=0;$totalapril=0;$totalmei=0;$totaljuni=0;$totaljuli=0;$totalagustus=0;$totalseptember=0;$totaloktober=0;$totalnopember=0;$totaldesember=0;$totaljumlah=0;
+      $i = 0;
+          
+          $this->phpExcel->setActiveSheetIndex(0)
+               ->setCellValueByColumnAndRow(0, $line, 'No')
+               ->setCellValueByColumnAndRow(1, $line, 'Nama Barang')
+               ->setCellValueByColumnAndRow(2, $line, 'Satuan')
+               ->setCellValueByColumnAndRow(3, $line, '1')
+               ->setCellValueByColumnAndRow(4, $line, '2')
+               ->setCellValueByColumnAndRow(5, $line, '3')
+               ->setCellValueByColumnAndRow(6, $line, '4')
+               ->setCellValueByColumnAndRow(7, $line, '5')
+               ->setCellValueByColumnAndRow(8, $line, '6')
+               ->setCellValueByColumnAndRow(9, $line, '7')
+               ->setCellValueByColumnAndRow(10, $line, '8')
+               ->setCellValueByColumnAndRow(11, $line, '9')
+               ->setCellValueByColumnAndRow(12, $line, '10')
+               ->setCellValueByColumnAndRow(13, $line, '11')
+               ->setCellValueByColumnAndRow(14, $line, '12')
+               ->setCellValueByColumnAndRow(15, $line, 'Jumlah');
+          $line++;
+           
+          foreach($dataReader1 as $row1)
+          {
+              $i+=1;
+              $this->phpExcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow(0, $line, $i)
+                ->setCellValueByColumnAndRow(1, $line, $row1['productname'])
+                ->setCellValueByColumnAndRow(2, $line, $row1['uomcode'])
+                ->setCellValueByColumnAndRow(3, $line, $row1['januari'])
+                ->setCellValueByColumnAndRow(4, $line, $row1['februari'])
+                ->setCellValueByColumnAndRow(5, $line, $row1['maret'])
+                ->setCellValueByColumnAndRow(6, $line, $row1['april'])
+                ->setCellValueByColumnAndRow(7, $line, $row1['mei'])
+                ->setCellValueByColumnAndRow(8, $line, $row1['juni'])
+                ->setCellValueByColumnAndRow(9, $line, $row1['juli'])
+                ->setCellValueByColumnAndRow(10, $line, $row1['agustus'])
+                ->setCellValueByColumnAndRow(11, $line, $row1['september'])
+                ->setCellValueByColumnAndRow(12, $line, $row1['oktober'])
+                ->setCellValueByColumnAndRow(13, $line, $row1['nopember'])
+                ->setCellValueByColumnAndRow(14, $line, $row1['desember'])
+                ->setCellValueByColumnAndRow(15, $line, $row1['jumlah']);
+              
+              $totaljanuari += $row1['januari'];
+              $totalfebruari += $row1['februari'];
+              $totalmaret += $row1['maret'];
+              $totalapril += $row1['april'];
+              $totalmei += $row1['mei'];
+              $totaljuni += $row1['juni'];
+              $totaljuli += $row1['juli'];
+              $totalagustus += $row1['agustus'];
+              $totalseptember += $row1['september'];
+              $totaloktober += $row1['oktober'];
+              $totalnopember += $row1['nopember'];
+              $totaldesember += $row1['desember'];
+              $totaljumlah += $row1['jumlah'];
+              
+              $line++;
+          }
+          
+          $this->phpExcel->setActiveSheetIndex(0)
+               ->setCellValueByColumnAndRow(1, $line, 'Total '.$row['description'])
+               ->setCellValueByColumnAndRow(3, $line, $totaljanuari)
+               ->setCellValueByColumnAndRow(4, $line, $totalfebruari)
+               ->setCellValueByColumnAndRow(5, $line, $totalmaret)
+               ->setCellValueByColumnAndRow(6, $line, $totalapril)
+               ->setCellValueByColumnAndRow(7, $line, $totalmei)
+               ->setCellValueByColumnAndRow(8, $line, $totaljuni)
+               ->setCellValueByColumnAndRow(9, $line, $totaljuli)
+               ->setCellValueByColumnAndRow(10, $line, $totalagustus)
+               ->setCellValueByColumnAndRow(11, $line, $totalseptember)
+               ->setCellValueByColumnAndRow(12, $line, $totaloktober)
+               ->setCellValueByColumnAndRow(13, $line, $totalnopember)
+               ->setCellValueByColumnAndRow(14, $line, $totaldesember)
+               ->setCellValueByColumnAndRow(15, $line, $totaljumlah);
+              
+          $line+=2;
+          $grandtotaljanuari += $totaljanuari;
+          $grandtotalfebruari += $totalfebruari;
+          $grandtotalmaret += $totalmaret;
+          $grandtotalapril += $totalapril;
+          $grandtotalmei += $totalmei;
+          $grandtotaljuni += $totaljuni;
+          $grandtotaljuli += $totaljuli;
+          $grandtotalagustus += $totalagustus;
+          $grandtotalseptember += $totalseptember;
+          $grandtotaloktober += $totaloktober;
+          $grandtotalnopember += $totalnopember;
+          $grandtotaldesember += $totaldesember;
+          $grandtotal += $totaljumlah;
+      }
+      
+      $this->phpExcel->setActiveSheetIndex(0)
+           ->setCellValueByColumnAndRow(1, $line, 'GRAND TOTAL')
+           ->setCellValueByColumnAndRow(3, $line, $grandtotaljanuari)
+           ->setCellValueByColumnAndRow(4, $line, $grandtotalfebruari)
+           ->setCellValueByColumnAndRow(5, $line, $grandtotalmaret)
+           ->setCellValueByColumnAndRow(6, $line, $grandtotalapril)
+           ->setCellValueByColumnAndRow(7, $line, $grandtotalmei)
+           ->setCellValueByColumnAndRow(8, $line, $grandtotaljuni)
+           ->setCellValueByColumnAndRow(9, $line, $grandtotaljuli)
+           ->setCellValueByColumnAndRow(10, $line, $grandtotalagustus)
+           ->setCellValueByColumnAndRow(11, $line, $grandtotalseptember)
+           ->setCellValueByColumnAndRow(12, $line, $grandtotaloktober)
+           ->setCellValueByColumnAndRow(13, $line, $grandtotalnopember)
+           ->setCellValueByColumnAndRow(14, $line, $grandtotaldesember)
+           ->setCellValueByColumnAndRow(15, $line, $grandtotal);
+      $this->getFooterXLS($this->phpExcel);
+  }
+  /*public function RekapProduksiPerBarangPerBulanXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
+  {
+      $this->menuname = 'rekapproduksiperbarangperbulan';
+      parent::actionDownxls();
+      
+      $sql        = "select distinct g.materialgroupid,g.description
+				from productoutput a
+				join productoutputfg b on b.productoutputid = a.productoutputid
+				join product c on c.productid = b.productid
+				join sloc d on d.slocid = b.slocid
+				join productplan e on e.productplanid = a.productplanid
+				join productplant f on f.productid = b.productid
+				join materialgroup g on g.materialgroupid = f.materialgroupid
+				where a.productoutputno is not null ".getFieldTable($productcollectid,'c','productcollectid')."
+        ".getCompanyGroup($companyid,'a')." and a.recordstatus = 3
+				and d.sloccode like '%" . $sloc . "%' and c.productname like '%" . $product . "%' 
+				and year(a.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+				order by g.description
+			";
+      $command    = yii::app()->db->createCommand($sql);
+      $dataReader = $command->queryAll();
+      
+      $grandtotaljanuari = 0;
+      $grandtotalfebruari = 0;
+      $grandtotalmaret = 0;
+      $grandtotalapril = 0;
+      $grandtotalmei = 0;
+      $grandtotaljuni = 0;
+      $grandtotaljuli = 0;
+      $grandtotalagustus = 0;
+      $grandtotalseptember = 0;
+      $grandtotaloktober = 0;
+      $grandtotalnopember = 0;
+      $grandtotaldesember = 0;
+      $grandtotal = 0;
+      
+      $this->phpExcel->setActiveSheetIndex(0)
+               ->setCellValueByColumnAndRow(1, 2, date('Y',strtotime($enddate)));
+      
+      $line=4;
+      foreach($dataReader as $row)
+      {
+          $this->phpExcel->setActiveSheetIndex(0)
+               ->setCellValueByColumnAndRow(0, $line, 'MATERIAL GROUP')
+               ->setCellValueByColumnAndRow(1, $line, $row['description']);
+          $line++;
+          
+          $sql1        = "select *
+					from (select distinct b.productname,e.uomcode,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 1 and m.materialgroupid = c.materialgroupid),0) as januari,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 2 and m.materialgroupid = c.materialgroupid),0) as februari,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 3 and m.materialgroupid = c.materialgroupid),0) as maret,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 4 and m.materialgroupid = c.materialgroupid),0) as april,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 5 and m.materialgroupid = c.materialgroupid),0) as mei,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 6 and m.materialgroupid = c.materialgroupid),0) as juni,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 7 and m.materialgroupid = c.materialgroupid),0) as juli,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 8 and m.materialgroupid = c.materialgroupid),0) as agustus,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 9 and m.materialgroupid = c.materialgroupid),0) as september,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 10 and m.materialgroupid = c.materialgroupid),0) as oktober,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 11 and m.materialgroupid = c.materialgroupid),0) as nopember,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and month(n.productoutputdate) = 12 and m.materialgroupid = c.materialgroupid),0) as desember,
+					ifnull((select sum(k.qtyoutput)
+						from productoutputfg k
+						join product l on l.productid = k.productid
+						join productoutput n on n.productoutputid = k.productoutputid
+						join unitofmeasure o on o.unitofmeasureid = k.uomid
+						join productplant m on m.productid = k.productid and m.slocid = k.slocid and m.unitofissue = k.uomid
+						join sloc p on p.slocid = k.slocid
+						join productplan q on q.productplanid = n.productplanid 
+						where n.recordstatus = 3 and k.productid = a.productid and k.slocid = a.slocid and q.companyid = g.companyid 
+						and year(n.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "')
+						and m.materialgroupid = c.materialgroupid),0) as jumlah
+					from productoutputfg a
+					inner join product b on b.productid = a.productid
+					inner join productoutput d on d.productoutputid = a.productoutputid
+					inner join unitofmeasure e on e.unitofmeasureid = a.uomid
+					inner join productplant c on c.productid = a.productid and c.slocid = a.slocid and c.unitofissue = a.uomid
+					join sloc f on f.slocid = a.slocid
+					join productplan g on g.productplanid = d.productplanid 
+          left join employee h on h.employeeid = d.employeeid
+					where b.productname like '%" . $product . "%' and d.recordstatus = 3 and f.sloccode like '%" . $sloc . "%'
+					".getFieldTable($productcollectid,'b','productcollectid')." and h.fullname like '%{$fullname}%'
+          ".getCompanyGroup($companyid,'d')." and year(d.productoutputdate) = year('" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "') and c.materialgroupid = " . $row['materialgroupid'] . ") z 
+					group by productname,uomcode";
+      $command1    = yii::app()->db->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
       
       $totaljanuari=0;$totalfebruari=0;$totalmaret=0;$totalapril=0;$totalmei=0;$totaljuni=0;$totaljuli=0;$totalagustus=0;$totalseptember=0;$totaloktober=0;$totalnopember=0;$totaldesember=0;$totaljumlah=0;
@@ -5786,7 +6175,7 @@ class RepprodController extends Controller
            ->setCellValueByColumnAndRow(14, $line, $grandtotaldesember)
            ->setCellValueByColumnAndRow(15, $line, $grandtotal);
       $this->getFooterXLS($this->phpExcel);
-  }
+  }*/
   //14
   public function JadwalProduksiXLS($companyid,$sloc,$fullname,$product,$startdate,$enddate)
   {
@@ -5801,7 +6190,7 @@ class RepprodController extends Controller
                   where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                   and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' 
                   and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -5827,7 +6216,7 @@ class RepprodController extends Controller
                       and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."'
                       and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
                       order by description";
-          $command1    = $this->connection->createCommand($sql1);
+          $command1    = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           foreach($dataReader1 as $row1)
           {
@@ -5857,7 +6246,7 @@ class RepprodController extends Controller
                         where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                         and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."' and f.materialgroupid = ".$row1['materialgroupid']."
                         and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-              $command2    = $this->connection->createCommand($sql2);
+              $command2    = yii::app()->db->createCommand($sql2);
               $dataReader2 = $command2->queryAll();
               $i=0;$totalqty=0;$totalct=0;
               foreach($dataReader2 as $row2)
@@ -5887,7 +6276,7 @@ class RepprodController extends Controller
       
       $this->getFooterXLS($this->phpExcel);
   }
-  /*public function JadwalProduksiXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  /*public function JadwalProduksiXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname='jadwalproduksi';
       parent::actionDownxls();
@@ -5900,7 +6289,7 @@ class RepprodController extends Controller
                   where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                   and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' 
                   and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -5926,7 +6315,7 @@ class RepprodController extends Controller
                       and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."'
                       and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' 
                       order by description";
-          $command1    = $this->connection->createCommand($sql1);
+          $command1    = yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
           foreach($dataReader1 as $row1)
           {
@@ -5955,7 +6344,7 @@ class RepprodController extends Controller
                         where b.productplanno is not null and b.companyid = " . $companyid . " and b.recordstatus = 3
                         and c.sloccode like '%" . $sloc . "%' and d.productname like '%" . $product . "%' and a.startdate = '".$row['startdate']."' and f.materialgroupid = ".$row1['materialgroupid']."
                         and a.startdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' ";
-              $command2    = $this->connection->createCommand($sql2);
+              $command2    = yii::app()->db->createCommand($sql2);
               $dataReader2 = $command2->queryAll();
               $i=0;$totalqty=0;
               foreach($dataReader2 as $row2)
@@ -5983,7 +6372,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }*/
   //15
-  public function LaporanSPPStatusBelumMaxXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanSPPStatusBelumMaxXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'laporansppstatusbelummax';
       parent::actionDownxls();
@@ -6003,7 +6392,7 @@ class RepprodController extends Controller
       group by a.productplanid 
       order by a.productplanid desc";
       
-      $command    = $this->connection->createCommand($sql);
+      $command    = yii::app()->db->createCommand($sql);
       $dataReader = $command->queryAll();
       
       $this->phpExcel->setActiveSheetIndex(0)
@@ -6040,38 +6429,38 @@ class RepprodController extends Controller
       }
       $this->getFooterXLS($this->phpExcel);
   }
-	//16
-  public function LaporanPerbandinganXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //16
+  public function LaporanPerbandinganXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname='laporanperbandingan';
       parent::actionDownxls();
       $sql = "select *, qtystock-pendinganso as lbstock
-            from (select distinct productid, a.productname,d.uomcode,
-            (select sum(g.qty)
-            from productstockdet g
-            where g.productid=a.productid
-            and g.unitofmeasureid=a.unitofmeasureid
-            and g.slocid=a.slocid
-            and g.transdate<='".date(Yii::app()->params['datetodb'],strtotime($enddate))."') as qtystock,
-            (select ifnull(sum(e.qty-e.giqty),0)
-            from sodetail e
-            join soheader f on f.soheaderid=e.soheaderid
-            where f.recordstatus=6
-            and f.companyid=c.companyid
-            and e.productid=a.productid
-            and e.unitofmeasureid=a.unitofmeasureid
-            and f.sodate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."') as pendinganso
-            from productstock a
-            join sloc b on b.slocid=a.slocid
-            join plant c on c.plantid=b.plantid
-            join unitofmeasure d on d.unitofmeasureid=a.unitofmeasureid
-            where c.companyid = ".$companyid."
-            and c.plantcode like '%%'
-            and (a.productname like 'matras%'
-            or a.productname like 'divan%'
-            or a.productname like 'bed sorong%'
-            or a.productname like 'sandaran%')
-            order by productname) z";
+							from (select distinct productid, a.productname,d.uomcode,
+							(select sum(g.qty)
+							from productstockdet g
+							where g.productid=a.productid
+							and g.unitofmeasureid=a.unitofmeasureid
+							and g.slocid=a.slocid
+							and g.transdate<='2017-08-13') as qtystock,
+							(select ifnull(sum(e.qty-e.giqty),0)
+							from sodetail e
+							join soheader f on f.soheaderid=e.soheaderid
+							where f.recordstatus=6
+							and f.companyid=c.companyid
+							and e.productid=a.productid
+							and e.unitofmeasureid=a.unitofmeasureid
+							and f.sodate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."') as pendinganso
+							from productstock a
+							join sloc b on b.slocid=a.slocid
+							join plant c on c.plantid=b.plantid
+							join unitofmeasure d on d.unitofmeasureid=a.unitofmeasureid
+							where c.companyid = ".$companyid."
+							and c.plantcode like '%%'
+							and (a.productname like 'matras%'
+							or a.productname like 'divan%'
+							or a.productname like 'bed sorong%'
+							or a.productname like 'sandaran%')
+							order by productname) z";
       $command=Yii::app()->db->createCommand($sql);
       $dataReader=$command->queryAll();
       
@@ -6358,7 +6747,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //18
-  public function LaporanHasilScanXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanHasilScanXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname='laporanhasilscan';
       parent::actionDownxls();
@@ -6372,10 +6761,12 @@ class RepprodController extends Controller
 							join sloc d on d.slocid=c.slocid
 							join product e on e.productid=c.productid
 							join unitofmeasure f on f.unitofmeasureid=c.uomid
-						 where b.companyid = " . $companyid . " and d.sloccode like '%" . $sloc . "%' 
-						 and e.productname like '%" . $product . "%'
-						 and b.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by slocid";
+              left join employee g on g.employeeid = b.employeeid
+						  where d.sloccode like '%" . $sloc . "%' ".getFieldTable($productcollectid,'e','productcollectid')."
+              ".getCompanyGroup($companyid,'b')."
+						  and e.productname like '%" . $product . "%' and g.fullname like '%{$fullname}%'
+						  and b.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+						  and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' order by slocid";
       $command           = Yii::app()->db->createCommand($sql);
       $dataReader        = $command->queryAll();
       
@@ -6395,17 +6786,19 @@ class RepprodController extends Controller
           $line++;
           
           $sql1           = "select d.productname,e.uomcode,sum(b.qtyoutput) as qtyoutput,a.productoutputno,a.productoutputdate,(select ifnull(sum(f.qtyori),0) from tempscan f where f.productoutputfgid= b.productoutputfgid) as qtyori
-            from productoutput a
-            join productoutputfg b on b.productoutputid=a.productoutputid
-            join sloc c on c.slocid=b.slocid
-            join product d on d.productid=b.productid
-            join unitofmeasure e on e.unitofmeasureid=b.uomid
-            where a.companyid = " . $companyid . " and c.slocid = ".$row['slocid']." and c.sloccode like '%" . $sloc . "%' 
-            and d.productname like '%" . $product . "%'
-            and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-            group by productname,uomcode,productoutputno
-            order by productname,productoutputdate,productoutputno";
+												from productoutput a
+												join productoutputfg b on b.productoutputid=a.productoutputid
+												join sloc c on c.slocid=b.slocid
+												join product d on d.productid=b.productid
+												join unitofmeasure e on e.unitofmeasureid=b.uomid
+                        left join employee f on f.employeeid = a.employeeid
+						 where c.slocid = ".$row['slocid']." ".getFieldTable($productcollectid,'d','productcollectid')."
+            ".getCompanyGroup($companyid,'a')." and c.sloccode like '%" . $sloc . "%' 
+						 and d.productname like '%" . $product . "%'
+						 and a.productoutputdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+						 and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						 group by productname,uomcode,productoutputno
+						 order by productname,productoutputdate,productoutputno";
             $command1       = Yii::app()->db->createCommand($sql1);
             $dataReader1    = $command1->queryAll();
             
@@ -6451,7 +6844,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //19
-  public function LaporanHasilOperatorPerManPowerXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanHasilOperatorPerManPowerXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname='laporanhasiloperatorpermanpower';
       parent::actionDownxls();
@@ -6470,7 +6863,6 @@ class RepprodController extends Controller
             join employee c on c.employeeid = a.employeeid
             join sloc e on e.slocid = b.slocid
             where b.opoutputdate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."'
-            and b.companyid = {$companyid}
             and c.fullname like '%{$fullname}%'
             and e.sloccode like '%{$sloc}%'
             and b.recordstatus= getwfmaxstatbywfname('appopoutput')
@@ -6559,17 +6951,18 @@ class RepprodController extends Controller
           {
               $isover = 1;
           }
-          $sql1 = "select a.opoutputdate, c.fullname, sum(b.qty) as qty, d.groupname,sum(b.cycletime*qty) as cycletime, b.operatoroutputdetid,b.description,a.headernote
-            from operatoroutput a
-            join operatoroutputdet b on b.operatoroutputid = a.operatoroutputid
-            join employee c on c.employeeid = b.employeeid
-            join standardopoutput d on d.standardopoutputid = b.standardopoutputid
-            where b.employeeid = ".$row['employeeid']."
-            and a.opoutputdate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."'
-            and a.recordstatus= getwfmaxstatbywfname('appopoutput')
-            and a.isover = {$isover}
-            group by b.standardopoutputid,opoutputdate
-            order by opoutputdate";
+          $sql1 = "select a.opoutputdate, c.fullname, sum(b.qty) as qty,         
+                d.groupname,sum(b.cycletime*qty) as cycletime, b.operatoroutputdetid,b.description,a.headernote
+                from operatoroutput a
+                join operatoroutputdet b on b.operatoroutputid = a.operatoroutputid
+                join employee c on c.employeeid = b.employeeid
+                join standardopoutput d on d.standardopoutputid = b.standardopoutputid
+                where b.employeeid = ".$row['employeeid']."
+                and a.opoutputdate between '".date(Yii::app()->params['datetodb'],strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'],strtotime($enddate))."'
+                and a.recordstatus= getwfmaxstatbywfname('appopoutput')
+                and a.isover = {$isover}
+                group by b.standardopoutputid,opoutputdate
+                order by opoutputdate";
 
           $command1 = Yii::app()->db->createCommand($sql1);
           $dataReader1 = $command1->queryAll();
@@ -6689,7 +7082,7 @@ class RepprodController extends Controller
       $this->getFooterXLS($this->phpExcel);
   }
   //20
-  public function LaporanCTPerForemanPerDokumenXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  public function LaporanCTPerForemanPerDokumenXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
       $this->menuname = 'laporanctperforemanperdokumen';
       parent::actionDownxls();
@@ -6823,8 +7216,8 @@ class RepprodController extends Controller
       }
       $this->getFooterXLS($this->phpExcel);
   }
-	//21
-  public function LaporanRincianHasilProduksiPerGMprocessXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //21
+  public function LaporanRincianHasilProduksiPerGMprocessXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 		$this->menuname = 'laporanrincianhasilproduksipermgprocess';
 		parent::actionDownxls();
@@ -6908,8 +7301,8 @@ class RepprodController extends Controller
 			->setCellValueByColumnAndRow(9, $line, $qtyoutput6);
 		$this->getFooterXLS($this->phpExcel);
   }
-	//22
-  public function LaporanRekapHasilProduksiPerGMprocessXLS($companyid, $sloc, $fullname, $product, $startdate, $enddate)
+  //22
+  public function LaporanRekapHasilProduksiPerGMprocessXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
   {
 		$this->menuname = 'laporanrekaphasilproduksipermgprocess';
 		parent::actionDownxls();
@@ -6992,6 +7385,70 @@ class RepprodController extends Controller
 			->setCellValueByColumnAndRow(8, $line, $qtyoutput6);
 		$this->getFooterXLS($this->phpExcel);
   }
-	//99
+  //23
+  public function RekapPemakaianPerBarangXLS($companyid, $sloc, $fullname, $product, $productcollectid, $startdate, $enddate)
+  {
+    $this->menuname = 'rekappemakaianperbarang';
+    parent::actionDownxls();
+	  if($companyid > 0){$joincom = ""; $wherecom = " and c.companyid = ".$companyid." ";}else{$joincom = " join company a9 on a9.companyid=c.companyid "; $wherecom = " and a9.isgroup = 1";}
+    $sql        = "select distinct a.toslocid,a.fromslocid,
+            e.sloccode fromsloccode,
+        e.description as fromslocdesc,
+        f.sloccode as tosloccode,	
+        f.description as toslocdesc
+            from productoutputdetail a
+            join product b on b.productid = a.productid
+            join productoutput c on c.productoutputid = a.productoutputid
+            join sloc e on e.slocid = a.fromslocid
+            join sloc f on f.slocid = a.toslocid
+            where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'c')."
+            -- and (e.sloccode like '%" . $sloc . "%' or f.sloccode like '%" . $sloc . "%') 
+            and b.productname like '%" . $product . "%' and c.productoutputdate between 
+            '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
+            '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+            limit 1
+	  ";
+    $command    = yii::app()->db->createCommand($sql);
+    $dataReader = $command->queryAll();
+    foreach ($dataReader as $row)
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(3, 1, GetCompanyCode($companyid));
+    $line = 4;
+    foreach ($dataReader as $row) 
+    {
+      //$this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Asal')->setCellValueByColumnAndRow(1, $line, ': ' . $row['fromsloccode'] . ' - ' . $row['fromslocdesc']);
+      //$line++;
+      //$this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Tujuan')->setCellValueByColumnAndRow(1, $line, ': ' . $row['tosloccode'] . ' - ' . $row['toslocdesc']);
+      //$line++;
+      //$this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Nama Barang')->setCellValueByColumnAndRow(2, $line, 'Satuan')->setCellValueByColumnAndRow(3, $line, 'Qty');
+      //$line++;
+      $sql1        = "select distinct a.productid,b.productname,d.uomcode,sum(a.qty) as qty
+						from productoutputdetail a
+						join product b on b.productid = a.productid
+						join productoutput c on c.productoutputid = a.productoutputid
+						join unitofmeasure d on d.unitofmeasureid = a.uomid
+						where c.recordstatus = 3 ".getFieldTable($productcollectid,'b','productcollectid')."
+            ".getCompanyGroup($companyid,'c')."
+						-- and a.fromslocid = " . $row['fromslocid'] . " and a.toslocid = " . $row['toslocid'] . "
+						and b.productname like '%" . $product . "%' and c.productoutputdate between 
+						'" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and 
+						'" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						group by productname,uomcode";
+      $command1    = yii::app()->db->createCommand($sql1);
+      $dataReader1 = $command1->queryAll();
+      $totalqty    = 0;
+      $i           = 0;
+      foreach ($dataReader1 as $row1) {
+        $i += 1;
+        $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, $i)->setCellValueByColumnAndRow(1, $line, $row1['productname'])->setCellValueByColumnAndRow(2, $line, $row1['uomcode'])->setCellValueByColumnAndRow(3, $line, $row1['qty']);
+        $line++;
+        $totalqty += $row1['qty'];
+      }
+      //$this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $line, 'Total')->setCellValueByColumnAndRow(3, $line, $totalqty);
+      $line += 2;
+    }
+    $this->getFooterXLS($this->phpExcel);
+  }
+  //99
 	
 }

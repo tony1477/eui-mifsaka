@@ -39,7 +39,7 @@ class FohulController extends Controller {
     ->leftjoin('plant b', 'b.plantid=t.plantid')
     //->leftjoin('materialgroup c', 'c.materialgroupid=t.materialgroupid')
     ->leftjoin('mgprocess c', 'c.mgprocessid=t.mgprocessid')
-    ->where("((fohulid like :fohulid) and (a.companyname like :companyname) and (coalesce(c.description,'') like :description)) and ((coalesce(b.plantcode,'') like :plantcode)) and
+    ->where("((fohulid like :fohulid) $perioddate and (a.companyname like :companyname) and (coalesce(c.description,'') like :description)) and ((coalesce(b.plantcode,'') like :plantcode)) and
             t.companyid in (".getUserObjectValues('company').")", array(
         ':fohulid' => '%' . $fohulid . '%',
         //':perioddate' => '%' . $perioddate . '%',

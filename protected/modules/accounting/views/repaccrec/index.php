@@ -28,7 +28,8 @@
 					<option value="4">2.2.Rekap Piutang Dagang Per Customer</option>
 					<option value="26">2.3.Rekap Umur Piutang Dagang</option>
 					<option value="27">2.4.Rekap Umur Piutang Dagang Per Bulan Per Tahun</option>
-					<option value="5">2.5.Rincian Faktur & Retur Jual Belum Lunas</option>
+					<option value="5">2.5.1.Rincian Faktur & Retur Jual Belum Lunas</option>
+					<option value="41">2.5.2.Rincian Faktur & Retur Jual Belum Lunas Per Kategori Customer</option>
 					<option value="28">2.6.Rincian Faktur & Retur Jual Belum Lunas (Filter Tanggal JTT)</option>
 					<option value="6">2.7.Rincian Umur Piutang Dagang Per Customer</option>
 					<option value="7">2.8.Rekap Umur Piutang Dagang Per Customer</option>
@@ -242,12 +243,20 @@
  			</td>
  		</tr>
 		<tr>
-			<td id="isdisplay"><?php echo GetCatalog('indisplay')?></td>
+			<td id="accrec_isdisplay"><?php echo GetCatalog('indisplay')?></td>
 			<td>
 					<select class="easyui-combobox" id="repaccrec_isdisplay" name="repaccrec_isdisplay" data-options="required:'true', panelHeight:'auto'" style="width:120px">
 						<option value="">All</option>
 						<option value="0">No</option>
 						<option value="1">Yes</option>
+			</td>
+		</tr>
+		<tr>
+			<td id="accrec_isbaddebt"><?php echo GetCatalog('Tipe Faktur')?></td>
+			<td>
+					<select class="easyui-combobox" id="repaccrec_isbaddebt" name="repaccrec_isbaddebt" data-options="required:'true', panelHeight:'auto'" style="width:120px">
+						<option value="0">Good</option>
+						<option value="1">Bad Debt</option>
 			</td>
 		</tr>
  		<tr>
@@ -281,17 +290,18 @@ hide: function(jq){
 }
 })
 
-var repaccrecsloc =  ["5","35"];
-var repaccrecmaterialgroup =  ["5"];
-var repaccreccustomer =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","20","21","22","23","24","25","26","27","28","35","36","38"];
-var repaccrecproduct =  ["1","5","15","16","17","18","19","22","23","24","25"];
-var repaccrecsales =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","22","23","24","25","26","27","28","31","32","37","38","39"];
+var repaccrecsloc =  ["5","35","41"];
+var repaccrecmaterialgroup =  ["5","41"];
+var repaccreccustomer =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","20","21","22","23","24","25","26","27","28","35","36","38","41"];
+var repaccrecproduct =  ["1","5","15","16","17","18","19","22","23","24","25","41"];
+var repaccrecsales =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","22","23","24","25","26","27","28","31","32","37","38","39","41"];
 var repaccrecspv =  ["37"];
-var repaccrecsalesarea =  ["5","15","16","17","18","19","22","23","24","25","26","27","28","35","38"];
-var repaccrecumur =  ["5","22","35","36"];
-var repaccrecdisplay =  ["5", "35"];
+var repaccrecsalesarea =  ["5","15","16","17","18","19","22","23","24","25","26","27","28","35","38","41"];
+var repaccrecumur =  ["5","22","35","36","41"];
+var repaccrecdisplay =  ["5","35","41","98","99"];
+var repaccrecbaddebt =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","21","22","23","24","25","26","27","28","29","30","35","36","38","41","98","99"];
 var repaccrecstart =  ["1","2","3","4","12","13","14","15","16","17","18","19","20","22","23","24","25","27","29","30","33","34"];
-var repaccrecend =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"];
+var repaccrecend =  ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","41"];
 
 $(document).ready(function(){
     $('#listrepaccrec').combobox({
@@ -380,6 +390,15 @@ $(document).ready(function(){
 							$('#repaccrec_isdisplay').combobox('hide');
 							$("#accrec_isdisplay").hide();
 						}
+					if(repaccrecbaddebt.includes(n)) {
+							$('#repaccrec_isbaddebt').combobox('show');
+							$("#accrec_isbaddebt").show();
+						}
+						else {
+							//alert('tidak ada');
+							$('#repaccrec_isbaddebt').combobox('hide');
+							$("#accrec_isbaddebt").hide();
+						}
 					if(repaccrecstart.includes(n)) {
 							$('#repaccrec_startdate').combobox('show');
 						}
@@ -412,6 +431,7 @@ function downpdfrepaccrec   () {
 		'&salesarea='+$('#repaccrec_salesareaid').combogrid('getValue')+
 		'&umurpiutang='+$('#repaccrec_umurpiutang').textbox('getValue')+
 		'&isdisplay='+$('#repaccrec_isdisplay').combobox('getValue')+
+		'&isbaddebt='+$('#repaccrec_isbaddebt').combobox('getValue')+
 		'&startdate='+$('#repaccrec_startdate').datebox('getValue')+
 		'&enddate='+$('#repaccrec_enddate').datebox('getValue')+
 		'&per=10');
@@ -430,6 +450,7 @@ function downxlsrepaccrec   () {
 		'&salesarea='+$('#repaccrec_salesareaid').combogrid('getValue')+
 		'&umurpiutang='+$('#repaccrec_umurpiutang').textbox('getValue')+
 		'&isdisplay='+$('#repaccrec_isdisplay').combobox('getValue')+
+		'&isbaddebt='+$('#repaccrec_isbaddebt').combobox('getValue')+
 		'&startdate='+$('#repaccrec_startdate').datebox('getValue')+
 		'&enddate='+$('#repaccrec_enddate').datebox('getValue')+
 		'&per=10');

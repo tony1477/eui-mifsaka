@@ -11491,7 +11491,7 @@ class RepaccrecController extends Controller
 		}
 		else
 		{
-			$this->pdf->title='Rincian Faktur & Retur Jual Belum Lunas '.$baddebt;
+			$this->pdf->title='Rincian Faktur & Retur Jual Belum Lunas Per Kategori Customer '.$baddebt;
 		}
 		$this->pdf->subtitle = 'Per Tanggal : '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
 		$this->pdf->AddPage('P');
@@ -11654,8 +11654,7 @@ class RepaccrecController extends Controller
 				Yii::app()->format->formatCurrency($dibayar1),
 				Yii::app()->format->formatCurrency($sisa1),
 			));
-			$nilaitot2 += $nilaitot1;
-			$dibayar2 += $dibayar1;
+			$nilaitot2 += $nilaitot1;$dibayar2 += $dibayar1;
 			$sisa2 += $sisa1;
 		}
 		$this->pdf->sety($this->pdf->gety()+5);
@@ -11860,12 +11859,12 @@ class RepaccrecController extends Controller
 			{
 				$this->RekapUmurPiutangDagangPerCustomerVsTopXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
-      else
+			else
 			if ($_GET['lro'] == 36)
 			{
 				$this->RekapMonitoringPiutangPerCustomerPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
-      else
+			else
 			if ($_GET['lro'] == 37)
 			{
 				$this->RekapKomisiTagihanPerSPVPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
@@ -17854,7 +17853,10 @@ class RepaccrecController extends Controller
 			
 		$this->getFooterXLS($this->phpExcel);
 	}
-
+	//39
+	
+	//40
+	
 	//41
 	public function RincianFakturdanReturJualBelumLunasPerBagianXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{

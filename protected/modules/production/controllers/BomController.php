@@ -609,6 +609,45 @@ class BomController extends Controller {
     }
     $this->pdf->Output();
   }
+  public function actionDownPDF2() {
+        parent::actionDownload();
+        $companyid = 1;
+        $productcollect = 'KAIN';
+        $startdate = '2021-11-01';
+        $enddate = '2021-12-31';
+
+        $this->pdf->title = 'Title';
+        $this->pdf->subtitle = 'TES';
+
+        $this->pdf->companyid = $companyid;
+        $this->pdf->AddPage('P', 'A4');
+
+        $sql = "select a.productname,a.productid
+            from product a
+            join productcollection b on b.productcollectid = a.productcollectid
+            where b.collectionname like '%{$productcollect}%' ";
+        $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+        // $i = 5;
+        $this->pdf->setFont('Arial', '', 8);
+
+        $sqldel = "delete from getfg where useraccessid = (select useraccessid from useraccess where username = '" . Yii::app()->user->name . "')";
+        $q = Yii::app()->db->createCommand($sqldel)->execute();
+
+        foreach ($dataReader as $row) {
+            $sql1 = "call getFG({$row['productid']},{$row['productid']},'{$startdate}','{$enddate}','" . Yii::app()->user->name . "')";
+            //$this->pdf->setY($this->pdf->getY() + 5);
+            Yii::app()->db->createCommand($sql1)->execute();
+
+            $sql1 = "select distinct productid2,productname2 from getfg where useraccessid = (select useraccessid from useraccess where username = '" . Yii::app()->user->name . "') and productid1 = " . $row['productid'];
+            $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+            foreach ($dataReader1 as $row1) {
+                $this->pdf->text(10, $this->pdf->gety(), substr($row['productname'], 0, 50) . '-> ' . $row1['productname2']);
+                $this->pdf->setY($this->pdf->getY() + 5);
+            }
+        }
+
+        $this->pdf->Output();
+    }
   public function actionDownxls() {
 		$this->menuname='bom';
     parent::actionDownxls();

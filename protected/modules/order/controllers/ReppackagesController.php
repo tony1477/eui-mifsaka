@@ -266,7 +266,7 @@ class ReppackagesController extends Controller {
         left join tempcustomer a2 on a2.tableid = t.packageid 
         left join paymentmethod a3 on a3.paymentmethodid = t.paymentmethodid ';
     $where = "
-        where ((a1.companyid in (".getUserObjectWfValues('company','apppkg').")) or (t.customerid is null and t.companyid is null) or (a2.customerid is not null and a1.companyid is null))
+        where ((a1.companyid in (".getUserObjectValues('company').")) or (t.customerid is null and t.companyid is null) or (a2.customerid is not null and a1.companyid is null))
 		-- and t.recordstatus in (".getUserRecordStatus('listpkg').")
 		and (packageid like '%".$packageid."%') and (coalesce(docno,'') like '%".$docno."%') and (coalesce(a2.fullname,'') like '%".$customer."%') 
             and (coalesce(a1.companyname,'') like '%".$companyname."%')
@@ -1057,7 +1057,7 @@ class ReppackagesController extends Controller {
     $command    = $this->connection->createCommand($sql);
     $dataReader = $command->queryAll();
     foreach ($dataReader as $row) {
-      $this->pdf->companyid = $row['companyid'];
+      $this->pdf->companyid = 0;
     }
     $this->pdf->title = 'Program Paket';
     $this->pdf->AddPage('P', 'A4');

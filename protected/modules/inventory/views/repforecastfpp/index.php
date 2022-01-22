@@ -23,7 +23,7 @@
 			field:'docdate',
 			title:'".getCatalog('docdate') ."',
 			sortable: true,
-			width:'100px',
+			width:'80px',
 			formatter: function(value,row,index){
 				return value;
 		}},
@@ -31,7 +31,7 @@
 			field:'perioddate',
 			title:'".getCatalog('perioddate') ."',
 			sortable: true,
-			width:'100px',
+			width:'80px',
 			formatter: function(value,row,index){
 				return value;
 		}},
@@ -39,15 +39,47 @@
 			field:'companyid',
 			title:'".getCatalog('company') ."',
 			sortable: true,
-			width:'200px',
+			width:'250px',
 			formatter: function(value,row,index){
 				return row.companyname;
 		}},
+    {
+			field:'productcollectid',
+			title:'".getCatalog('productcollection') ."',
+			sortable: true,
+			width:'200px',
+			formatter: function(value,row,index){
+				return row.collectionname;
+		}},
+    {
+    field:'sumpendingpo',
+    title:'".GetCatalog('sumpendingpo')."',
+    sortable: true,
+    width:'125px',
+    formatter: function(value,row,index){
+      return value;
+    }},
+    {
+    field:'sumpredictpo',
+    title:'".GetCatalog('sumpredictpo')."',
+    sortable: true,
+    width:'125px',
+    formatter: function(value,row,index){
+      return value;
+    }},
+    {
+    field:'sumtotalpo',
+    title:'".GetCatalog('sumtotalpo')."',
+    sortable: true,
+    width:'175px',
+    formatter: function(value,row,index){
+      return value;
+    }},
 		{
 			field:'headernote',
 			title:'".getCatalog('headernote') ."',
 			sortable: true,
-			width:'200px',
+			width:'150px',
 			formatter: function(value,row,index){
 				return value;
 		}},
@@ -55,12 +87,12 @@
 			field:'recordstatus',
 			title:'".getCatalog('recordstatus') ."',
 			sortable: true,
-			width:'130px',
+			width:'120px',
 			formatter: function(value,row,index){
 				return row.statusname;
 		}}
 	",
-	'searchfield'=> array ('forecastfppid','perioddateyear','perioddatemonth','companyname','productname'),
+	'searchfield'=> array ('forecastfppid','perioddateyear','perioddatemonth','companyname','productname','sloccode','collectionname'),
 	'loadsuccess' => "
 	",
 	'columndetails'=> array (
@@ -84,6 +116,11 @@
 				{field:'prqty',title:'".getCatalog('prqty') ."',align:'right',width:'80px'},
 				{field:'prqtyreal',title:'".getCatalog('prqtyreal') ."',align:'right',width:'80px'},
 				{field:'price',title:'".getCatalog('price') ."',align:'right',width:'80px',hidden:".GetMenuAuth('purchasing')."},
+				{field:'povalueout',title:'".getCatalog('povalueout') ."',align:'right',width:'80px',hidden:".GetMenuAuth('purchasing')."},
+				{field:'povalue',title:'".getCatalog('povalue') ."',align:'right',width:'80px',hidden:".GetMenuAuth('purchasing')."},
+				{field:'povaluetot',title:'".getCatalog('povaluetot') ."',align:'right',width:'80px',hidden:".GetMenuAuth('purchasing')."},
+				{field:'qtyshare',title:'".getCatalog('qtyshare') ."',align:'right',width:'80px',hidden:".GetMenuAuth('purchasing')."},
+        
 			",
 			'columns'=>"
 			"

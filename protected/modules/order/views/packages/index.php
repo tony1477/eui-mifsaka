@@ -1120,7 +1120,7 @@
 					}
 				},
 				{
-					field: 'productname',
+					field: 'productid',
 					title: '<?php echo GetCatalog('product') ?>',
 					width: '400px',
 					editor: {
@@ -1146,11 +1146,11 @@
 									var index = parseInt(tr.attr('datagrid-row-index'));
 									var productid = $("#dg-packagedetail").datagrid("getEditor", {
 										index: index,
-										field: "productname"
+										field: "productid"
 									});
 									var uomid = $("#dg-packagedetail").datagrid("getEditor", {
 										index: index,
-										field: "uomcode"
+										field: "unitofmeasureid"
 									});
 									var price = $("#dg-packagedetail").datagrid("getEditor", {
 										index: index,
@@ -1229,7 +1229,7 @@
 					}
 				},
 				{
-					field: 'uomcode',
+					field: 'unitofmeasureid',
 					title: '<?php echo GetCatalog('uom') ?>',
 					editor: {
 						type: 'combogrid',

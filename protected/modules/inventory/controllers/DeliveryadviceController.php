@@ -119,29 +119,29 @@ class DeliveryadviceController extends Controller {
 				and t.recordstatus in (".getUserRecordStatus('listda').")
 				and
 				t.slocid in (".getUserObjectValues('sloc').") and
-      t.deliveryadviceid in (select dad.deliveryadviceid
-      from deliveryadvicedetail dad
-      where qty-giqty > 0)"; 
-          $sqlcount = ' select count(1) as total '.$from.' '.$where;
-          $sql = 'select t.deliveryadviceid,t.dadate,t.dano,t.sloccode,t.productplanno,t.headernote '.$from.' '.$where;
-          $result['total'] = $connection->createCommand($sqlcount)->queryScalar();
-          $cmd = $connection->createCommand($sql . ' order by '.$sort . ' ' . $order. ' limit '.$offset.','.$rows)->queryAll();
-          foreach ($cmd as $data) {
-            $row[] = array(
-              'deliveryadviceid' => $data['deliveryadviceid'],
-              'dadate' => date(Yii::app()->params['dateviewfromdb'], strtotime($data['dadate'])),
-              'dano' => $data['dano'],
-              'sloccode' => $data['sloccode'],
-              'productplanno' => $data['productplanno'],
-              'headernote' => $data['headernote']
-            );
-          }
-          $result = array_merge($result, array(
-            'rows' => $row
-          ));
-          return CJSON::encode($result);
+t.deliveryadviceid in (select dad.deliveryadviceid
+from deliveryadvicedetail dad
+where qty-giqty > 0)"; 
+		$sqlcount = ' select count(1) as total '.$from.' '.$where;
+		$sql = 'select t.deliveryadviceid,t.dadate,t.dano,t.sloccode,t.productplanno,t.headernote '.$from.' '.$where;
+    $result['total'] = $connection->createCommand($sqlcount)->queryScalar();
+		$cmd = $connection->createCommand($sql . ' order by '.$sort . ' ' . $order. ' limit '.$offset.','.$rows)->queryAll();
+    foreach ($cmd as $data) {
+      $row[] = array(
+        'deliveryadviceid' => $data['deliveryadviceid'],
+        'dadate' => date(Yii::app()->params['dateviewfromdb'], strtotime($data['dadate'])),
+        'dano' => $data['dano'],
+        'sloccode' => $data['sloccode'],
+        'productplanno' => $data['productplanno'],
+        'headernote' => $data['headernote']
+      );
+    }
+    $result = array_merge($result, array(
+      'rows' => $row
+    ));
+    return CJSON::encode($result);
   }
-  public function searchtsda()
+	public function searchtsda()
   {
     header("Content-Type: application/json");
     $deliveryadviceid = isset($_GET['q']) ? $_GET['q'] : '';
@@ -155,22 +155,22 @@ class DeliveryadviceController extends Controller {
     $offset           = ($page - 1) * $rows;
     $result           = array();
     $row              = array();
-    $connection				= Yii::app()->db;
-    $from = '
-      from deliveryadvice t ';
-    $where = "
-      where ((coalesce(t.dano,'') like '%".$dano."%') or (t.sloccode like '%".$sloccode."%') 
-        or (t.headernote like '%".$headernote."%')) 
-        and t.recordstatus = getwfmaxstatbywfname('appda')
-        and t.recordstatus in (".getUserRecordStatus('listda').")
+		$connection				= Yii::app()->db;
+		$from = '
+			from deliveryadvice t ';
+		$where = "
+			where ((coalesce(t.dano,'') like '%".$dano."%') or (t.sloccode like '%".$sloccode."%') 
+				or (t.headernote like '%".$headernote."%')) 
+				and t.recordstatus = getwfmaxstatbywfname('appda')
+				and t.recordstatus in (".getUserRecordStatus('listda').")
         and t.slocid in (".getUserObjectWfValues('sloc','appts').")
-        and t.deliveryadviceid in (select dad.deliveryadviceid
-        from deliveryadvicedetail dad
-        where qty-giqty > 0)";
-    $sqlcount = ' select count(1) as total '.$from.' '.$where;
-    $sql = 'select t.deliveryadviceid,t.dadate,t.dano,t.productplanno,t.sloccode,t.headernote '.$from.' '.$where;
+				and t.deliveryadviceid in (select dad.deliveryadviceid
+				from deliveryadvicedetail dad
+				where qty-giqty > 0)";
+		$sqlcount = ' select count(1) as total '.$from.' '.$where;
+		$sql = 'select t.deliveryadviceid,t.dadate,t.dano,t.productplanno,t.sloccode,t.headernote '.$from.' '.$where;
     $result['total'] = $connection->createCommand($sqlcount)->queryScalar();
-    $cmd = $connection->createCommand($sql . ' order by '.$sort . ' ' . $order. ' limit '.$offset.','.$rows)->queryAll();
+		$cmd = $connection->createCommand($sql . ' order by '.$sort . ' ' . $order. ' limit '.$offset.','.$rows)->queryAll();
     foreach ($cmd as $data) {
       $row[] = array(
         'deliveryadviceid' => $data['deliveryadviceid'],
@@ -212,20 +212,20 @@ class DeliveryadviceController extends Controller {
     ))->queryRow();
     $result['total'] = $cmd['total'];
     $cmd             = Yii::app()->db->createCommand()->select('t.*,a.productname,b.uomcode,c.requestedbycode,d.sloccode,d.description,getstock(t.productid,t.unitofmeasureid,t.slocid) as stock')
-      ->from('deliveryadvicedetail t')->leftjoin('product a', 'a.productid = t.productid')->leftjoin('unitofmeasure b', 'b.unitofmeasureid = t.unitofmeasureid')->leftjoin('requestedby c', 'c.requestedbyid = t.requestedbyid')->leftjoin('sloc d', 'd.slocid = t.slocid')->where('deliveryadviceid = :deliveryadviceid', array(
+    	->from('deliveryadvicedetail t')->leftjoin('product a', 'a.productid = t.productid')->leftjoin('unitofmeasure b', 'b.unitofmeasureid = t.unitofmeasureid')->leftjoin('requestedby c', 'c.requestedbyid = t.requestedbyid')->leftjoin('sloc d', 'd.slocid = t.slocid')->where('deliveryadviceid = :deliveryadviceid', array(
       ':deliveryadviceid' => $id
     ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     foreach ($cmd as $data) {
-      if ($data['qty'] > $data['giqty']) {
-        $wtfs = 1;
-      } else {
-        $wtfs = 0;
-      }
-      if ($data['qty']-$data['giqty'] > $data['stock']) {
-        $wstock = 1;
-      } else {
-        $wstock = 0;
-      }
+			if ($data['qty'] > $data['giqty']) {
+				$wtfs = 1;
+			} else {
+				$wtfs = 0;
+			}
+			if ($data['qty']-$data['giqty'] > $data['stock']) {
+				$wstock = 1;
+			} else {
+				$wstock = 0;
+			}
       $row[] = array(
         'deliveryadvicedetailid' => $data['deliveryadvicedetailid'],
         'deliveryadviceid' => $data['deliveryadviceid'],
@@ -246,8 +246,8 @@ class DeliveryadviceController extends Controller {
         'poqty' => Yii::app()->format->formatNumber($data['poqty']),
         'stock' => Yii::app()->format->formatNumber($data['stock']),
         'recordstatus' => $data['recordstatus'],
-        'wtfs' => $wtfs,
-        'wstock' => $wstock
+				'wtfs' => $wtfs,
+				'wstock' => $wstock
       );
     }
     $result = array_merge($result, array(
@@ -375,13 +375,13 @@ class DeliveryadviceController extends Controller {
   {
     if (isset($_GET['id'])) {
     } else {
-      $dadate              = new DateTime('now');
-      $sql = "insert into deliveryadvice (useraccessid,dadate,recordstatus) values (".GetUserID().",'".$dadate->format('Y-m-d')."',".findstatusbyuser('insda').")";
+			$dadate              = new DateTime('now');
+			$sql = "insert into deliveryadvice (useraccessid,dadate,recordstatus) values (".GetUserID().",'".$dadate->format('Y-m-d')."',".findstatusbyuser('insda').")";
       $model = Yii::app()->db->createCommand($sql)->execute();
       $id = Yii::app()->db->createCommand('select last_insert_id()')->queryScalar();
-      echo CJSON::encode(array(
-        'deliveryadviceid' => $id
-      ));
+			echo CJSON::encode(array(
+				'deliveryadviceid' => $id
+			));
     }
   }
   public function actionDelete()
@@ -567,12 +567,12 @@ class DeliveryadviceController extends Controller {
     $this->menuname = 'deliveryadvice';
     parent::actionDownxls();
     $sql = "select getcompanysloc(a.slocid) as companyid,a.dano,a.dadate,a.headernote,
-                a.deliveryadviceid,b.sloccode,b.description,a.recordstatus,c.productplanno,d.sono,e.productoutputno
-                from deliveryadvice a 
-                left join productplan c on c.productplanid = a.productplanid 
-                left join soheader d on d.soheaderid = a.soheaderid 
-                left join productoutput e on e.productoutputid = a.productoutputid
-                left join sloc b on b.slocid = a.slocid ";
+								a.deliveryadviceid,b.sloccode,b.description,a.recordstatus,c.productplanno,d.sono,e.productoutputno
+								from deliveryadvice a 
+								left join productplan c on c.productplanid = a.productplanid 
+								left join soheader d on d.soheaderid = a.soheaderid 
+								left join productoutput e on e.productoutputid = a.productoutputid
+								left join sloc b on b.slocid = a.slocid ";
     if ($_GET['id'] !== '') {
       $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
@@ -586,12 +586,12 @@ class DeliveryadviceController extends Controller {
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'No')->setCellValueByColumnAndRow(1, $line, 'Items')->setCellValueByColumnAndRow(2, $line, 'Qty')->setCellValueByColumnAndRow(3, $line, 'Unit')->setCellValueByColumnAndRow(4, $line, 'Gd Tujuan')->setCellValueByColumnAndRow(5, $line, 'Remark');
       $line++;
       $sql1        = "select b.productname, sum(a.qty) as qty, c.uomcode, a.itemtext,concat(e.sloccode,' - ',e.description) as sloccode
-                from deliveryadvicedetail a
-                left join product b on b.productid = a.productid
-                left join unitofmeasure c on c.unitofmeasureid = a.unitofmeasureid
-                left join sloc e on e.slocid = a.slocid
-                where deliveryadviceid = " . $row['deliveryadviceid'] . " 
-                group by b.productname,c.uomcode,e.sloccode ";
+								from deliveryadvicedetail a
+								left join product b on b.productid = a.productid
+								left join unitofmeasure c on c.unitofmeasureid = a.unitofmeasureid
+								left join sloc e on e.slocid = a.slocid
+								where deliveryadviceid = " . $row['deliveryadviceid'] . " 
+								group by b.productname,c.uomcode,e.sloccode ";
       $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
       $i           = 0;
       foreach ($dataReader1 as $row1) {
@@ -605,11 +605,11 @@ class DeliveryadviceController extends Controller {
     }
     $this->getFooterXLS($this->phpExcel);
   }
-  public function actionDownPDF1()
+	public function actionDownPDF1()
   {
     parent::actionDownload();
     $sql = "select a.deliveryadviceid, a.dadate,a.dano,a.username, a.sloccode,a.statusname
-            from deliveryadvice a ";
+						from deliveryadvice a ";
     if ($_GET['id'] !== '') {
       $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
@@ -618,7 +618,7 @@ class DeliveryadviceController extends Controller {
     $this->pdf->title = "List Product Yang Tidak ada di Gudang Sumber";
     $this->pdf->AddPage('P', array(220,140));
     $this->pdf->AliasNBPages();
-        $i           = 0;
+         $i           = 0;
     foreach ($dataReader as $row) {
       $this->pdf->setFont('Arial', 'B', 10);
       $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
@@ -627,17 +627,17 @@ class DeliveryadviceController extends Controller {
       $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
       $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
       $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
-    
-    
+     
+     
       $sql1= "select b.deliveryadviceid, a.productid, b.dadate,b.dano,b.username, b.sloccode,b.statusname,c.productname
-              from deliveryadvicedetail a
-              join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
-              join product c ON c.productid = a.productid 
-              where b.deliveryadviceid = ".$row['deliveryadviceid']." and b.slocid not in (select x.slocid from productplant x where x.productid = a.productid) ";
+							from deliveryadvicedetail a
+							join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
+							join product c ON c.productid = a.productid 
+							where b.deliveryadviceid = ".$row['deliveryadviceid']." and b.slocid not in (select x.slocid from productplant x where x.productid = a.productid) ";
         
       $command1= $this->connection->createCommand($sql1);
       $dataReader1= $command1->queryAll();
-          $this->pdf->sety($this->pdf->gety() + 15);
+           $this->pdf->sety($this->pdf->gety() + 15);
         $this->pdf->colalign = array(
           'C',
           'C',
@@ -675,7 +675,7 @@ class DeliveryadviceController extends Controller {
           'C'
         );
       foreach ($dataReader1 as $row1) {
-    
+     
         $i= $i + 1;
         $this->pdf->row(array(
           $i,
@@ -685,11 +685,11 @@ class DeliveryadviceController extends Controller {
     }
     $this->pdf->Output();
   }
-  public function actionDownPDF2()
+	public function actionDownPDF2()
   {
     parent::actionDownload();
     $sql = "select a.deliveryadviceid, a.dadate,a.dano,a.username, a.sloccode,a.statusname
-            from deliveryadvice a ";
+						from deliveryadvice a ";
     if ($_GET['id'] !== '') {
       $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
@@ -698,7 +698,7 @@ class DeliveryadviceController extends Controller {
     $this->pdf->title = "List Product Yang Tidak ada di Gudang Tujuan";
     $this->pdf->AddPage('P', array(220,140));
     $this->pdf->AliasNBPages();
-        $i           = 0;
+         $i           = 0;
     foreach ($dataReader as $row) {
       $this->pdf->setFont('Arial', 'B', 10);
       $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
@@ -707,17 +707,17 @@ class DeliveryadviceController extends Controller {
       $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
       $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
       $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
-    
-    
+     
+     
       $sql1= "select b.deliveryadviceid, a.productid, b.dadate,b.dano,b.username, b.sloccode,b.statusname,c.productname
-              from deliveryadvicedetail a
-              join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
-              join product c ON c.productid = a.productid 
-              where b.deliveryadviceid = ".$row['deliveryadviceid']." and a.slocid not in (select x.slocid from productplant x where x.productid = a.productid) ";
+							from deliveryadvicedetail a
+							join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
+							join product c ON c.productid = a.productid 
+							where b.deliveryadviceid = ".$row['deliveryadviceid']." and a.slocid not in (select x.slocid from productplant x where x.productid = a.productid) ";
         
       $command1= $this->connection->createCommand($sql1);
       $dataReader1= $command1->queryAll();
-          $this->pdf->sety($this->pdf->gety() + 15);
+           $this->pdf->sety($this->pdf->gety() + 15);
         $this->pdf->colalign = array(
           'C',
           'C',
@@ -755,7 +755,7 @@ class DeliveryadviceController extends Controller {
           'C'
         );
       foreach ($dataReader1 as $row1) {
-    
+     
         $i= $i + 1;
         $this->pdf->row(array(
           $i,
@@ -765,11 +765,11 @@ class DeliveryadviceController extends Controller {
     }
     $this->pdf->Output();
   } 
-  public function actionDownPDF3()
+	public function actionDownPDF3()
   {
     parent::actionDownload();
     $sql = "select a.deliveryadviceid, a.dadate,a.dano,a.username, a.sloccode,a.statusname
-    from deliveryadvice a ";
+from deliveryadvice a ";
     if ($_GET['id'] !== '') {
       $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
@@ -778,7 +778,7 @@ class DeliveryadviceController extends Controller {
     $this->pdf->title = "List Satuan Yang Tidak ada di Gudang Sumber";
     $this->pdf->AddPage('P', array(220,140));
     $this->pdf->AliasNBPages();
-        $i           = 0;
+         $i           = 0;
     foreach ($dataReader as $row) {
       $this->pdf->setFont('Arial', 'B', 10);
       $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
@@ -787,18 +787,18 @@ class DeliveryadviceController extends Controller {
       $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
       $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
       $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
-    
-    
+     
+     
       $sql1= "select b.deliveryadviceid, a.productid, b.dadate,b.dano,b.username, b.sloccode,b.statusname,c.productname,d.uomcode
-              from deliveryadvicedetail a
-              join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
-              join product c ON c.productid = a.productid 
+							from deliveryadvicedetail a
+							join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
+							join product c ON c.productid = a.productid 
               join unitofmeasure d on d.unitofmeasureid = a.unitofmeasureid
-              where b.deliveryadviceid = ".$row['deliveryadviceid']." and b.slocid not in (select x.slocid from productplant x where x.productid = a.productid and x.unitofissue = a.unitofmeasureid) ";
+							where b.deliveryadviceid = ".$row['deliveryadviceid']." and b.slocid not in (select x.slocid from productplant x where x.productid = a.productid and x.unitofissue = a.unitofmeasureid) ";
         
       $command1= $this->connection->createCommand($sql1);
       $dataReader1= $command1->queryAll();
-          $this->pdf->sety($this->pdf->gety() + 15);
+           $this->pdf->sety($this->pdf->gety() + 15);
         $this->pdf->colalign = array(
           'C',
           'C',
@@ -837,7 +837,7 @@ class DeliveryadviceController extends Controller {
           'C'
         );
       foreach ($dataReader1 as $row1) {
-    
+     
         $i= $i + 1;
         $this->pdf->row(array(
           $i,
@@ -847,11 +847,11 @@ class DeliveryadviceController extends Controller {
     }
     $this->pdf->Output();
   }
-  public function actionDownPDF4()
+	public function actionDownPDF4()
   {
-          parent::actionDownload();
+    parent::actionDownload();
     $sql = "select a.deliveryadviceid, a.dadate,a.dano,a.username, a.sloccode,a.statusname
-    from deliveryadvice a ";
+from deliveryadvice a ";
     if ($_GET['id'] !== '') {
       $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
@@ -860,7 +860,7 @@ class DeliveryadviceController extends Controller {
     $this->pdf->title = "List Satuan Yang Tidak ada di Gudang Tujuan";
     $this->pdf->AddPage('P', array(220,140));
     $this->pdf->AliasNBPages();
-        $i           = 0;
+         $i           = 0;
     foreach ($dataReader as $row) {
       $this->pdf->setFont('Arial', 'B', 10);
       $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
@@ -869,18 +869,18 @@ class DeliveryadviceController extends Controller {
       $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
       $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
       $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
-    
-    
+     
+     
       $sql1= "select b.deliveryadviceid, a.productid, b.dadate,b.dano,b.username, b.sloccode,b.statusname,c.productname,d.uomcode
-              from deliveryadvicedetail a
-              join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
-              join product c ON c.productid = a.productid 
+							from deliveryadvicedetail a
+							join deliveryadvice b on b.deliveryadviceid = a.deliveryadviceid
+							join product c ON c.productid = a.productid 
               join unitofmeasure d on d.unitofmeasureid = a.unitofmeasureid
-              where b.deliveryadviceid = ".$row['deliveryadviceid']." and a.slocid not in (select x.slocid from productplant x where x.productid = a.productid and x.unitofissue = a.unitofmeasureid)";
+							where b.deliveryadviceid = ".$row['deliveryadviceid']." and a.slocid not in (select x.slocid from productplant x where x.productid = a.productid and x.unitofissue = a.unitofmeasureid)";
         
       $command1= $this->connection->createCommand($sql1);
       $dataReader1= $command1->queryAll();
-          $this->pdf->sety($this->pdf->gety() + 15);
+           $this->pdf->sety($this->pdf->gety() + 15);
         $this->pdf->colalign = array(
           'C',
           'C',
@@ -919,7 +919,7 @@ class DeliveryadviceController extends Controller {
           'C'
         );
       foreach ($dataReader1 as $row1) {
-    
+     
         $i= $i + 1;
         $this->pdf->row(array(
           $i,
@@ -933,82 +933,82 @@ class DeliveryadviceController extends Controller {
   {
     parent::actionDownload();
     $sql = "select a.deliveryadviceid, a.dadate,a.dano,a.username, a.sloccode,a.statusname
-      from deliveryadvice a ";
-          if ($_GET['id'] !== '') {
-            $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
-          }
-          $command=$this->connection->createCommand($sql);
-          $dataReader=$command->queryAll();
-          $this->pdf->title = "List Material Yang Gudang Sumber Belum Di Centang";
-          $this->pdf->AddPage('P', array(220,140));
-          $this->pdf->AliasNBPages();
-              $i           = 0;
-          foreach ($dataReader as $row) {
-            $this->pdf->setFont('Arial', 'B', 10);
-            $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
-            $this->pdf->text(50, $this->pdf->gety() + 5, ': '.$row['deliveryadviceid']);
-            $this->pdf->text(15, $this->pdf->gety() + 10, 'Date ');
-            $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
-            $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
-            $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
-          
-          
-            $sql1= "select a.deliveryadviceid, b.productid, a.dadate, a.slocid, b.slocid, a.sloccode,a.statusname, c.productname,d.uomcode
-      from deliveryadvice a
-      join deliveryadvicedetail b on a.deliveryadviceid = b.deliveryadviceid
-      join product c ON c.productid = b.productid 
-      join unitofmeasure d on d.unitofmeasureid= b.unitofmeasureid
-      WHERE a.deliveryadviceid=".$row['deliveryadviceid']." and b.productid in 
-      (select z.productid from productplant z where z.productid = b.productid and z.slocid = a.slocid and z.issource=0 and z.recordstatus=1)";
-  
-    $command1= $this->connection->createCommand($sql1);
-    $dataReader1= $command1->queryAll();
-          $this->pdf->sety($this->pdf->gety() + 15);
-      $this->pdf->colalign = array(
-        'C',
-        'C',
-        'C',
-        'C',
-        'C',
-        'C'
-        
-      );
-      $this->pdf->setFont('Arial', 'B', 8);
-      $this->pdf->setwidths(array(
-        7,
-        70,
-        30,
-        30,
-        30,
-        30
-        
-      ));
-      $this->pdf->colheader = array(
-        'No',
-        'Nama Barang',
-        'Tgl FPB',
-        'Gudang',
-        'Satuan',
-        'Status'
-      );
-      $this->pdf->RowHeader();
-      $this->pdf->setFont('Arial', '', 8);
-      $this->pdf->coldetailalign = array(
-        'C',
-        'L',
-        'C',
-        'C',
-        'C',
-        'C'
-      );
-    foreach ($dataReader1 as $row1) {
-
-      $i= $i + 1;
-      $this->pdf->row(array(
-        $i,
-        $row1['productname'],$row1['dadate'],$row1['sloccode'],$row1['uomcode'], $row1['statusname']
-      ));
+from deliveryadvice a ";
+    if ($_GET['id'] !== '') {
+      $sql = $sql . "where a.deliveryadviceid in (" . $_GET['id'] . ")";
     }
+    $command=$this->connection->createCommand($sql);
+    $dataReader=$command->queryAll();
+    $this->pdf->title = "List Material Yang Gudang Sumber Belum Di Centang";
+    $this->pdf->AddPage('P', array(220,140));
+    $this->pdf->AliasNBPages();
+         $i           = 0;
+    foreach ($dataReader as $row) {
+      $this->pdf->setFont('Arial', 'B', 10);
+      $this->pdf->text(15, $this->pdf->gety() + 5, 'ID ');
+      $this->pdf->text(50, $this->pdf->gety() + 5, ': '.$row['deliveryadviceid']);
+      $this->pdf->text(15, $this->pdf->gety() + 10, 'Date ');
+      $this->pdf->text(50, $this->pdf->gety() + 10, ': ' .date(Yii::app()->params['dateviewfromdb'], strtotime($row['dadate'])));
+      $this->pdf->text(135, $this->pdf->gety() + 5, 'NO FPB ');
+      $this->pdf->text(170, $this->pdf->gety() + 5, ': '.$row['dano']);
+     
+     
+      $sql1= "select a.deliveryadviceid, b.productid, a.dadate, a.slocid, b.slocid, a.sloccode,a.statusname, c.productname,d.uomcode
+from deliveryadvice a
+join deliveryadvicedetail b on a.deliveryadviceid = b.deliveryadviceid
+join product c ON c.productid = b.productid 
+join unitofmeasure d on d.unitofmeasureid= b.unitofmeasureid
+WHERE a.deliveryadviceid=".$row['deliveryadviceid']." and b.productid in 
+(select z.productid from productplant z where z.productid = b.productid and z.slocid = a.slocid and z.issource=0 and z.recordstatus=1)";
+        
+      $command1= $this->connection->createCommand($sql1);
+      $dataReader1= $command1->queryAll();
+           $this->pdf->sety($this->pdf->gety() + 15);
+        $this->pdf->colalign = array(
+          'C',
+          'C',
+          'C',
+          'C',
+          'C',
+          'C'
+          
+        );
+        $this->pdf->setFont('Arial', 'B', 8);
+        $this->pdf->setwidths(array(
+          7,
+          70,
+          30,
+          30,
+          30,
+          30
+          
+        ));
+        $this->pdf->colheader = array(
+          'No',
+          'Nama Barang',
+          'Tgl FPB',
+          'Gudang',
+          'Satuan',
+          'Status'
+        );
+        $this->pdf->RowHeader();
+        $this->pdf->setFont('Arial', '', 8);
+        $this->pdf->coldetailalign = array(
+          'C',
+          'L',
+          'C',
+          'C',
+          'C',
+          'C'
+        );
+      foreach ($dataReader1 as $row1) {
+     
+        $i= $i + 1;
+        $this->pdf->row(array(
+          $i,
+          $row1['productname'],$row1['dadate'],$row1['sloccode'],$row1['uomcode'], $row1['statusname']
+        ));
+      }
     }
     $this->pdf->Output();
   }    

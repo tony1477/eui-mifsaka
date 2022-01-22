@@ -109,6 +109,7 @@
 												$('#billto').textbox('setValue',data.billto);			
 											},
 											'cache':false});
+									
 								},
 								columns: [[
 										{field:'companyid',title:'<?php echo GetCatalog('companyid') ?>'},
@@ -139,7 +140,7 @@
 						">
 				</select></td>
 			</tr>
-			<tr>
+                        <tr>
 				<td><?php echo GetCatalog('supplier')?></td>
 				<td><select class="easyui-combogrid" id="addressbookid" name="addressbookid" style="width:250px" data-options="
 								panelWidth: 500,
@@ -153,47 +154,9 @@
 								queryParams:{
 									combo:true,
 								},
-								onHidePanel: function() {
-									const supplier = $(this).combogrid('getValue');
-									checksupplier(supplier);
-								},
 								columns: [[
 										{field:'addressbookid',title:'<?php echo GetCatalog('addressbookid') ?>',width:80},
 										{field:'fullname',title:'<?php echo GetCatalog('fullname') ?>',width:120},
-								]],
-								fitColumns: true
-						">
-				</select></td>
-			</tr>
-			<tr id="sp_plantid" style="display:none;">
-				<td><?php echo GetCatalog('plant')?></td>
-				<td><select class="easyui-combogrid" id="plantid" name="plantid" style="width:250px" data-options="
-								panelWidth: 500,
-								idField: 'plantid',
-								required: false,
-								textField: 'plantcode',
-								pagination:true,
-								mode: 'remote',
-								url: '<?php echo Yii::app()->createUrl('purchasing/poheader/getplantfromsupplier',array('grid'=>true)) ?>',
-								method: 'get',
-								onBeforeLoad: function(param) {
-									const form = $(document.forms['ff-poheader-modif']).find('#addressbookid');
-									const supplier = form.combogrid('getValue');
-									param.supplierid = supplier;
-								},
-								onShowPanel: function(){
-									const form = $(document.forms['ff-poheader-modif']).find('#companyid');
-									//console.log(form.combogrid('getValue'));
-									const companyid = form.combogrid('getValue');
-									if(companyid=='') show('Message','Perusahaan belum dipilih'); return 0;
-								},
-								queryParams:{
-									trxcom:true,
-								},
-								columns: [[
-										{field:'plantid',title:'<?php echo GetCatalog('plantid') ?>',width:80},
-										{field:'plantcode',title:'<?php echo GetCatalog('plantcode') ?>',width:120},
-										{field:'description',title:'<?=GetCatalog('description')?>'},
 								]],
 								fitColumns: true
 						">
@@ -359,38 +322,6 @@ function tampil_loading(){
 
 function tutup_loading(){
     $('.ajax-loader').css("visibility", "hidden");
-}
-
-function suppliertoCompany(supplierid) {
-	let companyid=10;
-	$.ajax({
-		'url':'<?= Yii::app()->createUrl('purchasing/poheader/suppliertoCompany')?>',
-		'data':{'supplierid':supplierid},
-		'type':'post',
-		'dataType':'json',
-		'success':function(data) {
-			console.log(data);
-			companyid = data.companyid;
-		}
-	});
-	return companyid;
-}
-
-function checksupplier(supplierid) {
-	const hideplantid = document.querySelector('#sp_plantid');
-	const form =  $(document.forms['ff-poheader-modif']).find('#plantid');
-	const plantid = form.combogrid('setValue','');
-	hideplantid.style.display = 'none';
-	$.ajax({
-		'url':'<?= Yii::app()->createUrl('common/supplier/index',array('grid'=>true))?>',
-		'data':{'addressbookid':supplierid},
-		'type':'post',
-		'dataType':'json',
-		'success': function(data) {
-			if(data.rows[0].isextern==0) hideplantid.style.display = 'table-row';
-		},
-		'cache':false
-	});
 }
 $('#dg-poheader').edatagrid({
 		iconCls: 'icon-edit',	
@@ -842,9 +773,6 @@ $('#dg-podetail').edatagrid({
               onChange:function(newValue,oldValue) {
 							if ((newValue !== oldValue) && (newValue !== ''))
 							{
-								const form = $(document.forms['ff-poheader-modif']).find('#plantid');
-								//console.log(form.combogrid('getValue'));
-								let plantid = form.combogrid('getValue');
 								var tr = $(this).closest('tr.datagrid-row');
 								var index = parseInt(tr.attr('datagrid-row-index'));
 								var prmaterialid = $("#dg-podetail").datagrid("getEditor", {index: index, field:"prmaterialid"});
@@ -861,9 +789,7 @@ $('#dg-podetail').edatagrid({
 								var itemtext = $("#dg-podetail").datagrid("getEditor", {index: index, field:"itemtext"});
 								jQuery.ajax({'url':'<?php echo $this->createUrl('poheader/generatedetail') ?>',
 									'data':{'prmaterialid':newValue,
-										'supplierid':$('#addressbookid').combogrid("getValue"),
-										'plantid':plantid
-									},
+										'supplierid':$('#addressbookid').combogrid("getValue")},
 									'type':'post','dataType':'json',
 									'success':function(data)
 									{

@@ -136,7 +136,6 @@ class SupplierController extends Controller {
 			$row[] = array(
 			'addressbookid'=>$data['addressbookid'],
 			'fullname'=>$data['fullname'],
-			'isextern' => $data['isextern'],
 			'taxno'=>$data['taxno'],
 			'acchutangid'=>$data['acchutangid'],
 			'acchutangname'=>$data['accountname'],

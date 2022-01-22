@@ -124,59 +124,6 @@
 				</select></td>
 			</tr>
 			<tr>
-				<td><?php echo GetCatalog('customer')?></td>
-				<td><select class="easyui-combogrid" id="addressbookid" name="addressbookid" style="width:250px" data-options="
-								panelWidth: '500px',
-								idField: 'addressbookid',
-								required: true,
-								textField: 'fullname',
-								pagination:true,
-								mode:'remote',
-								method: 'get',
-								url:'<?php echo Yii::app()->createUrl('common/customer/index',array('grid'=>true,'company'=>true)) ?>',
-                                onBeforeLoad: function(param) {
-							       param.companyid = $('#companyid').combogrid('getValue');
-						        },
-								onHidePanel: function(){
-										jQuery.ajax({'url':'<?php echo $this->createUrl('soheader/generateaddress') ?>',
-											'data':{'id':$('#addressbookid').combogrid('getValue'),
-											'hid':$('#soheaderid').val()},
-											'type':'post',
-											'dataType':'json',
-											'success':function(data)
-											{
-												$('#shipto').textbox('setValue',data.shipto);
-												$('#billto').textbox('setValue',data.billto);
-												$('#dg-sodisc').edatagrid('reload');
-                                                $('#materialtypeid').combogrid('setValue','');
-                                                $('#poheaderid').combogrid('setValue','');
-                                                $('#packageid').combogrid('setValue','');
-                                                $('#qtypackage').numberbox('setValue','');
-											} ,
-											'cache':false});
-								},
-								columns: [[
-										{field:'addressbookid',title:'<?php echo GetCatalog('addressbookid') ?>'},
-										{field:'fullname',title:'<?php echo GetCatalog('fullname') ?>'},
-										{field:'currentlimit',title:'<?php echo GetCatalog('currentarlimit') ?>'},
-										{field:'creditlimit',title:'<?php echo GetCatalog('creditlimit') ?>'},
-										{field:'overdue',title:'<?php echo GetCatalog('overdue') ?>'},
-								]],
-								fitColumns: true
-						">
-				</select></td>
-			</tr>
-			<tr>
-				<td><?php echo GetCatalog('sotype')?></td>
-				<td>
-                    <select class="easyui-combobox" id="sotype" name="sotype" data-options="required:'true', panelHeight:'auto'" style="width:120px">
-                        <!--<option value=""><?= getCatalog('sotype')?></option>-->
-                        <option value="1"><?= getCatalog('materialtype')?></option>
-                        <option value="2"><?= getCatalog('package')?></option>
-                        <option value="3"><?= getCatalog('Cabang')?></option>
-                </td>
-			</tr>
-			<tr style="display:none;" id="poplantgrid">
 				<td><?php echo GetCatalog('poplant')?></td>
 				<td><select class="easyui-combogrid" id="poheaderid" name="poheaderid" style="width:250px" data-options="
 								panelWidth: '500px',
@@ -216,9 +163,59 @@
 								]],
 								fitColumns: true
 						">
-					</select>
-				</td>
+				</select></td>
+            </tr>
+            <tr>
+				<td><?php echo GetCatalog('customer')?></td>
+				<td><select class="easyui-combogrid" id="addressbookid" name="addressbookid" style="width:250px" data-options="
+								panelWidth: '500px',
+								idField: 'addressbookid',
+								required: true,
+								textField: 'fullname',
+								pagination:true,
+								mode:'remote',
+								method: 'get',
+								url:'<?php echo Yii::app()->createUrl('common/customer/index',array('grid'=>true,'company'=>true)) ?>',
+                                onBeforeLoad: function(param) {
+							       param.companyid = $('#companyid').combogrid('getValue');
+						        },
+								onHidePanel: function(){
+										jQuery.ajax({'url':'<?php echo $this->createUrl('soheader/generateaddress') ?>',
+											'data':{'id':$('#addressbookid').combogrid('getValue'),
+											'hid':$('#soheaderid').val()},
+											'type':'post',
+											'dataType':'json',
+											'success':function(data)
+											{
+												$('#shipto').textbox('setValue',data.shipto);
+												$('#billto').textbox('setValue',data.billto);
+												$('#dg-sodisc').edatagrid('reload');
+                                                $('#materialtypeid').combogrid('setValue','');
+                                                $('#packageid').combogrid('setValue','');
+                                                $('#qtypackage').numberbox('setValue','');
+											} ,
+											'cache':false});
+								},
+								columns: [[
+										{field:'addressbookid',title:'<?php echo GetCatalog('addressbookid') ?>'},
+										{field:'fullname',title:'<?php echo GetCatalog('fullname') ?>'},
+										{field:'currentlimit',title:'<?php echo GetCatalog('currentarlimit') ?>'},
+										{field:'creditlimit',title:'<?php echo GetCatalog('creditlimit') ?>'},
+										{field:'overdue',title:'<?php echo GetCatalog('overdue') ?>'},
+								]],
+								fitColumns: true
+						">
+				</select></td>
 			</tr>
+            <tr>
+				<td><?php echo GetCatalog('sotype')?></td>
+				<td>
+                    <select class="easyui-combobox" id="sotype" name="sotype" data-options="required:'true', panelHeight:'auto'" style="width:120px">
+                        <!--<option value=""><?= getCatalog('sotype')?></option>-->
+                        <option value="1"><?= getCatalog('materialtype')?></option>
+                        <option value="2"><?= getCatalog('package')?></option>
+                </td>
+            </tr>
             <tr style="display:none" id="materialtypesgrid">
 				<td><?php echo GetCatalog('materialtype')?></td>
 				<td><select class="easyui-combogrid" id="materialtypeid" name="materialtypeid" style="width:250px" data-options="
@@ -480,7 +477,7 @@
 			<table id="dg-sodetail"  style="width:100%;height:400px">
 			</table>
 			<div id="tb-sodetail">
-				<a href="javascript:void(0)" title="Tambah" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg-sodetail').edatagrid('addRow')" id="addsodetail" style="display:none"></a>
+				<a href="javascript:void(0)" title="Tambah" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg-sodetail').edatagrid('addRow')" id="addsodetail"></a>
 				<a href="javascript:void(0)" title="Simpan" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="javascript:$('#dg-sodetail').edatagrid('saveRow')"></a>
 				<a href="javascript:void(0)" title="Kembali" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#dg-sodetail').edatagrid('cancelRow')"></a>
 				<a href="javascript:void(0)" title="hapus" class="easyui-linkbutton" iconCls="icon-purge" plain="true" onclick="javascript:$('#dg-sodetail').edatagrid('destroyRow')" id="delsodetail"></a>
@@ -488,7 +485,7 @@
 			<table id="dg-sodisc"  style="width:100%;height:400px">
 			</table>
 			<div id="tb-sodisc">
-				<a href="javascript:void(0)" title="Tambah"class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg-sodisc').edatagrid('addRow')" id="addsodisc" style="display:none"></a>
+				<a href="javascript:void(0)" title="Tambah"class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg-sodisc').edatagrid('addRow')" id="addsodisc"></a>
 				<a href="javascript:void(0)" title="Simpan"class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="javascript:$('#dg-sodisc').edatagrid('saveRow')"></a>
 				<a href="javascript:void(0)" title="Kembali"class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#dg-sodisc').edatagrid('cancelRow')"></a>
 				<a href="javascript:void(0)" title="hapus"class="easyui-linkbutton" iconCls="icon-purge" plain="true" onclick="javascript:$('#dg-sodisc').edatagrid('destroyRow')" id="delsodisc"></a>
@@ -553,16 +550,12 @@ $('#sotype').combobox({
         if(r.value=='1') {
             $('#packagegrid').hide();
             $('#qtypackages').hide();
-            $('#poplantgrid').hide();
-						$('#isdisplaygrid').show();
+			$('#isdisplaygrid').show();
             $('#materialtypesgrid').show();
             $('#qtypackage').numberbox('setValue', '');
-            $('#poheaderid').combogrid('setValue', '');
             $('#qtypackage').numberbox({required: false, disabled: true});
             $('#materialtypeid').combogrid({required:true});
             $('#packageid').combogrid({required:false});
-						$('#poheaderid').combogrid({required:false});
-            $('#packageid').combogrid('setValue','');
             $("#addsodetail").css('display','inline');
             $("#delsodetail").css('display','inline');
             //$("#addsodisc").css('display','inline');
@@ -575,34 +568,14 @@ $('#sotype').combobox({
             $('#isdisplay').prop('checked',false);
             $('#isdisplaygrid').hide();
             $('#materialtypesgrid').hide();
-						$('#poplantgrid').hide();
             $("#addsodetail").css('display','none');
             $("#delsodetail").css('display','none');
-						$('#poheaderid').combogrid('setValue', '');
-						$('#materialtypeid').combogrid('setValue', '');
             $('#materialtypeid').combogrid({required:false});
-						$('#poheaderid').combogrid({required:false});
             $('#packageid').combogrid({required:true});
             $('#qtypackage').numberbox({required: true, disabled: false});
             //$("#addsodisc").css('display','none');
             //$("#delsodisc").css('display','none');
         }
-				else if(r.value==3) {
-					$('#poplantgrid').show();
-					//$('#qtypackages').show();
-					$('#isdisplay').prop('checked',false);
-					$('#isdisplaygrid').hide();
-					$('#materialtypesgrid').hide();
-					$('#qtypackages').hide();
-					$('#packagegrid').hide();
-					$("#addsodetail").css('display','none');
-					$("#delsodetail").css('display','none');
-					$('#poheaderid').combogrid({required:true});
-					$('#materialtypeid').combogrid({required:false});
-					$('#packageid').combogrid({required:false});
-					$('#qtypackage').numberbox('setValue','');
-					$('#qtypackage').numberbox({required: false, disabled: false});
-				}
         else{
             console.log('Pilih salah satu');
             $("#addsodetail").css('display','inline');
@@ -1256,7 +1229,6 @@ function editSoheader($i) {
                 $('#materialtypesgrid').show();
                 $('#packagegrid').hide();
                 $('#qtypackages').hide();
-								$('#poplantgrid').hide();
                 $("#addsodetail").css('display','inline');
                 $("#delsodetail").css('display','inline');
             }
@@ -1264,18 +1236,10 @@ function editSoheader($i) {
             {
                 $('#packagegrid').show();
                 $('#qtypackages').show();
-								$('#poplantgrid').hide();
                 $('#materialtypesgrid').hide();
                 $("#addsodetail").css('display','none');
                 $("#delsodetail").css('display','none');
             }
-						else if(y==3)
-						{
-							$('#materialtypesgrid').hide();
-							$('#packagegrid').hide();
-							$('#qtypackages').hide();
-							$('#poplantgrid').show();
-						}
             else {
                 $('#packagegrid').hide();
                 $('#materialtypesgrid').hide();
@@ -1412,7 +1376,7 @@ $('#dg-sodetail').edatagrid({
     $(productid.target).combogrid('readonly',false);
     $(qty.target).combogrid('readonly',false);
     
-    if(sotype == 2 || sotype == 3) { 
+    if(sotype == 2) { 
       $(productid.target).combogrid('readonly',true);
       $(qty.target).combogrid('readonly',true);
       //console.log($('#dg-sodetail').edatagrid('getSelected'));
@@ -1748,14 +1712,11 @@ $('#dg-sodisc').edatagrid({
 	},
 	onBeginEdit:function(index,row) {
         var ed = $("#dg-sodisc").datagrid('getEditor',{index: index, field:"discvalue"});
-				let sotype =  $('#sotype').combobox('getValue');
         let iseditdisc = $('#iseditdisc').val();
         $(ed.target).numberbox({disabled:true});
         if(iseditdisc==1) {
             $(ed.target).numberbox({disabled:false});
         }
-				console.warn(sotype);
-				if(sotype == 2 || sotype == 3) $(ed.target).numberbox({disabled:true});
         //let materialtype = $("#materialtypeid").combogrid('getValue');
         //if(materialtype)
     },

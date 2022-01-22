@@ -28,8 +28,10 @@ class ReportsoController extends Controller {
     $customer  		= isset($_POST['customer']) ? $_POST['customer'] : '';
 		$companyname  = isset($_POST['companyname']) ? $_POST['companyname'] : '';
 		$pocustno     = isset($_POST['pocustno']) ? $_POST['pocustno'] : '';
-		$pono     		= isset($_POST['pono']) ? $_POST['pono'] : '';
+		$pono     	  = isset($_POST['pono']) ? $_POST['pono'] : '';
+		$sotype       = isset($_POST['sotype']) ? $_POST['sotype'] : '';
 		$headernote   = isset($_POST['headernote']) ? $_POST['headernote'] : '';
+		$recordstatus   = isset($_POST['recordstatus']) ? $_POST['recordstatus'] : '';
 		$page         = isset($_POST['page']) ? intval($_POST['page']) : 1;
 		$rows         = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
 		$sort         = isset($_POST['sort']) ? strval($_POST['sort']) : 't.soheaderid';
@@ -40,6 +42,7 @@ class ReportsoController extends Controller {
 		$connection		= Yii::app()->db;
 		$sqlplant = getUserObjectValues('plantall');
 		if ($sqlplant == '1'){$plant="";}else{$plant=" and (t.soheaderid in (select distinct a1.soheaderid from sodetail a1 join sloc b1 on b1.slocid=a1.slocid where b1.plantid in (".getUserObjectValues('plant').")) or t.soheaderid in (select yy.soheaderid from sodetail xx right join soheader yy on xx.soheaderid = yy.soheaderid where yy.companyid in(".getUserObjectValues('company').") and xx.slocid is null)) ";}
+		if ($sotype != ""){$sotype2 = " and (coalesce(t.sotype,'') = if('jenis material' like '%".$sotype."%',1,if('PAKET' like '%".$sotype."%',2,0))) ";}else{$sotype2 = "";}
 		$from = '
 			from soheader t 
 			left join company a on a.companyid = t.companyid 
@@ -48,12 +51,11 @@ class ReportsoController extends Controller {
 			left join employee d on d.employeeid = t.employeeid 
 			left join paymentmethod e on e.paymentmethodid = t.paymentmethodid
             left join materialtype f on f.materialtypeid = t.materialtypeid 
-			left join packages g on g.packageid = t.packageid';
+			left join packages g on g.packageid = t.packageid
+		';
 		$where ="
-			where (coalesce(soheaderid,'') like '%".$soheaderid."%') and (coalesce(sono,'') like '%".$sono."%') and (coalesce(b.fullname) like '%".$customer."%') 
-				and (coalesce(a.companyname,'') like '%".$companyname."%')
-				and (coalesce(t.pocustno,'') like '%".$pocustno."%') and (coalesce(t.pono,'') like '%".$pono."%') and (coalesce(t.headernote,'') like '%".$headernote."%')
-				{$plant}
+			where (coalesce(soheaderid,'') like '%".$soheaderid."%') and (coalesce(sono,'') like '%".$sono."%') and (coalesce(b.fullname) like '%".$customer."%') and (coalesce(a.companyname,'') like '%".$companyname."%') and (coalesce(t.pocustno,'') like '%".$pocustno."%') and (coalesce(t.pono,'') like '%".$pono."%') and (coalesce(t.headernote,'') like '%".$headernote."%') and (coalesce(t.statusname,'') like '%".$recordstatus."%')
+				{$plant} {$sotype2}
 				and b.iscustomer = 1 and t.companyid in (".getUserObjectValues('company').")";
 		$sqldep = new CDbCacheDependency('select max(soheaderid) '.$from.' '.$where);
 		$sqlcount = ' select count(1) as total '.$from.' '.$where;
@@ -163,6 +165,7 @@ class ReportsoController extends Controller {
         'soheaderid' => $data['soheaderid'],
         'productid' => $data['productid'],
         'productname' => $data['productname'],
+        'isbonus' => $data['isbonus'],
         'unitofmeasureid' => $data['unitofmeasureid'],
         'uomcode' => $data['uomcode'],
         'price' => Yii::app()->format->formatCurrency($data['price']),

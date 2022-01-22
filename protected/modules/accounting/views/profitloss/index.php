@@ -49,6 +49,7 @@
 								prompt:'Company'
 						">
 				</select>
+    <?php if(getUserObjectValues('companypl')==1) { ?>
 		<input class="easyui-datebox" type="text" id="dlg_search_pldate" name="dlg_search_pldate" data-options="formatter:dateformatter,required:true,parser:dateparser,prompt:'As of Date Company'"></input>
 		<a href="javascript:void(0)" title="Generate PL Company"class="easyui-linkbutton" iconCls="icon-bom" plain="true" onclick="generatepl()"></a>
 		<a href="javascript:void(0)" title="PDF PL Company" class="easyui-linkbutton" iconCls="icon-pdf" plain="true" onclick="downpdfprofitloss()"></a>
@@ -58,6 +59,8 @@
 		<a href="javascript:void(0)" title="XLS Company Tahunan" class="easyui-linkbutton" iconCls="icon-xls" plain="true" onclick="downxlsprofitloss1()"></a>
         <a href="javascript:void(0)" title="PDF Company Laba Rugi Uji Coba" class="easyui-linkbutton" iconCls="icon-pdf" plain="true" onclick="downlabarugiujicobapdf()"></a>
 		<a href="javascript:void(0)" title="XLS Company Laba Rugi Uji Coba" class="easyui-linkbutton" iconCls="icon-xls" plain="true" onclick="downlabarugiujicobaxls()"></a>
+  <?php }?>
+
 	<?php }?>
 	<?php if (CheckAccess($this->menuname, $this->isupload) == 1) {?>
 		<form id="formProfitloss" method="post" enctype="multipart/form-data" style="display:inline" data-options="novalidate:true">
@@ -66,7 +69,7 @@
 		</form>
 	<?php }?>
 
-
+  <br />
 	<?php if (CheckAccess($this->menuname, $this->isdownload) == 1) {  ?>
 		<select class="easyui-combogrid" id="dlg_search_plantid" name="dlg_search_plantid" style="width:250px" data-options="
 								panelWidth: 500,

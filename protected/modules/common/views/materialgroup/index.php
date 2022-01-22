@@ -78,36 +78,6 @@
 				}
 		}},
 		{
-			field:'materialtypeid',
-			title:'". GetCatalog('materialtype') ."',
-			width:'150px',
-			editor:{
-				type:'combogrid',
-				options:{
-					panelWidth:'500px',
-					mode : 'remote',
-					method:'get',
-					idField:'materialtypeid',
-					textField:'materialtypedesc',
-					url:'". Yii::app()->createUrl('common/materialtype/index',array('grid'=>true)) ."',
-					fitColumns:true,
-					pagination:true,
-					required:true,
-					queryParams:{
-						combo:true
-					},
-					loadMsg: '". GetCatalog('pleasewait')."',
-					columns:[[
-						{field:'materialtypeid',title:'". GetCatalog('materialtypeid')."',width:'50px'},
-						{field:'description',title:'". GetCatalog('description')."',width:'200px'},
-					]]
-				}	
-			},
-			sortable: true,
-			formatter: function(value,row,index){
-				return row.materialtypedesc;
-		}},
-		{
 			field:'recordstatus',
 			title:'". GetCatalog('recordstatus') ."',
 			width:'50px',
@@ -121,5 +91,5 @@
 					return '';
 				}
 			}}",
-	'searchfield'=> array ('materialgroupid','materialgroupcode','description','parentmatgroup','materialtypedesc')
+	'searchfield'=> array ('materialgroupid','materialgroupcode','description','parentmatgroup')
 ));

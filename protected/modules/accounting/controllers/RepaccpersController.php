@@ -12,6 +12,11 @@ class RepaccpersController extends Controller
 		parent::actionDownload();
 		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['storagebin']) && isset($_GET['product']) && isset($_GET['productcollect']) && isset($_GET['account']) && isset($_GET['startacccode']) && isset($_GET['endacccode']) && isset($_GET['keluar3']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
 		{
+			if ($_GET['lro'] == 9999)
+			{
+				$this->RekapPersediaanBarangDetailTester($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else
 			if ($_GET['lro'] == 1)
 			{
 				$this->RekapPersediaanBarangDetail($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
@@ -242,14 +247,227 @@ class RepaccpersController extends Controller
 			{
 				$this->RekapPerbandinganHPPPenjualanReturPerKastaPerGroupMaterialDiluarStandar($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
-			else
-			if($_GET['lro'] == 48)
+			else 
+			if ($_GET['lro'] == 48)
 			{
 				$this->RekapHppActualVsBom($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 49)
+			{
+				$this->RekapPerformaProduk($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 		}
 	}
 	
+	//9999
+	public function RekapPersediaanBarangDetailTester($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+		parent::actionDownload();
+		$qtyawal2=0;$nilaiawal2=0;$qtymasuk2=0;$nilaimasuk2=0;$qtytersedia2=0;$nilaitersedia2=0;$qtykeluar2=0;$nilaikeluar2=0;$qtyakhir2=0;$nilaiakhir2=0;
+		if (($_GET['startacccode'] !== '')&&($_GET['endacccode'] !== '')) {
+			$betacccode = " and q.accountcode between '".$_GET['startacccode']."' and '".$_GET['endacccode']."' ";
+		} else {$betacccode = "";}
+		$sql="select distinct slocid,sloccode,materialgroupid,description,accountname,accountid
+          from (select k.productname,m.uomcode,l.slocid,l.sloccode,o.materialgroupid,o.description,q.accountname,q.accountid,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtyawal,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahawal,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty > 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtymasuk,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty > 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahmasuk,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty < 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtykeluar,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty < 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahkeluar,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtyakhir,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahakhir
+          from productplant j
+          join product k on k.productid=j.productid
+          join sloc l on l.slocid=j.slocid
+          join unitofmeasure m on m.unitofmeasureid=j.unitofissue
+          join plant n on n.plantid=l.plantid
+          join materialgroup o on o.materialgroupid=j.materialgroupid
+					left join slocaccounting p on p.slocid=j.slocid and p.materialgroupid=j.materialgroupid
+					left join account q on q.accountid=p.accpersediaan
+	where k.isstock=1 and n.companyid = ".$companyid." and l.sloccode like '%".$sloc."%' and o.description like '%".$materialgroup."%' and k.productname like '%".$product."%' and q.accountname like '%".$account."%' 
+	and q.accountcode not between '110501' and '11050199999999999999999999999999' {$betacccode}) zz
+          where qtyawal <> 0 or jumlahawal <> 0 or qtymasuk <> 0 or jumlahmasuk <> 0 or qtykeluar <> 0 or jumlahkeluar <> 0 or qtyakhir <> 0 or jumlahakhir <> 0
+          order by sloccode, description";
+		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+		
+		foreach($dataReader as $row)
+		{
+				$this->pdf->companyid = $companyid;
+		}
+		$this->pdf->title='Rekap Persediaan Barang (Detail)';
+		$this->pdf->subtitle='Dari Tgl : '.date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)).' s/d '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+		$this->pdf->AddPage('L','Legal');
+		
+		foreach ($dataReader as $row)
+		{
+			$this->pdf->setFont('Arial','',10);
+			$this->pdf->text(15,$this->pdf->gety()+5,'GUDANG');$this->pdf->text(35,$this->pdf->gety()+5,': '.$row['sloccode']);
+			$this->pdf->text(80,$this->pdf->gety()+5,'MATERIAL GROUP');$this->pdf->text(115,$this->pdf->gety()+5,': '.$row['description']);
+			$this->pdf->text(180,$this->pdf->gety()+5,'NAMA AKUN');$this->pdf->text(205,$this->pdf->gety()+5,': '.$row['accountname']);
+			
+			if ($storagebin == null)
+			{$this->pdf->text(100,$this->pdf->gety()+5,'');$this->pdf->text(115,$this->pdf->gety()+5,'');}
+			else
+			{$this->pdf->text(100,$this->pdf->gety()+5,'RAK');$this->pdf->text(115,$this->pdf->gety()+5,': '.$storagebin);}
+			
+			$this->pdf->setFont('Arial','B',8);
+			$this->pdf->sety($this->pdf->gety()+7);
+			$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C');
+			$this->pdf->setwidths(array(6,80,12,61,38,61,38,38,5));
+			$this->pdf->colheader = array('','','','Awal','Penerimaan','Tersedia','Pengeluaran','Akhir','');
+			$this->pdf->RowHeader();
+			$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C','C','C','C','C','C','C','C');
+			$this->pdf->setwidths(array(6,80,12,15,23,23,15,23,15,23,23,15,23,15,23,5));
+			$this->pdf->colheader = array('No','Nama Barang','Satuan','Qty','Harga','Nilai','Qty','Nilai','Qty','Harga','Nilai','Qty','Nilai','Qty','Nilai','');
+			$this->pdf->RowHeader();
+			$this->pdf->coldetailalign = array('R','L','C','R','R','R','R','R','R','R','R','R','R','R','R','C');
+			
+			$i=0;$qtyawal=0;$nilaiawal=0;$qtymasuk=0;$nilaimasuk=0;$qtytersedia=0;$nilaitersedia=0;$qtykeluar=0;$nilaikeluar=0;$qtyakhir=0;$nilaiakhir=0;
+			$sql1="select *, ifnull((jumlahawal/qtyawal),0) as hargaawal, qtyawal+qtymasuk as qtytersedia, ifnull(((jumlahawal+jumlahmasuk)/(qtyawal+qtymasuk)),0) as hargatersedia, jumlahawal+jumlahmasuk as jumlahtersedia,
+          case when qtyakhir < 0 then 'X' else '' end as minus
+          from (select k.productname,m.uomcode,l.sloccode,o.description,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtyawal,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahawal,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty > 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtymasuk,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty > 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahmasuk,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty < 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtykeluar,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.qty < 0 and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahkeluar,
+          ifnull((select sum(a.qty)
+          from productdetailhist a
+          where a.buydate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as qtyakhir,
+          ifnull((select sum(a.qty*a.buyprice)
+          from productdetailhist a
+          where a.buydate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and a.productid = j.productid and a.slocid = j.slocid and a.unitofmeasureid = j.unitofissue),0) as jumlahakhir
+          from productplant j
+          join product k on k.productid=j.productid
+          join sloc l on l.slocid=j.slocid
+          join unitofmeasure m on m.unitofmeasureid=j.unitofissue
+          join plant n on n.plantid=l.plantid
+          join materialgroup o on o.materialgroupid=j.materialgroupid
+					left join slocaccounting p on p.slocid=j.slocid and p.materialgroupid=j.materialgroupid
+					left join account q on q.accountid=p.accpersediaan
+          where k.isstock=1 and n.companyid = ".$companyid." and l.sloccode like '%".$sloc."%' and o.description like '%".$materialgroup."%' and k.productname like '%".$product."%' and l.slocid = ".$row['slocid']." and o.materialgroupid = ".$row['materialgroupid']." and q.accountid = ".$row['accountid']." ) zz
+          where qtyawal <> 0 or jumlahawal <> 0 or qtymasuk <> 0 or jumlahmasuk <> 0 or qtykeluar <> 0 or jumlahkeluar <> 0 or qtyakhir <> 0 or jumlahakhir <> 0
+          order by productname";
+			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+			
+			foreach ($dataReader1 as $row1)
+			{
+				$i+=1;
+				$this->pdf->setFont('Arial','',6.5);
+				$this->pdf->row(array(
+					$i,$row1['productname'],$row1['uomcode'],
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qtyawal']),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['hargaawal']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlahawal']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qtymasuk']),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlahmasuk']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qtytersedia']),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['hargatersedia']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlahtersedia']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qtykeluar']),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlahkeluar']/$per),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qtyakhir']),
+					Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlahakhir']/$per),
+					$row1['minus'],
+				));
+				$qtyawal += $row1['qtyawal'];
+				$nilaiawal += $row1['jumlahawal']/$per;
+				$qtymasuk += $row1['qtymasuk'];
+				$nilaimasuk += $row1['jumlahmasuk']/$per;
+				$qtytersedia += $row1['qtytersedia'];
+				$nilaitersedia += $row1['jumlahtersedia']/$per;
+				$qtykeluar += $row1['qtykeluar'];
+				$nilaikeluar += $row1['jumlahkeluar']/$per;
+				$qtyakhir += $row1['qtyakhir'];
+				$nilaiakhir += $row1['jumlahakhir']/$per;
+			}
+			$this->pdf->setFont('Arial','B',6.5);
+			$this->pdf->setwidths(array(98,15,23,23,15,23,15,23,23,15,23,15,23,5));
+			$this->pdf->coldetailalign = array('R','R','R','R','R','R','R','R','R','R','R','R','R','C');
+			$this->pdf->row(array(
+				'TOTAL '.$row['sloccode'].' - '.$row['description'].'      >>>>>',
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtyawal),'',
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaiawal),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtymasuk),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaimasuk),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtytersedia),'',
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaitersedia),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtykeluar),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaikeluar),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtyakhir),
+				Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaiakhir),'',
+			));
+			$qtyawal2 += $qtyawal;
+			$nilaiawal2 += $nilaiawal;
+			$qtymasuk2 += $qtymasuk;
+			$nilaimasuk2 += $nilaimasuk;
+			$qtytersedia2 += $qtytersedia;
+			$nilaitersedia2 += $nilaitersedia;
+			$qtykeluar2 += $qtykeluar;
+			$nilaikeluar2 += $nilaikeluar;
+			$qtyakhir2 += $qtyakhir;
+			$nilaiakhir2 += $nilaiakhir;
+			
+			$this->pdf->sety($this->pdf->gety()+5);
+			$this->pdf->checkNewPage(175);
+		}
+		$this->pdf->setFont('Arial','BI',6.5);
+		$this->pdf->colalign = array('C','C','C','C','C','C','C');
+		$this->pdf->setwidths(array(69,68,43,68,43,43,5));
+		$this->pdf->colheader = array('','Awal','Penerimaan','Tersedia','Pengeluaran','Akhir','');
+		$this->pdf->RowHeader();
+		$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C','C','C','C','C','C');
+		$this->pdf->setwidths(array(69,18,25,25,18,25,18,25,25,18,25,18,25,5));
+		$this->pdf->colheader = array('Keterangan','Qty','Harga','Nilai','Qty','Nilai','Qty','Harga','Nilai','Qty','Nilai','Qty','Nilai','');
+		$this->pdf->RowHeader();
+		$this->pdf->coldetailalign = array('C','R','R','R','R','R','R','R','R','R','R','R','R','C');
+		$this->pdf->row(array(
+			'GRAND TOTAL      >>>>>',
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtyawal2),'',
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaiawal2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtymasuk2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaimasuk2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtytersedia2),'',
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaitersedia2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtykeluar2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaikeluar2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtyakhir2),
+			Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$nilaiakhir2),'',
+		));
+		
+		$this->pdf->Output();
+	}
 	//20
 	public function RekapPersediaanBarangDetailPersediaan($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
 	{
@@ -4630,7 +4848,7 @@ class RepaccpersController extends Controller
 		$this->pdf->colalign = array('C','C','C');
 		$this->pdf->setwidths(array(140,60,60));
 		$this->pdf->colheader = array('','Produksi Actual','BOM');
-		$this->pdf->RowHeader();
+			$this->pdf->RowHeader();
 		$this->pdf->colalign = array('C','C','C','C','C','C','C','C');
 		$this->pdf->setwidths(array(120,20,20,20,20,20,20,20));
 		$this->pdf->colheader = array('Nama Barang','Satuan','Qty','Price','Jumlah','Qty','Price','Jumlah');
@@ -4680,40 +4898,38 @@ class RepaccpersController extends Controller
 				
 				foreach($dataReader2 as $row2)				
 				{
-					/*				$foh = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.foh * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.foh * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.foh * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'FOH %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
-					";
-					$ul = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.ul * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.ul * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.ul * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'UL %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and  month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
-					";*/
-					$foh = "(SELECT if(e.isfohulbom=0,if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime),(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'FOH %'))
-						FROM productoutputfg a
-						JOIN productoutput b ON b.productoutputid=a.productoutputid
-						JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
-						JOIN sloc d ON d.slocid=a.slocid
-						JOIN product e ON e.productid=a.productid
-						JOIN billofmaterial f ON f.bomid=a.bomid 
-						WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
-					";
-
-					$ul = "(SELECT if(e.isfohulbom=0,if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime),(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'UL %'))
-						FROM productoutputfg a
-						JOIN productoutput b ON b.productoutputid=a.productoutputid
-						JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
-						JOIN sloc d ON d.slocid=a.slocid
-						JOIN product e ON e.productid=a.productid
-						JOIN billofmaterial f ON f.bomid=a.bomid 
-						WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
-					";
-
-					$cad = "(SELECT if(isfohulbom=0,IFNULL((sum(qtydetail*price)) * 0.03,0),cadang)
-									from (SELECT ifnull(a.qty/b.qtyoutput,0) as qtydetail,a.productid,e.isfohulbom,ifnull(c.buyprice,0) as price,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=b.bomid AND y.productname LIKE 'CADANGAN %') AS cadang
-									from productoutputdetail a
-									join productoutputfg b on b.productoutputfgid = a.productoutputfgid
-									join productdetailhist c on c.productoutputdetailid=a.productoutputdetailid
-									join product d on d.productid = a.productid
-									join product e on e.productid = b.productid
-									where a.productoutputfgid = ".$row1['productoutputfgid']." and d.isstock = 1
-									AND (a.bomid IS NULL OR a.bomid = 0)) z)
-					";
+/*				$foh = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.foh * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.foh * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.foh * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'FOH %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
+				";
+				$ul = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.ul * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.ul * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.ul * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'UL %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and  month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
+				";*/
+				$foh = "(SELECT if(e.isfohulbom=0,if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime),(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'FOH %'))
+				FROM productoutputfg a
+				JOIN productoutput b ON b.productoutputid=a.productoutputid
+				JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
+				JOIN sloc d ON d.slocid=a.slocid
+				JOIN product e ON e.productid=a.productid
+				JOIN billofmaterial f ON f.bomid=a.bomid 
+				WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
+				";
+				$ul = "(SELECT if(e.isfohulbom=0,if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime),(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'UL %'))
+				FROM productoutputfg a
+				JOIN productoutput b ON b.productoutputid=a.productoutputid
+				JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
+				JOIN sloc d ON d.slocid=a.slocid
+				JOIN product e ON e.productid=a.productid
+				JOIN billofmaterial f ON f.bomid=a.bomid 
+				WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
+				";
+				$cad = "(SELECT if(isfohulbom=0,IFNULL((sum(qtydetail*price)) * 0.03,0),cadang)
+								from (SELECT ifnull(a.qty/b.qtyoutput,0) as qtydetail,a.productid,e.isfohulbom,ifnull(c.buyprice,0) as price,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=b.bomid AND y.productname LIKE 'CADANGAN %') AS cadang
+								from productoutputdetail a
+								join productoutputfg b on b.productoutputfgid = a.productoutputfgid
+								join productdetailhist c on c.productoutputdetailid=a.productoutputdetailid
+								join product d on d.productid = a.productid
+								join product e on e.productid = b.productid
+								where a.productoutputfgid = ".$row1['productoutputfgid']." and d.isstock = 1
+								AND (a.bomid IS NULL OR a.bomid = 0)) z)
+				";
 					$sql3 = "SELECT productname,sum(qty) as qty,sum(buyprice) as buyprice,sum(jumlah) as jumlah,unitofmeasureid,uomcode,isstock,sum(qtybom) as qtybom,sum(jumlahbom)/sum(qtybom) as buypricebom,sum(jumlahbom) as jumlahbom
 							FROM (SELECT c.productname,-sum(j.qty) as qty,-sum(j.qty * j.buyprice)/-sum(j.qty) as buyprice,-sum(j.qty * j.buyprice) as jumlah,h.unitofmeasureid,h.uomcode,c.isstock,0 as qtybom,0 as jumlahbom
 									FROM productoutputdetail a
@@ -8147,7 +8363,7 @@ class RepaccpersController extends Controller
 				$this->pdf->coldetailalign = array('R','L','R','R','R','R','R','R');
 				//$this->pdf->setY($this->pdf->getY());
 				
-				$i=1;$totalpotensi2=0;$totalinvoice2=0;$totalhpp2=0;$totalpayamount2=0;
+				$i=0;$totalpotensi2=0;$totalinvoice2=0;$totalhpp2=0;$totalpayamount2=0;
 				
 				foreach($dataReader2 as $row2)
 				{
@@ -11198,7 +11414,7 @@ class RepaccpersController extends Controller
 						Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row2['buypricebom']/$per),
 						Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row2['jumlahbom']/$per),
 						Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],($row1['qty']/$row2['qtybom'])).' %',
-						Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],($row1['jumlah']/$row2['jumlahbom'])).' %',
+						Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],($row2['jumlahbom']== 0 ? '0' : $row1['jumlah']/$row2['jumlahbom'])).' %',
 					));
 
 					foreach($dataReader3 as $row3)
@@ -11264,6 +11480,163 @@ class RepaccpersController extends Controller
 		));
 		$this->pdf->Output();	
 	}
+/*	public function RekapHppActualVsBom($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+	parent::actionDownload();
+	$sql = "SELECT DISTINCT d.slocid,d.sloccode
+	FROM productoutputfg a
+	JOIN productoutput b ON b.productoutputid=a.productoutputid
+	JOIN product c ON c.productid=a.productid
+	JOIN sloc d ON d.slocid=a.slocid
+	JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
+	JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	JOIN storagebin g ON g.storagebinid=a.storagebinid
+	WHERE b.companyid = ".$companyid." AND b.recordstatus = getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.sloccode LIKE '%".$sloc."%' AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+	ORDER BY sloccode";
+	$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+
+
+	$this->pdf->companyid = $companyid;
+
+	$this->pdf->title='Rekap HPP Actual Hasil Produksi VS BOM';
+	$this->pdf->subtitle = 'Dari Tgl :'.date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)).' s/d '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+	$this->pdf->AddPage('L','Letter');
+
+	$this->pdf->sety($this->pdf->gety());
+	$this->pdf->setFont('Arial','B',8);
+	$this->pdf->colalign = array('C','C','C');
+	$this->pdf->setwidths(array(140,60,60));
+	$this->pdf->colheader = array('','Produksi Actual','BOM');
+	$this->pdf->RowHeader();
+	$this->pdf->colalign = array('C','C','C','C','C','C','C','C');
+	$this->pdf->setwidths(array(100,15,20,25,30,20,25,30));
+	$this->pdf->colheader = array('Nama Barang','Satuan','Qty','Price','Jumlah','Qty','Price','Jumlah');
+	$this->pdf->RowHeader();
+
+	$qty2 = 0;
+	$buyprice2 = 0;
+	$jumlah2 = 0;
+	$qtybom2 = 0;
+	$buypricebom2 = 0;
+	$jumlahbom2 = 0;
+	foreach($dataReader as $row)
+	{
+	$this->pdf->SetFont('Arial','B',10);
+	$this->pdf->text(10,$this->pdf->gety()+5,'GUDANG');$this->pdf->text(28,$this->pdf->gety()+5,': '.$row['sloccode']);
+	$sql1 = "select distinct productid,productname, productoutputfgid, bomid, uomcode, sum(qty) as qty, sum(qty*buyprice)/sum(qty) as buyprice, sum(jumlah) as jumlah
+	from (SELECT DISTINCT c.productid,c.productname,b.productoutputid,b.productoutputno,b.productoutputdate,a.productoutputfgid,j.qty,j.buyprice,j.qty * j.buyprice as jumlah,h.unitofmeasureid,h.uomcode,i.bomid,i.bomversion
+	FROM productoutputfg a
+	JOIN productoutput b ON b.productoutputid=a.productoutputid
+	JOIN product c ON c.productid=a.productid
+	JOIN sloc d ON d.slocid=a.slocid
+	JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
+	JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	JOIN storagebin g ON g.storagebinid=a.storagebinid
+	JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+	JOIN billofmaterial i ON i.bomid=a.bomid
+	JOIN productdetailhist j on j.productoutputfgid=a.productoutputfgid AND j.productid=a.productid and j.qty > 0
+	WHERE b.companyid = ".$companyid." AND b.recordstatus=getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.slocid = ".$row['slocid']." AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+	ORDER BY productoutputdate,productoutputno,productname) z
+	group by productname";
+	$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+
+	$qty1 = 0;
+	$buyprice1 = 0;
+	$jumlah1 = 0;
+	$qtybom1 = 0;
+	$buypricebom1 = 0;
+	$jumlahbom1 = 0;
+	$this->pdf->sety($this->pdf->gety()+5);
+	foreach($dataReader1 as $row1)
+	{
+	$sql2 = "SELECT ".$row1['qty']." as qtybom,sum(buyprice) as buypricebom,".$row1['qty']." * sum(buyprice) as jumlahbom
+	FROM (SELECT a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as buyprice
+	FROM bomdetail a
+	JOIN billofmaterial b ON b.bomid=a.bomid
+	JOIN product c ON c.productid=a.productid
+	LEFT JOIN productplant e ON e.productid=a.productid AND e.unitofissue=a.uomid AND e.slocid=(SELECT q.slocid FROM productoutputfg q WHERE q.productoutputfgid = ".$row1['productoutputfgid'].")
+	LEFT JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	LEFT JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+	WHERE c.isstock = 1 AND a.bomid = ".$row1['bomid']."
+	UNION
+	SELECT k.qty as buyprice
+	FROM bomdetail k
+	JOIN billofmaterial l ON l.bomid=k.bomid
+	JOIN product m ON m.productid=k.productid
+	JOIN productoutputfg n ON n.bomid=l.bomid
+	JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
+	WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid'].") z
+	";
+	$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
+
+	foreach($dataReader2 as $row2)
+	{
+
+	$this->pdf->sety($this->pdf->gety()+2);
+	$this->pdf->coldetailalign = array('L','C','R','R','R','R','R','R');
+	$this->pdf->SetFont('Arial','BI',8);
+
+	$this->pdf->row(array(
+	$row1['productname'],$row1['uomcode'],
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['qty']),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['buyprice']/$per),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row1['jumlah']/$per),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row2['qtybom']),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row2['buypricebom']/$per),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$row2['jumlahbom']/$per),
+	));
+
+	$qty1 += $row1['qty'];
+	$buyprice1 += $row1['buyprice'];
+	$jumlah1 += $row1['jumlah'];
+	$qtybom1 += $row2['qtybom'];
+	$buypricebom1 += $row2['buypricebom'];
+	$jumlahbom1 += $row2['jumlahbom'];
+
+	$this->pdf->sety($this->pdf->gety()+2);
+	$this->pdf->checkPageBreak(10);
+	}
+	}
+	$this->pdf->setY($this->pdf->getY()+5);
+	$this->pdf->row(array(
+	'TOTAL GUDANG : '.$row['sloccode'],
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qty1),
+	//Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$buyprice1/$per),
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$jumlah1/$per),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtybom1),
+	//Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$buypricebom1/$per),
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$jumlahbom1/$per),
+	));
+
+	$qty2 += $qty1;
+	$buyprice2 += $buyprice1;
+	$jumlah2 += $jumlah1;
+	$qtybom2 += $qtybom1;
+	$buypricebom2 += $buypricebom1;
+	$jumlahbom2 += $jumlahbom1;
+
+	}
+	$this->pdf->setY($this->pdf->getY()+7);
+	$this->pdf->setFont('Arial','I',11);
+	$this->pdf->row(array(
+	'TOTAL PRODUKSI ',
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qty2),
+	//Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$buyprice2/$per),
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$jumlah2/$per),
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$qtybom2),
+	//Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$buypricebom2/$per),
+	'',
+	Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"],$jumlahbom2/$per),
+	));
+	$this->pdf->Output();
+	}
+*/	
+	//49
 	
 	
 		
@@ -11492,10 +11865,35 @@ class RepaccpersController extends Controller
 			{
 				$this->RekapPotensiTargetPenjualanReturPelunasanGMPerProvinsiPerZonaPerSubzonaPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
-			else
-			if($_GET['lro'] == 48)
+			else 
+			if ($_GET['lro'] == 45)
+			{
+				$this->WeeklyReportGMNextMondayXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 46)
+			{
+				$this->WeeklyReportGMPreviousMondayXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 47)
+			{
+				$this->RekapPerbandinganHPPPenjualanReturPerKastaPerGroupMaterialDiluarStandarXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 48)
 			{
 				$this->RekapHppActualVsBomXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 49)
+			{
+				$this->RekapPerformaProdukXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
+			else 
+			if ($_GET['lro'] == 50)
+			{
+				$this->RekapProdukDariKainXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 		}
 	}
@@ -14772,37 +15170,12 @@ class RepaccpersController extends Controller
 	//23
 	
 	//24
-	public function HppActualVsBomXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
-	{
-			$this->menuname='hppactualvsbom';
-			parent::actionDownxls();
-					
-			$sql = "SELECT DISTINCT d.slocid,d.sloccode
-							FROM productoutputfg a
-							JOIN productoutput b ON b.productoutputid=a.productoutputid
-							JOIN product c ON c.productid=a.productid
-							JOIN sloc d ON d.slocid=a.slocid
-							JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
-							JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
-							JOIN storagebin g ON g.storagebinid=a.storagebinid
-							WHERE b.companyid = ".$companyid." AND b.recordstatus = getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.sloccode LIKE '%".$sloc."%' AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-							ORDER BY sloccode";
-			$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
-					
-			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-					->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-					->setCellValueByColumnAndRow(3,1,GetCompanyCode($companyid));
-			
-			$line = 5;
-			
-			foreach($dataReader as $row)
-			{
-				$this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(0,$line,'GUDANG : '.$row['sloccode']);
-				$line++;
-				
-				$sql1 = "SELECT DISTINCT c.productid,c.productname,b.productoutputno,b.productoutputdate,a.productoutputfgid,j.qty,j.buyprice,j.qty * j.buyprice as jumlah,h.unitofmeasureid,h.uomcode,i.bomid,i.bomversion
+    public function HppActualVsBomXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+    {
+        $this->menuname='hppactualvsbom';
+		parent::actionDownxls();
+        
+		$sql = "SELECT DISTINCT d.slocid,d.sloccode
 						FROM productoutputfg a
 						JOIN productoutput b ON b.productoutputid=a.productoutputid
 						JOIN product c ON c.productid=a.productid
@@ -14810,17 +15183,119 @@ class RepaccpersController extends Controller
 						JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
 						JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
 						JOIN storagebin g ON g.storagebinid=a.storagebinid
-						JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
-						JOIN billofmaterial i ON i.bomid=a.bomid
-						JOIN productdetailhist j on j.productoutputfgid=a.productoutputfgid AND j.productid=a.productid and j.qty > 0
-						WHERE b.companyid = ".$companyid." AND b.recordstatus=getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.slocid = ".$row['slocid']." AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
-						ORDER BY productoutputdate,productoutputno,productname";
-				$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
-							
-				foreach($dataReader1 as $row1)				
+						WHERE b.companyid = ".$companyid." AND b.recordstatus = getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.sloccode LIKE '%".$sloc."%' AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						ORDER BY sloccode";
+		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+        
+        $this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+						->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+						->setCellValueByColumnAndRow(3,1,GetCompanyCode($companyid));
+        
+        $line = 5;
+        
+        foreach($dataReader as $row)
+		{        
+            $this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'GUDANG : '.$row['sloccode']);
+            $line++;
+			
+			$sql1 = "SELECT DISTINCT c.productid,c.productname,b.productoutputno,b.productoutputdate,a.productoutputfgid,j.qty,j.buyprice,j.qty * j.buyprice as jumlah,h.unitofmeasureid,h.uomcode,i.bomid,i.bomversion
+					FROM productoutputfg a
+					JOIN productoutput b ON b.productoutputid=a.productoutputid
+					JOIN product c ON c.productid=a.productid
+					JOIN sloc d ON d.slocid=a.slocid
+					JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
+					JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+					JOIN storagebin g ON g.storagebinid=a.storagebinid
+					JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+					JOIN billofmaterial i ON i.bomid=a.bomid
+					JOIN productdetailhist j on j.productoutputfgid=a.productoutputfgid AND j.productid=a.productid and j.qty > 0
+					WHERE b.companyid = ".$companyid." AND b.recordstatus=getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.slocid = ".$row['slocid']." AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+					ORDER BY productoutputdate,productoutputno,productname";
+			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+            
+			foreach($dataReader1 as $row1)				
+			{
+				$sql2 = "SELECT ".$row1['qty']." as qtybom,sum(buyprice) as buypricebom,".$row1['qty']." * sum(buyprice) as jumlahbom
+				    FROM (SELECT a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as buyprice
+								FROM bomdetail a
+								JOIN billofmaterial b ON b.bomid=a.bomid
+								JOIN product c ON c.productid=a.productid
+								LEFT JOIN productplant e ON e.productid=a.productid AND e.unitofissue=a.uomid AND e.slocid=(SELECT q.slocid FROM productoutputfg q WHERE q.productoutputfgid = ".$row1['productoutputfgid'].")
+								LEFT JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+								LEFT JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+								WHERE c.isstock = 1 AND a.bomid = ".$row1['bomid']."
+						UNION
+								SELECT k.qty as buyprice
+									FROM bomdetail k
+									JOIN billofmaterial l ON l.bomid=k.bomid
+									JOIN product m ON m.productid=k.productid
+									JOIN productoutputfg n ON n.bomid=l.bomid
+									JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
+									WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid'].") z
+				";
+				$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
+				
+				foreach($dataReader2 as $row2)				
 				{
-					$sql2 = "SELECT ".$row1['qty']." as qtybom,sum(buyprice) as buypricebom,".$row1['qty']." * sum(buyprice) as jumlahbom
-							FROM (SELECT a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as buyprice
+/*				$foh = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.foh * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.foh * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.foh * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'FOH %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
+				";
+				$ul = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.ul * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.ul * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.ul * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'UL %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and  month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
+				";*/
+				$foh = "(SELECT if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),if(e.isfohulbom=0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'FOH %')))
+				FROM productoutputfg a
+				JOIN productoutput b ON b.productoutputid=a.productoutputid
+				JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
+				JOIN sloc d ON d.slocid=a.slocid
+				JOIN product e ON e.productid=a.productid
+				JOIN billofmaterial f ON f.bomid=a.bomid 
+				WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
+				";
+				$ul = "(SELECT if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),if(e.isfohulbom=0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'UL %')))
+				FROM productoutputfg a
+				JOIN productoutput b ON b.productoutputid=a.productoutputid
+				JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
+				JOIN sloc d ON d.slocid=a.slocid
+				JOIN product e ON e.productid=a.productid
+				JOIN billofmaterial f ON f.bomid=a.bomid 
+				WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
+				";
+				$cad = "(select IFNULL((sum(qtydetail*price)) * 0.03,0)
+								from (select ifnull(a.qty/b.qtyoutput,0) as qtydetail,a.productid,
+								ifnull(c.buyprice,0) as price
+								from productoutputdetail a
+								join productoutputfg b on b.productoutputfgid = a.productoutputfgid
+								join productdetailhist c on c.productoutputdetailid=a.productoutputdetailid
+								join product d on d.productid = a.productid
+								where a.productoutputfgid = ".$row1['productoutputfgid']." and d.isstock = 1
+								AND (a.bomid IS NULL OR a.bomid = 0)) z)
+				";
+					$sql3 = "SELECT productname,sum(qty) as qty,sum(buyprice) as buyprice,sum(jumlah) as jumlah,unitofmeasureid,uomcode,isstock,sum(qtybom) as qtybom,sum(jumlahbom)/sum(qtybom) as buypricebom,sum(jumlahbom) as jumlahbom
+							FROM (SELECT c.productname,-sum(j.qty) as qty,-sum(j.qty * j.buyprice)/-sum(j.qty) as buyprice,-sum(j.qty * j.buyprice) as jumlah,h.unitofmeasureid,h.uomcode,c.isstock,0 as qtybom,0 as jumlahbom
+									FROM productoutputdetail a
+									JOIN productoutput b ON b.productoutputid=a.productoutputid
+									JOIN product c ON c.productid=a.productid
+									JOIN sloc d ON d.slocid=a.toslocid
+									JOIN productplant e ON e.productid=a.productid AND e.slocid=a.toslocid AND e.unitofissue=a.uomid
+									JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+									JOIN storagebin g ON g.storagebinid=a.storagebinid
+									JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+									JOIN productdetailhist j on j.productoutputdetailid=a.productoutputdetailid AND j.productid=a.productid
+									WHERE c.isstock = 1 AND a.productoutputfgid = ".$row1['productoutputfgid']."
+									GROUP BY productname
+							UNION
+									SELECT m.productname,n.qtyoutput as qty,sum(case when m.productname like 'FOH%' then ".$foh." else case when m.productname like 'UL%' then ".$ul." else case when m.productname like 'CAD%' then ".$cad." else 0 end end end) as buyprice,sum(n.qtyoutput * case when m.productname like 'FOH%' then ".$foh." else case when m.productname like 'UL%' then ".$ul." else case when m.productname like 'CAD%' then ".$cad." else 0 end end end) AS jumlah,o.unitofmeasureid,o.uomcode,m.isstock,n.qtyoutput as qtybom,sum(n.qtyoutput * k.qty) as jumlahbom
+									FROM bomdetail k
+									JOIN billofmaterial l ON l.bomid=k.bomid
+									JOIN product m ON m.productid=k.productid
+									JOIN productoutputfg n ON n.bomid=l.bomid
+									JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
+									WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid']."
+									GROUP BY productname
+							UNION
+									SELECT c.productname,0 as qty,0 as buyprice,0 as jumlah,h.unitofmeasureid,h.uomcode,c.isstock,".$row1['qty']." * a.qty as qtybom,
+									".$row1['qty']." * a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as jumlahbom
 									FROM bomdetail a
 									JOIN billofmaterial b ON b.bomid=a.bomid
 									JOIN product c ON c.productid=a.productid
@@ -14828,130 +15303,51 @@ class RepaccpersController extends Controller
 									LEFT JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
 									LEFT JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
 									WHERE c.isstock = 1 AND a.bomid = ".$row1['bomid']."
-							UNION
-									SELECT k.qty as buyprice
-										FROM bomdetail k
-										JOIN billofmaterial l ON l.bomid=k.bomid
-										JOIN product m ON m.productid=k.productid
-										JOIN productoutputfg n ON n.bomid=l.bomid
-										JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
-										WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid'].") z
-					";
-					$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
+									GROUP BY productname
+							) z
+							GROUP BY productname,uomcode
+							ORDER BY isstock desc, productname";
+					$dataReader3=Yii::app()->db->createCommand($sql3)->queryAll();
 					
-					foreach($dataReader2 as $row2)				
+                    $this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,$row1['productname'])
+						->setCellValueByColumnAndRow(1,$line,$row1['uomcode'])
+						->setCellValueByColumnAndRow(2,$line,$row1['qty'])
+						->setCellValueByColumnAndRow(3,$line,$row1['buyprice']/$per)
+						->setCellValueByColumnAndRow(4,$line,$row1['jumlah']/$per)
+						->setCellValueByColumnAndRow(5,$line,$row2['qtybom'])
+						->setCellValueByColumnAndRow(6,$line,$row2['buypricebom']/$per)
+						->setCellValueByColumnAndRow(7,$line,$row2['jumlahbom']/$per);
+                    
+                    $line ++;
+                    
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'    BOM VERSION : '.$row1['bomversion'].' - (ID = '.$row1['bomid'].')')
+						->setCellValueByColumnAndRow(2,$line,$row1['productoutputno'])
+						->setCellValueByColumnAndRow(3,$line,$row1['productoutputdate']);
+                    
+                    $line++;
+					
+					foreach($dataReader3 as $row3)
 					{
-						/*				
-							$foh = "(SELECT if(t.productname LIKE '%busa 	balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.foh * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.foh * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.foh * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'FOH %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
-						";
-							$ul = "(SELECT if(t.productname LIKE '%busa balokan%' OR t.productname LIKE '%busa cylinder%',if(t.tinggi>0,p.ul * ((t.panjang * t.lebar * t.tinggi)/1000000) * t.density,p.ul * getVolumeCylinder(t.panjang,t.lebar/2) * t.density),if(t.isfohulbom=0,p.ul * v.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=v.bomid AND y.productname LIKE 'UL %'))) FROM fohul p JOIN productplant q ON q.mgprocessid=p.mgprocessid join productoutputfg r ON r.productid=q.productid AND r.slocid=q.slocid AND r.uomid=q.unitofissue JOIN sloc u ON u.slocid=r.slocid AND u.plantid=p.plantid JOIN productoutput s ON s.productoutputid=r.productoutputid join product t ON t.productid=r.productid JOIN billofmaterial v ON v.bomid=r.bomid WHERE p.recordstatus = 3 and  month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') AND r.productoutputfgid = ".$row1['productoutputfgid']." AND p.companyid = ".$companyid.")
-							";
-					*/
-					$foh = "(SELECT if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),if(e.isfohulbom=0,(SELECT p.foh FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'FOH %')))
-						FROM productoutputfg a
-						JOIN productoutput b ON b.productoutputid=a.productoutputid
-						JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
-						JOIN sloc d ON d.slocid=a.slocid
-						JOIN product e ON e.productid=a.productid
-						JOIN billofmaterial f ON f.bomid=a.bomid 
-						WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
-						";
-					$ul = "(SELECT if(e.productname LIKE '%busa balokan%' OR e.productname LIKE '%busa cylinder%',if(e.tinggi>0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * ((e.panjang * e.lebar * e.tinggi)/1000000) * e.density,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * getVolumeCylinder(e.panjang,e.lebar/2) * e.density),if(e.isfohulbom=0,(SELECT p.ul FROM fohul p WHERE p.recordstatus=3 and p.plantid=d.plantid AND p.mgprocessid=c.mgprocessid and month(p.perioddate) = month('".$row1['productoutputdate']."') AND year(p.perioddate) = year('".$row1['productoutputdate']."') ) * f.cycletime,(SELECT w.qty FROM bomdetail w JOIN product y ON y.productid=w.productid WHERE w.bomid=f.bomid AND y.productname LIKE 'UL %')))
-						FROM productoutputfg a
-						JOIN productoutput b ON b.productoutputid=a.productoutputid
-						JOIN productplant c ON c.productid=a.productid AND c.slocid=a.slocid AND c.unitofissue=a.uomid
-						JOIN sloc d ON d.slocid=a.slocid
-						JOIN product e ON e.productid=a.productid
-						JOIN billofmaterial f ON f.bomid=a.bomid 
-						WHERE a.productoutputfgid = ".$row1['productoutputfgid']." AND b.companyid = ".$companyid.")
-					";
-					$cad = "(select IFNULL((sum(qtydetail*price)) * 0.03,0)
-									from (select ifnull(a.qty/b.qtyoutput,0) as qtydetail,a.productid,
-									ifnull(c.buyprice,0) as price
-									from productoutputdetail a
-									join productoutputfg b on b.productoutputfgid = a.productoutputfgid
-									join productdetailhist c on c.productoutputdetailid=a.productoutputdetailid
-									join product d on d.productid = a.productid
-									where a.productoutputfgid = ".$row1['productoutputfgid']." and d.isstock = 1
-									AND (a.bomid IS NULL OR a.bomid = 0)) z)
-					";
-						$sql3 = "SELECT productname,sum(qty) as qty,sum(buyprice) as buyprice,sum(jumlah) as jumlah,unitofmeasureid,uomcode,isstock,sum(qtybom) as qtybom,sum(jumlahbom)/sum(qtybom) as buypricebom,sum(jumlahbom) as jumlahbom
-								FROM (SELECT c.productname,-sum(j.qty) as qty,-sum(j.qty * j.buyprice)/-sum(j.qty) as buyprice,-sum(j.qty * j.buyprice) as jumlah,h.unitofmeasureid,h.uomcode,c.isstock,0 as qtybom,0 as jumlahbom
-										FROM productoutputdetail a
-										JOIN productoutput b ON b.productoutputid=a.productoutputid
-										JOIN product c ON c.productid=a.productid
-										JOIN sloc d ON d.slocid=a.toslocid
-										JOIN productplant e ON e.productid=a.productid AND e.slocid=a.toslocid AND e.unitofissue=a.uomid
-										JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
-										JOIN storagebin g ON g.storagebinid=a.storagebinid
-										JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
-										JOIN productdetailhist j on j.productoutputdetailid=a.productoutputdetailid AND j.productid=a.productid
-										WHERE c.isstock = 1 AND a.productoutputfgid = ".$row1['productoutputfgid']."
-										GROUP BY productname
-								UNION
-										SELECT m.productname,n.qtyoutput as qty,sum(case when m.productname like 'FOH%' then ".$foh." else case when m.productname like 'UL%' then ".$ul." else case when m.productname like 'CAD%' then ".$cad." else 0 end end end) as buyprice,sum(n.qtyoutput * case when m.productname like 'FOH%' then ".$foh." else case when m.productname like 'UL%' then ".$ul." else case when m.productname like 'CAD%' then ".$cad." else 0 end end end) AS jumlah,o.unitofmeasureid,o.uomcode,m.isstock,n.qtyoutput as qtybom,sum(n.qtyoutput * k.qty) as jumlahbom
-										FROM bomdetail k
-										JOIN billofmaterial l ON l.bomid=k.bomid
-										JOIN product m ON m.productid=k.productid
-										JOIN productoutputfg n ON n.bomid=l.bomid
-										JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
-										WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid']."
-										GROUP BY productname
-								UNION
-										SELECT c.productname,0 as qty,0 as buyprice,0 as jumlah,h.unitofmeasureid,h.uomcode,c.isstock,".$row1['qty']." * a.qty as qtybom,
-										".$row1['qty']." * a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as jumlahbom
-										FROM bomdetail a
-										JOIN billofmaterial b ON b.bomid=a.bomid
-										JOIN product c ON c.productid=a.productid
-										LEFT JOIN productplant e ON e.productid=a.productid AND e.unitofissue=a.uomid AND e.slocid=(SELECT q.slocid FROM productoutputfg q WHERE q.productoutputfgid = ".$row1['productoutputfgid'].")
-										LEFT JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
-										LEFT JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
-										WHERE c.isstock = 1 AND a.bomid = ".$row1['bomid']."
-										GROUP BY productname
-								) z
-								GROUP BY productname,uomcode
-								ORDER BY isstock desc, productname";
-						$dataReader3=Yii::app()->db->createCommand($sql3)->queryAll();
-						
 						$this->phpExcel->setActiveSheetIndex(0)
-							->setCellValueByColumnAndRow(0,$line,$row1['productname'])
-							->setCellValueByColumnAndRow(1,$line,$row1['uomcode'])
-							->setCellValueByColumnAndRow(2,$line,$row1['qty'])
-							->setCellValueByColumnAndRow(3,$line,$row1['buyprice']/$per)
-							->setCellValueByColumnAndRow(4,$line,$row1['jumlah']/$per)
-							->setCellValueByColumnAndRow(5,$line,$row2['qtybom'])
-							->setCellValueByColumnAndRow(6,$line,$row2['buypricebom']/$per)
-							->setCellValueByColumnAndRow(7,$line,$row2['jumlahbom']/$per);
-											
-						$line ++;
-											
-						$this->phpExcel->setActiveSheetIndex(0)
-							->setCellValueByColumnAndRow(0,$line,'    BOM VERSION : '.$row1['bomversion'].' - (ID = '.$row1['bomid'].')')
-							->setCellValueByColumnAndRow(2,$line,$row1['productoutputno'])
-							->setCellValueByColumnAndRow(3,$line,$row1['productoutputdate']);
-											
-											$line++;
-						
-						foreach($dataReader3 as $row3)
-						{
-							$this->phpExcel->setActiveSheetIndex(0)
-										->setCellValueByColumnAndRow(0,$line,'    -  '.$row3['productname'])
-										->setCellValueByColumnAndRow(1,$line,$row3['uomcode'])
-										->setCellValueByColumnAndRow(2,$line,$row3['qty'])
-										->setCellValueByColumnAndRow(3,$line,$row3['buyprice']/$per)
-										->setCellValueByColumnAndRow(4,$line,$row3['jumlah']/$per)
-										->setCellValueByColumnAndRow(5,$line,$row3['qtybom'])
-										->setCellValueByColumnAndRow(6,$line,$row3['buypricebom']/$per)
-										->setCellValueByColumnAndRow(7,$line,$row3['jumlahbom']/$per);
-													
-													$line++;
-						}
-							$line++;
+						      ->setCellValueByColumnAndRow(0,$line,'    -  '.$row3['productname'])
+						      ->setCellValueByColumnAndRow(1,$line,$row3['uomcode'])
+						      ->setCellValueByColumnAndRow(2,$line,$row3['qty'])
+						      ->setCellValueByColumnAndRow(3,$line,$row3['buyprice']/$per)
+						      ->setCellValueByColumnAndRow(4,$line,$row3['jumlah']/$per)
+						      ->setCellValueByColumnAndRow(5,$line,$row3['qtybom'])
+						      ->setCellValueByColumnAndRow(6,$line,$row3['buypricebom']/$per)
+						      ->setCellValueByColumnAndRow(7,$line,$row3['jumlahbom']/$per);
+                        
+                        $line++;
 					}
+				    $line++;
 				}
 			}
+		}
         
-			$this->getFooterXLS($this->phpExcel);
+        $this->getFooterXLS($this->phpExcel);
   }
 	//25
 	
@@ -16814,7 +17210,7 @@ class RepaccpersController extends Controller
           ->setCellValueByColumnAndRow(7,$line,'GM');
         $line++;
 
-        $i=1;$totalpotensi2=0;$totalinvoice2=0;$totalhpp2=0;$totalpayamount2=0;
+        $i=0;$totalpotensi2=0;$totalinvoice2=0;$totalhpp2=0;$totalpayamount2=0;
         foreach($dataReader2 as $row2)
         {
           $i+=1;
@@ -18816,6 +19212,12 @@ class RepaccpersController extends Controller
     $line++;
     $this->getFooterXLS($this->phpExcel);
   }
+	//45
+	
+	//46
+	
+	//47
+	
 	//48
 	public function RekapHppActualVsBomXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
 	{
@@ -18988,7 +19390,7 @@ class RepaccpersController extends Controller
 						->setCellValueByColumnAndRow(6,$line,$row2['buypricebom']/$per)
 						->setCellValueByColumnAndRow(7,$line,$row2['jumlahbom']/$per)
 						->setCellValueByColumnAndRow(8,$line,($row1['qty']/$row2['qtybom']))
-						->setCellValueByColumnAndRow(9,$line,($row1['jumlah']/$row2['jumlahbom']));
+						->setCellValueByColumnAndRow(9,$line,($row2['jumlahbom']== 0 ? '0' : $row1['jumlah']/$row2['jumlahbom']));
 					$line ++;
 
 					foreach($dataReader3 as $row3)
@@ -19044,6 +19446,408 @@ class RepaccpersController extends Controller
 			->setCellValueByColumnAndRow(5,$line,$qtybom2)
 			->setCellValueByColumnAndRow(6,$line,$buypricebom2/$per)
 			->setCellValueByColumnAndRow(7,$line,$jumlahbom2/$per);
+		$this->getFooterXLS($this->phpExcel);
+	}
+/*	public function RekapHppActualVsBomXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+	$this->menuname = 'rekaphppactualvsbom';
+	parent::actionDownxls();
+
+	$sql = "SELECT DISTINCT d.slocid,d.sloccode
+	FROM productoutputfg a
+	JOIN productoutput b ON b.productoutputid=a.productoutputid
+	JOIN product c ON c.productid=a.productid
+	JOIN sloc d ON d.slocid=a.slocid
+	JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
+	JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	JOIN storagebin g ON g.storagebinid=a.storagebinid
+	WHERE b.companyid = ".$companyid." AND b.recordstatus = getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.sloccode LIKE '%".$sloc."%' AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+	ORDER BY sloccode";
+	$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+
+	$this->phpExcel->setActiveSheetIndex(0)
+	->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+	->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+	->setCellValueByColumnAndRow(3,1,GetCompanyCode($companyid));
+
+	$line = 5;
+	$qty2 = 0;
+	$buyprice2 = 0;
+	$jumlah2 = 0;
+	$qtybom2 = 0;
+	$buypricebom2 = 0;
+	$jumlahbom2 = 0;
+
+	foreach($dataReader as $row)
+	{
+	$this->phpExcel->setActiveSheetIndex(0)
+	->setCellValueByColumnAndRow(0,$line,'GUDANG : '.$row['sloccode']);
+	$line++;
+
+	$sql1 = "select distinct productid,productname, productoutputfgid, bomid, uomcode, sum(qty) as qty, sum(qty*buyprice)/sum(qty) as buyprice, sum(jumlah) as jumlah
+	from (SELECT DISTINCT c.productid,c.productname,b.productoutputid,b.productoutputno,b.productoutputdate,a.productoutputfgid,j.qty,j.buyprice,j.qty * j.buyprice as jumlah,h.unitofmeasureid,h.uomcode,i.bomid,i.bomversion
+	FROM productoutputfg a
+	JOIN productoutput b ON b.productoutputid=a.productoutputid
+	JOIN product c ON c.productid=a.productid
+	JOIN sloc d ON d.slocid=a.slocid
+	JOIN productplant e ON e.productid=a.productid AND e.slocid=a.slocid AND e.unitofissue=a.uomid
+	JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	JOIN storagebin g ON g.storagebinid=a.storagebinid
+	JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+	JOIN billofmaterial i ON i.bomid=a.bomid
+	JOIN productdetailhist j on j.productoutputfgid=a.productoutputfgid AND j.productid=a.productid and j.qty > 0
+	WHERE b.companyid = ".$companyid." AND b.recordstatus=getwfmaxstatbywfname('appop') AND c.productname LIKE '%".$product."%' AND d.slocid = ".$row['slocid']." AND f.description LIKE '%".$materialgroup."%' AND g.description LIKE '%".$storagebin."%' AND b.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+	ORDER BY productoutputdate,productoutputno,productname) z
+	group by productname";
+	$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+
+	$qty1 = 0;
+	$buyprice1 = 0;
+	$jumlah1 = 0;
+	$qtybom1 = 0;
+	$buypricebom1 = 0;
+	$jumlahbom1 = 0;
+	foreach($dataReader1 as $row1)
+	{
+	$sql2 = "SELECT ".$row1['qty']." as qtybom,sum(buyprice) as buypricebom,".$row1['qty']." * sum(buyprice) as jumlahbom
+	FROM (SELECT a.qty * (SELECT r.buyprice FROM productdetail r WHERE r.productid=a.productid AND r.slocid=e.slocid AND r.unitofmeasureid=a.uomid Limit 1) as buyprice
+	FROM bomdetail a
+	JOIN billofmaterial b ON b.bomid=a.bomid
+	JOIN product c ON c.productid=a.productid
+	LEFT JOIN productplant e ON e.productid=a.productid AND e.unitofissue=a.uomid AND e.slocid=(SELECT q.slocid FROM productoutputfg q WHERE q.productoutputfgid = ".$row1['productoutputfgid'].")
+	LEFT JOIN materialgroup f ON f.materialgroupid=e.materialgroupid
+	LEFT JOIN unitofmeasure h ON h.unitofmeasureid=a.uomid
+	WHERE c.isstock = 1 AND a.bomid = ".$row1['bomid']."
+	UNION
+	SELECT k.qty as buyprice
+	FROM bomdetail k
+	JOIN billofmaterial l ON l.bomid=k.bomid
+	JOIN product m ON m.productid=k.productid
+	JOIN productoutputfg n ON n.bomid=l.bomid
+	JOIN unitofmeasure o ON o.unitofmeasureid=k.uomid
+	WHERE m.isstock = 0 AND n.productoutputfgid = ".$row1['productoutputfgid'].") z
+	";
+	$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
+
+	foreach($dataReader2 as $row2)
+	{
+	$this->phpExcel->setActiveSheetIndex(0)
+	->setCellValueByColumnAndRow(0,$line,$row1['productname'])
+	->setCellValueByColumnAndRow(1,$line,$row1['uomcode'])
+	->setCellValueByColumnAndRow(2,$line,$row1['qty'])
+	->setCellValueByColumnAndRow(3,$line,$row1['buyprice']/$per)
+	->setCellValueByColumnAndRow(4,$line,$row1['jumlah']/$per)
+	->setCellValueByColumnAndRow(5,$line,$row2['qtybom'])
+	->setCellValueByColumnAndRow(6,$line,$row2['buypricebom']/$per)
+	->setCellValueByColumnAndRow(7,$line,$row2['jumlahbom']/$per);
+	$line ++;
+
+	$qty1 += $row1['qty'];
+	$buyprice1 += $row1['buyprice'];
+	$jumlah1 += $row1['jumlah'];
+	$qtybom1 += $row2['qtybom'];
+	$buypricebom1 += $row2['buypricebom'];
+	$jumlahbom1 += $row2['jumlahbom'];
+
+	}
+	}
+	$this->phpExcel->setActiveSheetIndex(0)
+	->setCellValueByColumnAndRow(0,$line,'TOTAL GUDANG : '.$row['sloccode'])
+	->setCellValueByColumnAndRow(2,$line,$qty1)
+	//->setCellValueByColumnAndRow(3,$line,$buyprice1/$per)
+	->setCellValueByColumnAndRow(4,$line,$jumlah1/$per)
+	->setCellValueByColumnAndRow(5,$line,$qtybom1)
+	//->setCellValueByColumnAndRow(6,$line,$buypricebom1/$per)
+	->setCellValueByColumnAndRow(7,$line,$jumlahbom1/$per);
+	$line+=2;
+
+	$qty2 += $qty1;
+	$buyprice2 += $buyprice1;
+	$jumlah2 += $jumlah1;
+	$qtybom2 += $qtybom1;
+	$buypricebom2 += $buypricebom1;
+	$jumlahbom2 += $jumlahbom1;
+	}
+	$this->phpExcel->setActiveSheetIndex(0)
+	->setCellValueByColumnAndRow(0,$line,'TOTAL PRODUKSI')
+	->setCellValueByColumnAndRow(2,$line,$qty2)
+	//->setCellValueByColumnAndRow(3,$line,$buyprice2/$per)
+	->setCellValueByColumnAndRow(4,$line,$jumlah2/$per)
+	->setCellValueByColumnAndRow(5,$line,$qtybom2)
+	//->setCellValueByColumnAndRow(6,$line,$buypricebom2/$per)
+	->setCellValueByColumnAndRow(7,$line,$jumlahbom2/$per);
+	$this->getFooterXLS($this->phpExcel);
+	}
+*/	
+	//49
+	public function RekapPerformaProdukXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+		$this->menuname = 'rekapperformaproduk';
+		parent::actionDownxls();
+		ini_set('max_execution_time', 200);
+
+		$sql = "SELECT p.productid,p.productname,materialtypecode,(SELECT g.groupname FROM productplant p2 JOIN materialgroup m2 ON m2.materialgroupid=p2.materialgroupid JOIN groupkasta g ON g.groupkastaid=m2.groupkastaid WHERE p2.recordstatus = 1 AND p2.productid=p.productid LIMIT 1) as kasta
+				FROM product p 
+				JOIN materialtype m ON m.materialtypeid=p.materialtypeid
+				WHERE p.isstock = 1
+				AND p.materialtypeid IN (1,3,4,14,15,16,19,20,22,24,25,27,28,30)
+				ORDER BY p.productid ASC
+				-- Limit 500
+		";
+		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+
+		$this->phpExcel->setActiveSheetIndex(0)
+		->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+		->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+		->setCellValueByColumnAndRow(3,1,GetCompanyCode($companyid));
+		
+		$this->phpExcel->setActiveSheetIndex(0)
+			->mergeCells('A4:A5')
+			->mergeCells('B4:B5')
+			->mergeCells('C4:C5')
+			->mergeCells('D4:D5')
+			->setCellValueByColumnAndRow(0,4,'NO.')
+			->setCellValueByColumnAndRow(1,4,'NAMA BARANG');
+
+		$line=6;$i=0;
+
+		foreach($dataReader as $row)
+		{
+			$com = "";
+			if ($companyid > 0){$com = " AND p.companyid = {$companyid} ";}
+			$i=$i+1;
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(0,$line,$i)
+				->setCellValueByColumnAndRow(1,$line,$row['productname'])
+				->setCellValueByColumnAndRow(2,$line,$row['materialtypecode'])
+				->setCellValueByColumnAndRow(3,$line,$row['kasta'])
+				;
+			
+			$sql1 = "SELECT p.plantid,p.plantcode
+					FROM plant p
+					WHERE p.recordstatus = 1 AND p.nourut > 0 {$com}
+					ORDER BY p.nourut ASC
+			";
+			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+			
+			$column=4;$qtysaldoawal1=0;$qtyproduksi1=0;$qtyjual1=0;$totalhpp1=0;$totaljual1=0;
+
+			foreach($dataReader1 as $row1)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)
+					->mergeCellsByColumnAndRow($column,4,$column+7,4)
+					->setCellValueByColumnAndRow($column,4,$row1['plantcode']);
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow($column,5,'Saldo Awal')
+					->setCellValueByColumnAndRow($column+1,5,'Qty Produksi')
+					->setCellValueByColumnAndRow($column+2,5,'Qty Jual')
+					->setCellValueByColumnAndRow($column+3,5,'HPP/Unit')
+					->setCellValueByColumnAndRow($column+4,5,'Total HPP')
+					->setCellValueByColumnAndRow($column+5,5,'Jual/Unit')
+					->setCellValueByColumnAndRow($column+6,5,'Total Jual')
+					->setCellValueByColumnAndRow($column+7,5,'GM');
+
+				$sql2 = "SELECT ifnull(sum(p2.qty),0)
+						FROM productdetailhist p2
+						JOIN sloc s ON s.slocid=p2.slocid
+						JOIN plant p5 ON p5.plantid=s.plantid
+						WHERE p2.productid = {$row['productid']} AND p5.plantid = {$row1['plantid']} AND p2.buydate < '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "'
+				";
+				$qtysaldoawal=Yii::app()->db->createCommand($sql2)->queryScalar();
+
+				$sql3 = "SELECT ifnull(sum(p3.qtyoutput),0)
+						FROM productoutputfg p3
+						JOIN productoutput p4 ON p4.productoutputid=p3.productoutputid
+						JOIN sloc s2 ON s2.slocid=p3.slocid
+						JOIN plant p6 ON p6.plantid=s2.plantid
+						WHERE p3.productid = {$row['productid']} AND p4.recordstatus=3 AND p6.plantid = {$row1['plantid']} AND p4.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+				";
+				$qtyproduksi=Yii::app()->db->createCommand($sql3)->queryScalar();
+
+				$sql4 = "SELECT *,IFNULL(totalhpp/qtyjual,0) AS hppunit,IFNULL(totaljual/qtyjual,0) AS jualunit
+						FROM (SELECT IFNULL(SUM(qty),0) AS qtyjual,IFNULL(SUM(tothpp),0) AS totalhpp,IFNULL(SUM(totjual),0) AS totaljual
+						FROM (SELECT IFNULL(g.qty,0) AS qty,IFNULL((SELECT p.buyprice*g.qty FROM productdetailhist p WHERE p.gidetailid=g.gidetailid and p.qty<0),0) AS tothpp,IFNULL(getamountdiscso(g2.soheaderid,g.sodetailid,g.qty),0) AS totjual
+						FROM gidetail g
+						JOIN giheader g2 ON g2.giheaderid=g.giheaderid
+						JOIN invoice i ON i.giheaderid=g2.giheaderid 
+						JOIN sloc s ON s.slocid=g.slocid
+						WHERE i.recordstatus = 3 AND s.plantid = {$row1['plantid']}
+						AND g.productid = {$row['productid']} AND i.invoicedate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						UNION
+						SELECT IFNULL(-1*n.qty,0) AS qty,IFNULL((select -1*p2.buyprice*n.qty FROM productdetailhist p2 WHERE p2.gireturdetailid=n.gireturdetailid),0) AS tothpp,IFNULL((-1*n.qty*n.price),0) AS totjual
+						FROM notagirpro n
+						JOIN notagir n2 ON n2.notagirid=n.notagirid 
+						JOIN sloc s2 ON s2.slocid=n.slocid 
+						WHERE n2.recordstatus = 3 AND s2.plantid = {$row1['plantid']}
+						AND n.productid = {$row['productid']} AND n2.docdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+						) z) zz
+				";
+				$dataReader4=Yii::app()->db->createCommand($sql4)->queryRow();
+				
+				$qtyjual=$dataReader4['qtyjual'];
+				$hppunit=$dataReader4['hppunit'];
+				$totalhpp=$dataReader4['totalhpp'];
+				$jualunit=$dataReader4['jualunit'];
+				$totaljual=$dataReader4['totaljual'];
+				
+				$gm=0; if ($totaljual <> 0) {$gm=100*($totaljual-$totalhpp)/$totaljual;}
+					
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow($column,$line,$qtysaldoawal)
+					->setCellValueByColumnAndRow($column+1,$line,$qtyproduksi)
+					->setCellValueByColumnAndRow($column+2,$line,$qtyjual)
+					->setCellValueByColumnAndRow($column+3,$line,$hppunit)
+					->setCellValueByColumnAndRow($column+4,$line,$totalhpp)
+					->setCellValueByColumnAndRow($column+5,$line,$jualunit)
+					->setCellValueByColumnAndRow($column+6,$line,$totaljual)
+					->setCellValueByColumnAndRow($column+7,$line,$gm);
+				
+				$column = $column + 8;
+				
+				$qtysaldoawal1 += $qtysaldoawal;
+				$qtyproduksi1 += $qtyproduksi;
+				$qtyjual1 += $qtyjual;
+				$totalhpp1 += $totalhpp;
+				$totaljual1 += $totaljual;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)
+				->mergeCellsByColumnAndRow($column,4,$column+7,4)
+				->setCellValueByColumnAndRow($column,4,'TOTAL');
+				
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow($column,5,'Saldo Awal')
+				->setCellValueByColumnAndRow($column+1,5,'Qty Produksi')
+				->setCellValueByColumnAndRow($column+2,5,'Qty Jual')
+				->setCellValueByColumnAndRow($column+3,5,'HPP/Unit')
+				->setCellValueByColumnAndRow($column+4,5,'Total HPP')
+				->setCellValueByColumnAndRow($column+5,5,'Jual/Unit')
+				->setCellValueByColumnAndRow($column+6,5,'Total Jual')
+				->setCellValueByColumnAndRow($column+7,5,'GM');
+			
+			
+			$hppunit1=0;$jualunit1=0; if ($qtyjual1 <> 0) {$hppunit1=$totalhpp1/$qtyjual1;$jualunit1=$totaljual1/$qtyjual1;}
+			$gm1=0; if ($totaljual1 <> 0) {$gm1=100*($totaljual1-$totalhpp1)/$totaljual1;}
+				
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow($column,$line,$qtysaldoawal1)
+				->setCellValueByColumnAndRow($column+1,$line,$qtyproduksi1)
+				->setCellValueByColumnAndRow($column+2,$line,$qtyjual1)
+				->setCellValueByColumnAndRow($column+3,$line,$hppunit1)
+				->setCellValueByColumnAndRow($column+4,$line,$totalhpp1)
+				->setCellValueByColumnAndRow($column+5,$line,$jualunit1)
+				->setCellValueByColumnAndRow($column+6,$line,$totaljual1)
+				->setCellValueByColumnAndRow($column+7,$line,$gm1)
+				;
+				
+			$line ++;
+		}
+		$this->getFooterXLS($this->phpExcel);
+	}
+	//50
+	public function RekapProdukDariKainXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+		$this->menuname = 'rekapprodukdarikain';
+		parent::actionDownxls();
+		$com = "";
+		if ($companyid > 0){$com = " AND p3.companyid = {$companyid} ";}
+
+		$sql = "SELECT DISTINCT p.productid,p.productname
+				FROM product p
+				LEFT JOIN productoutputdetail p2 ON p2.productid=p.productid 
+				JOIN productoutput p3 ON p3.productoutputid=p2.productoutputid
+				JOIN sloc s ON s.slocid=p2.fromslocid
+				WHERE p.productname LIKE '%KAIN%' AND p.productname NOT LIKE '%WIP%' AND p.productname NOT LIKE 'KAIN POTONGAN%' AND s.sloccode LIKE '%BB%' AND p3.recordstatus=3 AND p3.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' {$com}
+		";
+		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+
+		$this->phpExcel->setActiveSheetIndex(0)
+		->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+		->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+		->setCellValueByColumnAndRow(3,1,GetCompanyCode($companyid));
+		
+		$this->phpExcel->setActiveSheetIndex(0)
+			->setCellValueByColumnAndRow(0,4,'NO.')
+			->setCellValueByColumnAndRow(1,4,'NAMA BARANG');
+				
+/*		$this->phpExcel->setActiveSheetIndex(0)
+			->setCellValueByColumnAndRow($column,5,'Saldo Awal')
+			->setCellValueByColumnAndRow($column+1,5,'Qty Produksi')
+			->setCellValueByColumnAndRow($column+2,5,'Qty Jual')
+			->setCellValueByColumnAndRow($column+3,5,'HPP/Unit')
+			->setCellValueByColumnAndRow($column+4,5,'Total HPP')
+			->setCellValueByColumnAndRow($column+5,5,'Jual/Unit')
+			->setCellValueByColumnAndRow($column+6,5,'Total Jual')
+			->setCellValueByColumnAndRow($column+7,5,'GM');
+*/
+		$line=5;$i=0;
+
+		foreach($dataReader as $row)
+		{
+			$sql1 = "SELECT DISTINCT p3.productid,p3.bomid,p4.productname
+					FROM productoutputdetail p 
+					JOIN productoutput p2 ON p2.productoutputid=p.productoutputid 
+					JOIN productoutputfg p3 ON p3.productoutputfgid=p.productoutputfgid 
+					JOIN product p4 ON p4.productid=p3.productid
+					WHERE p2.recordstatus=3 AND p2.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' {$com}
+					AND p.productid = {$row['productid']}
+			";
+			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+
+			foreach($dataReader1 as $row1)
+			{
+				$sql2 = "SELECT DISTINCT p3.productid,p3.bomid,p4.productname
+						FROM productoutputdetail p 
+						JOIN productoutput p2 ON p2.productoutputid=p.productoutputid 
+						JOIN productoutputfg p3 ON p3.productoutputfgid=p.productoutputfgid 
+						JOIN product p4 ON p4.productid=p3.productid
+						WHERE p2.recordstatus=3 AND p2.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' {$com}
+						AND p.productid = {$row1['productid']} AND p.bomid = {$row1['bomid']}
+				";
+				$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
+
+				foreach($dataReader2 as $row2)
+				{
+					$sql3 = "SELECT DISTINCT p3.productid,p3.bomid,p4.productname
+							FROM productoutputdetail p 
+							JOIN productoutput p2 ON p2.productoutputid=p.productoutputid 
+							JOIN productoutputfg p3 ON p3.productoutputfgid=p.productoutputfgid 
+							JOIN product p4 ON p4.productid=p3.productid
+							WHERE p2.recordstatus=3 AND p2.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' {$com}
+							AND p.productid = {$row2['productid']} AND p.bomid = {$row2['bomid']}
+					";
+					$dataReader3=Yii::app()->db->createCommand($sql3)->queryAll();
+
+					foreach($dataReader3 as $row3)
+					{
+						$sql4 = "SELECT DISTINCT p3.productid,p3.bomid,p4.productname
+								FROM productoutputdetail p 
+								JOIN productoutput p2 ON p2.productoutputid=p.productoutputid 
+								JOIN productoutputfg p3 ON p3.productoutputfgid=p.productoutputfgid 
+								JOIN product p4 ON p4.productid=p3.productid
+								WHERE p2.recordstatus=3 AND p2.productoutputdate BETWEEN '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' AND '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' {$com}
+								AND p.productid = {$row3['productid']} AND p.bomid = {$row3['bomid']}
+						";
+						$dataReader4=Yii::app()->db->createCommand($sql4)->queryAll();
+
+						foreach($dataReader4 as $row4)
+						{
+							$i=$i+1;
+							$this->phpExcel->setActiveSheetIndex(0)
+								->setCellValueByColumnAndRow(0,$line,$i)
+								->setCellValueByColumnAndRow(1,$line,$row['productname'])
+								->setCellValueByColumnAndRow(2,$line,$row1['productname'])
+								->setCellValueByColumnAndRow(3,$line,$row2['productname'])
+								->setCellValueByColumnAndRow(4,$line,$row3['productname'])
+								->setCellValueByColumnAndRow(5,$line,$row4['productname'])
+							;
+						
+							$line ++;
+						}
+					}
+				}
+			}
+		}
 		$this->getFooterXLS($this->phpExcel);
 	}
 }

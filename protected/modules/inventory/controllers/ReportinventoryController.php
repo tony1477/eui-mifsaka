@@ -9,7 +9,7 @@ class ReportinventoryController extends Controller
   public function actionDownPDF()
   {
     parent::actionDownload();
-    if (isset($_GET['lro']) && isset($_GET['companyid']) && isset($_GET['sloc']) && isset($_GET['slocto']) && isset($_GET['storagebin']) && isset($_GET['customer']) && isset($_GET['sales']) && isset($_GET['product']) && isset($_GET['salesarea']) && isset($_GET['startdate']) && isset($_GET['enddate'])) {
+    if (isset($_GET['lro']) && isset($_GET['companyid']) && isset($_GET['sloc']) && isset($_GET['slocto']) && isset($_GET['storagebin']) && isset($_GET['customer']) && isset($_GET['sales']) && isset($_GET['product']) && isset($_GET['salesarea']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['keluar3'])) {
       if ($_GET['lro'] == 1) {
         $this->RincianHistoriBarang($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
       } else if ($_GET['lro'] == 2) {
@@ -104,7 +104,7 @@ class ReportinventoryController extends Controller
     }
   }
   //1
-	public function RincianHistoriBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianHistoriBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select * from (select distinct a.productid,b.productname,c.description,d.slocid,
@@ -289,7 +289,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //2
-	public function RekapHistoriBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapHistoriBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select b.productid,a.materialgroupid,a.description as divisi,d.slocid
@@ -535,7 +535,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //3
-	public function KartuStokBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function KartuStokBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.description,a.materialgroupid
@@ -749,7 +749,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //4
-	public function KartuStokBarangPerRak($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function KartuStokBarangPerRak($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -995,7 +995,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //?
-	public function ReportKartuStokBarangPerRak($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function ReportKartuStokBarangPerRak($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.description
@@ -1208,7 +1208,340 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //5
-	public function RekapStokBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    parent::actionDownload();
+    $awal2      = 0;
+    $masuk2     = 0;
+    $keluar2    = 0;
+    $akhir2     = 0;
+    if($companyid > 0) {
+      $joincom = ""; 
+      $joincom1 = ""; 
+      $wherecom = "  e.companyid = ".$companyid." "; 
+      $wherecom1 = "  zc.companyid = ".$companyid." ";
+    }
+    else {
+      $joincom = " join company a9 on a9.companyid=e.companyid "; 
+      $joincom1 = " join company a9 on a9.companyid=g.companyid "; 
+      $wherecom = " e.isgroup = 1"; 
+      $wherecom1 = "  zc.isgroup = 1";
+    }
+    
+    $sql        = "select distinct c.sloccode,c.slocid
+                    from materialgroup a
+                    join productplant b on b.materialgroupid=a.materialgroupid
+				 join sloc c on c.slocid = b.slocid
+				 join plant d on d.plantid = c.plantid
+				 join company e on e.companyid = d.companyid
+				 join product f on f.productid = b.productid
+                    where {$wherecom} and c.sloccode like '%" . $sloc . "%' and 
+					f.productname like '%" . $product . "%' and f.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = c.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+				order by c.sloccode";
+    $command    = $this->connection->createCommand($sql);
+    $dataReader = $command->queryAll();
+    foreach ($dataReader as $row) {
+      $this->pdf->companyid = $companyid;
+    }
+    $this->pdf->title    = 'Rekap Stock Barang';
+    $this->pdf->subtitle = 'Dari Tgl :' . date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) . ' s/d ' . date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+    $this->pdf->AddPage('P');
+    $this->pdf->sety($this->pdf->gety() + 5);
+    $this->pdf->setFont('Arial', 'B', 8);
+    $this->pdf->colalign = array(
+      'C',
+      'C',
+      'C',
+      'C',
+      'C',
+      'C'
+    );
+    $this->pdf->setwidths(array(
+      80,
+      20,
+      20,
+      20,
+      20,
+      20
+    ));
+    $this->pdf->colheader = array(
+      'Nama Barang',
+      'Satuan',
+      'Awal',
+      'Masuk',
+      'Keluar',
+      'Akhir'
+    );
+    $this->pdf->RowHeader();
+    foreach ($dataReader as $row) {
+      $awal1   = 0;
+      $masuk1  = 0;
+      $keluar1 = 0;
+      $akhir1  = 0;
+      $this->pdf->SetFont('Arial', 'B', 10);
+      $this->pdf->text(10, $this->pdf->gety() + 7, 'GUDANG');
+      $this->pdf->text(28, $this->pdf->gety() + 7, ': ' . $row['sloccode']);
+      $sql1        = "select distinct a.description as divisi,a.materialgroupid
+                    from materialgroup a
+                    join productplant b on b.materialgroupid=a.materialgroupid
+				 join sloc c on c.slocid = b.slocid
+				 join plant d on d.plantid = c.plantid
+				 join company e on e.companyid = d.companyid
+				 join product f on f.productid = b.productid
+                    where {$wherecom} and c.sloccode like '%" . $sloc . "%' and c.slocid = '" . $row['slocid'] . "' and 
+					f.productname like '%" . $product . "%' and f.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = c.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+					order by a.description";
+      $command1    = $this->connection->createCommand($sql1);
+      $dataReader1 = $command1->queryAll();
+      $this->pdf->sety($this->pdf->gety() + 5);
+      foreach ($dataReader1 as $row1) {
+        $awal   = 0;
+        $masuk  = 0;
+        $keluar = 0;
+        $akhir  = 0;
+        $this->pdf->SetFont('Arial', 'BI', 9);
+        $this->pdf->text(15, $this->pdf->gety() + 7, 'MATERIAL GROUP');
+        $this->pdf->text(45, $this->pdf->gety() + 7, ': ' . $row1['divisi']);
+        $this->pdf->text(80, $this->pdf->gety() + 7, '');
+        $this->pdf->text(165, $this->pdf->gety() + 7, '' . $row['sloccode']);
+        $sql2        = "select distinct b.productid,g.productname
+                    from materialgroup a
+                    join productplant b on b.materialgroupid = a.materialgroupid
+                    join sloc d on d.slocid = b.slocid
+                    join plant f on f.plantid = d.plantid
+                    join company e on e.companyid = f.companyid
+                    join product g on g.productid = b.productid
+                    where {$wherecom} and d.sloccode like '%" . $sloc . "%' and a.materialgroupid = '" . $row1['materialgroupid'] . "' and 
+					g.productname like '%" . $product . "%' and b.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = b.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+					order by g.productname";
+        $command2    = $this->connection->createCommand($sql2);
+        $dataReader2 = $command2->queryAll();
+        $this->pdf->sety($this->pdf->gety() + 8);
+        foreach ($dataReader2 as $row2) {
+          $sql3 = "select * from
+							(select barang,satuan,awal,masuk,keluar,(awal+masuk+keluar) as akhir
+                            from
+                            (select barang,satuan,awal,(beli+returjual+trfin+produksi+konversiin) as masuk,(jual+returbeli+trfout+pemakaian+koreksi+konversiout) as keluar
+                            from
+                            (select 
+                            (
+                            select distinct a.productname 
+                            from productstockdet a
+                            where a.productid = t.productid and
+                            a.unitofmeasureid = t.unitofissue
+                            and a.storagedesc like '%".$storagebin."%'
+														limit 1
+                            ) as barang,
+                            (
+                            select distinct b.uomcode 
+                            from productstockdet b
+                            where b.productid = t.productid and
+                            b.unitofmeasureid = t.unitofissue
+                            and b.storagedesc like '%".$storagebin."%'
+														limit 1
+                            ) as satuan,
+                            (
+                            select ifnull(sum(aw.qty),0) 
+                            from productstockdet aw
+                            where aw.productid = t.productid and aw.unitofmeasureid = t.unitofissue and
+                            aw.transdate < '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and
+                            aw.slocid = t.slocid and aw.storagedesc like '%".$storagebin."%'
+                            ) as awal,
+                            (
+                            select ifnull(sum(c.qty),0) 
+                            from productstockdet c
+                            where c.productid = t.productid and c.unitofmeasureid = t.unitofissue and
+                            c.referenceno like 'GR-%' and
+                            c.slocid = t.slocid and
+                            c.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            ) as beli,
+                            (
+                            select ifnull(sum(d.qty),0) 
+                            from productstockdet d
+                            where d.productid = t.productid and d.unitofmeasureid = t.unitofissue and
+                            d.referenceno like 'GIR-%' and
+                            d.slocid = t.slocid and
+                            d.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and d.storagedesc like '%".$storagebin."%'
+                            ) as returjual,
+                            (
+                            select ifnull(sum(e.qty),0) 
+                            from productstockdet e
+                            where e.productid = t.productid and e.unitofmeasureid = t.unitofissue and
+                            e.referenceno like 'TFS-%' and
+                            e.qty > 0 and
+                            e.slocid = t.slocid and
+                            e.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and e.storagedesc like '%".$storagebin."%'
+                            ) as trfin,
+                            (
+                            select ifnull(sum(f.qty),0) 
+                            from productstockdet f
+                            where f.productid = t.productid and f.unitofmeasureid = t.unitofissue and
+                            f.referenceno like 'OP-%' and
+                            f.qty > 0 and
+                            f.slocid = t.slocid and
+                            f.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and f.storagedesc like '%".$storagebin."%'
+                            ) as produksi,
+                            (
+                            select ifnull(sum(g.qty),0) 
+                            from productstockdet g
+                            where g.productid = t.productid and g.unitofmeasureid = t.unitofissue and
+                            g.referenceno like 'SJ-%' and
+                            g.slocid = t.slocid and
+                            g.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and g.storagedesc like '%".$storagebin."%'
+                            ) as jual,
+                            (
+                            select ifnull(sum(h.qty),0) 
+                            from productstockdet h
+                            where h.productid = t.productid and h.unitofmeasureid = t.unitofissue and
+                            h.referenceno like 'GRR-%' and
+                            h.slocid = t.slocid and
+                            h.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and h.storagedesc like '%".$storagebin."%'
+                            ) as returbeli,
+                            (
+                            select ifnull(sum(i.qty),0) 
+                            from productstockdet i
+                            where i.productid = t.productid and i.unitofmeasureid = t.unitofissue and
+                            i.referenceno like 'TFS-%' and
+                            i.qty < 0 and
+                            i.slocid = t.slocid and
+                            i.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and i.storagedesc like '%".$storagebin."%'
+                            ) as trfout,
+                            (
+                            select ifnull(sum(j.qty),0) 
+                            from productstockdet j
+                            where j.productid = t.productid and j.unitofmeasureid = t.unitofissue and
+                            j.referenceno like 'OP-%' and
+                            j.qty < 0 and
+                            j.slocid = t.slocid and
+                            j.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and j.storagedesc like '%".$storagebin."%'
+                            ) as pemakaian,
+                            (
+                            select ifnull(sum(k.qty),0) 
+                            from productstockdet k
+                            where k.productid = t.productid and k.unitofmeasureid = t.unitofissue and
+                            k.referenceno like 'TSO-%' and
+                            k.slocid = t.slocid and
+                            k.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and k.storagedesc like '%".$storagebin."%'
+                            ) as koreksi,
+							(select ifnull(sum(l.qty),0) 
+                            from productstockdet l
+                            where l.productid = t.productid and l.unitofmeasureid = t.unitofissue and
+                            l.referenceno like '%konversi%' and
+                            l.qty > 0 and
+                            l.slocid = t.slocid
+							and l.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and l.storagedesc like '%".$storagebin."%'
+                            ) as konversiin,
+							(
+                            select ifnull(sum(m.qty),0) 
+                            from productstockdet m
+                            where m.productid = t.productid and m.unitofmeasureid = t.unitofissue and
+                            m.referenceno like '%konversi%' and
+                            m.qty < 0 and
+                            m.slocid = t.slocid and
+                            m.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and m.storagedesc like '%".$storagebin."%'
+                            ) as konversiout
+                            from productplant t
+							join materialgroup u on u.materialgroupid = t.materialgroupid
+							join sloc v on v.slocid = t.slocid
+                            where t.productid = '" . $row2['productid'] . "' and u.materialgroupid = '" . $row1['materialgroupid'] . "' 
+							and v.slocid = '" . $row['slocid'] . "' order by barang) z) zz )zzz 
+							where awal <> 0 or masuk <> 0 or keluar <> 0 or akhir <> 0 order by barang asc";
+          $this->pdf->sety($this->pdf->gety());
+          $this->pdf->coldetailalign = array(
+            'L',
+            'C',
+            'R',
+            'R',
+            'R',
+            'R'
+          );
+          $this->pdf->setFont('Arial', '', 8);
+          $command3    = $this->connection->createCommand($sql3);
+          $dataReader3 = $command3->queryAll();
+          foreach ($dataReader3 as $row3) {
+            $this->pdf->row(array(
+              $row3['barang'],
+              $row3['satuan'],
+              Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $row3['awal']),
+              Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $row3['masuk']),
+              Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $row3['keluar']),
+              Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $row3['akhir'])
+            ));
+            $awal += $row3['awal'];
+            $masuk += $row3['masuk'];
+            $keluar += $row3['keluar'];
+            $akhir += $row3['akhir'];
+          }
+        }
+        $this->pdf->SetFont('Arial', 'BI', 8);
+        $this->pdf->row(array(
+          'JUMLAH ' . $row1['divisi'],
+          '',
+          Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $awal),
+          Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $masuk),
+          Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $keluar),
+          Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $akhir)
+        ));
+        $awal1 += $awal;
+        $masuk1 += $masuk;
+        $keluar1 += $keluar;
+        $akhir1 += $akhir;
+      }
+      $this->pdf->row(array(
+        'TOTAL ' . $row['sloccode'],
+        '',
+        Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $awal1),
+        Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $masuk1),
+        Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $keluar1),
+        Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $akhir1)
+      ));
+      $awal2 += $awal1;
+      $masuk2 += $masuk1;
+      $keluar2 += $keluar1;
+      $akhir2 += $akhir1;
+    }
+    $this->pdf->sety($this->pdf->gety() + 5);
+    $this->pdf->SetFont('Arial', 'BI', 9);
+    $this->pdf->row(array(
+      'GRAND TOTAL',
+      '',
+      Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $awal2),
+      Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $masuk2),
+      Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $keluar2),
+      Yii::app()->numberFormatter->format(Yii::app()->params["defaultnumberqty"], $akhir2)
+    ));
+    $this->pdf->Output();
+  }
+	public function RekapStokBarang_old($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -1224,7 +1557,7 @@ class ReportinventoryController extends Controller
 				 join product f on f.productid = b.productid
                     where e.companyid = " . $companyid . " and c.sloccode like '%" . $sloc . "%' and 
 					f.productname like '%" . $product . "%' and f.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -1283,7 +1616,7 @@ class ReportinventoryController extends Controller
 				 join product f on f.productid = b.productid
                     where e.companyid = " . $companyid . " and c.sloccode like '%" . $sloc . "%' and c.slocid = '" . $row['slocid'] . "' and 
 					f.productname like '%" . $product . "%' and f.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -1312,7 +1645,7 @@ class ReportinventoryController extends Controller
                     join product g on g.productid = b.productid
                     where f.companyid = '" . $companyid . "' and d.sloccode like '%" . $sloc . "%' and a.materialgroupid = '" . $row1['materialgroupid'] . "' and 
 					g.productname like '%" . $product . "%' and b.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -1348,14 +1681,14 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(aw.qty),0) 
                             from productstockdet aw
-                            where aw.productid = t.productid and
+                            where aw.productid = t.productid and aw.unitofmeasureid = t.unitofissue and
                             aw.transdate < '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and
                             aw.slocid = t.slocid and aw.storagedesc like '%".$storagebin."%'
                             ) as awal,
                             (
                             select ifnull(sum(c.qty),0) 
                             from productstockdet c
-                            where c.productid = t.productid and
+                            where c.productid = t.productid and c.unitofmeasureid = t.unitofissue and
                             c.referenceno like 'GR-%' and
                             c.slocid = t.slocid and
                             c.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -1364,7 +1697,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(d.qty),0) 
                             from productstockdet d
-                            where d.productid = t.productid and
+                            where d.productid = t.productid and d.unitofmeasureid = t.unitofissue and
                             d.referenceno like 'GIR-%' and
                             d.slocid = t.slocid and
                             d.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -1373,7 +1706,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(e.qty),0) 
                             from productstockdet e
-                            where e.productid = t.productid and
+                            where e.productid = t.productid and e.unitofmeasureid = t.unitofissue and
                             e.referenceno like 'TFS-%' and
                             e.qty > 0 and
                             e.slocid = t.slocid and
@@ -1383,7 +1716,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(f.qty),0) 
                             from productstockdet f
-                            where f.productid = t.productid and
+                            where f.productid = t.productid and f.unitofmeasureid = t.unitofissue and
                             f.referenceno like 'OP-%' and
                             f.qty > 0 and
                             f.slocid = t.slocid and
@@ -1393,7 +1726,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(g.qty),0) 
                             from productstockdet g
-                            where g.productid = t.productid and
+                            where g.productid = t.productid and g.unitofmeasureid = t.unitofissue and
                             g.referenceno like 'SJ-%' and
                             g.slocid = t.slocid and
                             g.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -1402,7 +1735,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(h.qty),0) 
                             from productstockdet h
-                            where h.productid = t.productid and
+                            where h.productid = t.productid and h.unitofmeasureid = t.unitofissue and
                             h.referenceno like 'GRR-%' and
                             h.slocid = t.slocid and
                             h.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -1411,7 +1744,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(i.qty),0) 
                             from productstockdet i
-                            where i.productid = t.productid and
+                            where i.productid = t.productid and i.unitofmeasureid = t.unitofissue and
                             i.referenceno like 'TFS-%' and
                             i.qty < 0 and
                             i.slocid = t.slocid and
@@ -1421,7 +1754,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(j.qty),0) 
                             from productstockdet j
-                            where j.productid = t.productid and
+                            where j.productid = t.productid and j.unitofmeasureid = t.unitofissue and
                             j.referenceno like 'OP-%' and
                             j.qty < 0 and
                             j.slocid = t.slocid and
@@ -1431,7 +1764,7 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(k.qty),0) 
                             from productstockdet k
-                            where k.productid = t.productid and
+                            where k.productid = t.productid and k.unitofmeasureid = t.unitofissue and
                             k.referenceno like 'TSO-%' and
                             k.slocid = t.slocid and
                             k.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -1439,7 +1772,7 @@ class ReportinventoryController extends Controller
                             ) as koreksi,
 							(select ifnull(sum(l.qty),0) 
                             from productstockdet l
-                            where l.productid = t.productid and
+                            where l.productid = t.productid and l.unitofmeasureid = t.unitofissue and
                             l.referenceno like '%konversi%' and
                             l.qty > 0 and
                             l.slocid = t.slocid
@@ -1449,7 +1782,7 @@ class ReportinventoryController extends Controller
 							(
                             select ifnull(sum(m.qty),0) 
                             from productstockdet m
-                            where m.productid = t.productid and
+                            where m.productid = t.productid and m.unitofmeasureid = t.unitofissue and
                             m.referenceno like '%konversi%' and
                             m.qty < 0 and
                             m.slocid = t.slocid and
@@ -1529,7 +1862,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //6
-	public function RekapStokBarangPerHari($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangPerHari($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.productname,c.uomcode,d.sloccode,
@@ -2074,7 +2407,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //7
-	public function RekapStokBarangDenganRak($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangDenganRak($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct c.sloccode,c.slocid
@@ -2417,7 +2750,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //8
-	public function RincianSuratJalanPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianSuratJalanPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.giheaderid,b.gino,b.gidate,a.sono,c.fullname as customer,d.fullname as sales,e.areaname 
@@ -2529,7 +2862,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //9
-	public function RekapSuratJalanPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSuratJalanPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.materialgroupid,b.materialgroupcode,b.description
@@ -2635,7 +2968,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //10
-	public function RekapSuratJalanPerCustomer($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSuratJalanPerCustomer($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct zf.addressbookid, zf.fullname
@@ -2768,7 +3101,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //11
-	public function RincianReturJualPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianReturJualPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct zd.gireturid,zd.gireturno,zg.fullname as customer,zh.fullname as sales,zd.gireturdate,zi.areaname,zb.gino 
@@ -2892,7 +3225,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //12
-	public function RekapReturJualPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturJualPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.materialgroupid,b.materialgroupcode,b.description  
@@ -3002,7 +3335,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //13
-	public function RekapReturJualPerCustomer($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturJualPerCustomer($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct c.addressbookid,d.fullname 
@@ -3132,7 +3465,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //14
-	public function RincianTerimaBarangPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTerimaBarangPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.grheaderid,b.grno,c.fullname as supplier,b.grdate,a.pono
@@ -3240,7 +3573,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //15
-	public function RekapTerimaBarangPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTerimaBarangPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct zg.materialgroupid,zg.materialgroupcode,zg.description 
@@ -3341,7 +3674,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //16
-	public function RekapTerimaBarangPerSupplier($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTerimaBarangPerSupplier($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct zf.addressbookid,zf.fullname as supplier 
@@ -3463,7 +3796,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //17
-	public function RincianReturBeliPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianReturBeliPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select a.grreturid,a.grreturno,c.fullname as supplier,a.grreturdate,d.slocid
@@ -3561,7 +3894,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //18
-	public function RekapReturBeliPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturBeliPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.materialgroupid, a.materialgroupcode, a.description
@@ -3659,7 +3992,7 @@ class ReportinventoryController extends Controller
     }
     $this->pdf->Output();
   }
-/*	public function RekapReturBeliPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+/*	public function RekapReturBeliPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.materialgroupid, a.materialgroupcode, a.description, g.grreturid
@@ -3754,7 +4087,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }*/
   //19
-	public function RekapReturBeliPerSupplier($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturBeliPerSupplier($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct c.addressbookid,c.fullname as supplier
@@ -3878,7 +4211,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //20
-	public function PendinganFpb($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function PendinganFpb($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     parent::actionDownload();
@@ -4034,7 +4367,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //21
-	public function PendinganFpp($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function PendinganFpp($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct f.description,h.companyid,a.prno,a.prdate,a.headernote as note,a.prheaderid,a.headernote,b.dano
@@ -4174,7 +4507,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //22
-	public function RincianTransferGudangKeluarPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTransferGudangKeluarPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.transstockid,b.transstockno,					
@@ -4285,7 +4618,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //23
-	public function RekapTransferGudangKeluarPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTransferGudangKeluarPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.sloctoid,a.slocfromid,
@@ -4378,7 +4711,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //24
-	public function RincianTransferGudangMasukPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTransferGudangMasukPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct b.transstockid,b.transstockno,					
@@ -4489,7 +4822,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //25
-	public function RekapTransferGudangMasukPerBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTransferGudangMasukPerBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.sloctoid,a.slocfromid,
@@ -4583,7 +4916,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //26
-	public function RekapStokBarangAdaTransaksi($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangAdaTransaksi($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -4913,7 +5246,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //27
-	public function RekapSTTBPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSTTBPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.grheaderid,a.grno,a.grdate,b.pono,b.headernote,a.recordstatus
@@ -4998,7 +5331,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //28
-	public function RekapReturBeliPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturBeliPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.grreturid,a.grreturno,a.grreturdate,b.pono,b.headernote,a.recordstatus
@@ -5082,7 +5415,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //29
-	public function RekapSuratJalanPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSuratJalanPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.giheaderid,a.gino,a.gidate,b.sono,a.headernote,a.recordstatus
@@ -5164,7 +5497,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //30
-	public function RekapReturPenjualanPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturPenjualanPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.gireturid,a.gireturno,a.gireturdate,b.gino,a.headernote,a.recordstatus
@@ -5249,7 +5582,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //31
-	public function RekapTransferPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTransferPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.transstockid,a.transstockno,a.docdate,ifnull((select b.dano from deliveryadvice b where b.deliveryadviceid=a.deliveryadviceid),(select b.productoutputno from productoutput b where b.productoutputid=a.productoutputid)) as dano,a.headernote,a.recordstatus,
@@ -5344,7 +5677,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //32
-	public function RekapStockOpnamePerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStockOpnamePerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.bsheaderid,a.bsdate,a.bsheaderno,d.sloccode,a.headernote,a.recordstatus
@@ -5432,7 +5765,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //33
-	public function RekapkonversiPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapkonversiPerDokumentBelumStatusMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.productconvertid,a.qty,a.recordstatus,d.productname,e.uomcode,f.sloccode,Getwfstatusbywfname('appconvert',a.recordstatus) as statusname
@@ -5598,7 +5931,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }*/
   //34
-	public function RawMaterialGudangAsalBelumAdaDataGudangFPB($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RawMaterialGudangAsalBelumAdaDataGudangFPB($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select a.deliveryadviceid,a.reqdate,b.dano,e.sloccode
@@ -5709,7 +6042,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //35
-	public function RawMaterialGudangTujuanBelumAdaDataGudangFPB($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RawMaterialGudangTujuanBelumAdaDataGudangFPB($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.deliveryadviceid,a.reqdate,b.dano,e.sloccode
@@ -5820,7 +6153,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //36
-	public function RekapFPBBelumTransferPerDokumen($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapFPBBelumTransferPerDokumen($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.transstockid,a.transstockno,a.docdate,b.dano,a.headernote,a.recordstatus
@@ -5907,7 +6240,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //37
-	public function RAWMaterialBelumAdaGudangStockOpname($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RAWMaterialBelumAdaGudangStockOpname($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct c.productname, b.qty, e.uomcode,a.bsdate,d.sloccode,a.headernote
@@ -5988,7 +6321,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //38
-	public function LaporanFPBStatusBelumMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function LaporanFPBStatusBelumMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql = "SELECT 
@@ -6077,7 +6410,7 @@ class ReportinventoryController extends Controller
     }
     $this->pdf->Output();
   }
-	/*public function LaporanFPBStatusBelumMax($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	/*public function LaporanFPBStatusBelumMax($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql = "SELECT 
@@ -6167,7 +6500,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }*/
   //39
-	public function LaporanKetersediaanBarang($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function LaporanKetersediaanBarang($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select *
@@ -6284,7 +6617,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //40
-	public function LaporanMaterialNotMoving($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function LaporanMaterialNotMoving($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -6600,7 +6933,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //41
-	public function LaporanMaterialSlowMoving($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function LaporanMaterialSlowMoving($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -6906,7 +7239,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //42
-	public function LaporanMaterialFastMoving($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function LaporanMaterialFastMoving($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -7210,7 +7543,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }    
   //43
-	public function LaporanHarian1($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate)
+	public function LaporanHarian1($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
 	{
 			parent::actionDownload();
 			
@@ -8026,7 +8359,7 @@ class ReportinventoryController extends Controller
 			*/
 			$this->pdf->Output('Laporan Harian per: '.$startdate,'I');
 	}
-	public function LaporanHarian($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate)
+	public function LaporanHarian($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
 	{
     parent::actionDownload();
     $awal2      = 0;
@@ -8282,7 +8615,7 @@ class ReportinventoryController extends Controller
     }
     }
 	//44
-  public function LaporanRekapMonitoringStock($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+  public function LaporanRekapMonitoringStock($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $awal2      = 0;
@@ -8648,7 +8981,7 @@ class ReportinventoryController extends Controller
     $this->pdf->Output();
   }
   //45
-  public function LaporanRincianMonitoringStock($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+  public function LaporanRincianMonitoringStock($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     parent::actionDownload();
     $sql        = "select distinct a.description,a.materialgroupid
@@ -9029,7 +9362,7 @@ class ReportinventoryController extends Controller
 	//2
 	
   //3
-	public function KartuStokBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function KartuStokBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'kartustokbarang';
     parent::actionDownxls();
@@ -9181,7 +9514,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //4
-	public function KartuStokBarangPerRakXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function KartuStokBarangPerRakXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'kartustokbarangperrak';
     parent::actionDownxls();
@@ -9347,7 +9680,269 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //5
-	public function RekapStokBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    $this->menuname = 'rekapstokbarang';
+    parent::actionDownxls();
+    if($companyid > 0) {
+      $joincom = ""; 
+      $joincom1 = ""; 
+      $wherecom = "  e.companyid = ".$companyid." "; 
+      $wherecom1 = "  zc.companyid = ".$companyid." ";
+    }
+    else {
+      $joincom = " join company a9 on a9.companyid=e.companyid "; 
+      $joincom1 = " join company a9 on a9.companyid=g.companyid "; 
+      $wherecom = " e.isgroup = 1"; 
+      $wherecom1 = "  zc.isgroup = 1";
+    }
+    $sql        = "select distinct c.sloccode,c.slocid
+                    from materialgroup a
+                    join productplant b on b.materialgroupid=a.materialgroupid
+					join sloc c on c.slocid = b.slocid
+					join plant d on d.plantid = c.plantid
+					join company e on e.companyid = d.companyid
+					join product f on f.productid = b.productid
+                    where {$wherecom} and c.sloccode like '%" . $sloc . "%' and 
+					f.productname like '%" . $product . "%' and f.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = c.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+				order by c.sloccode";
+    $command    = $this->connection->createCommand($sql);
+    $dataReader = $command->queryAll();
+    $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))->setCellValueByColumnAndRow(3, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
+    $totalawal2   = 0;
+    $totalmasuk2  = 0;
+    $totalkeluar2 = 0;
+    $totalakhir2  = 0;
+    $line         = 4;
+    foreach ($dataReader as $row) {
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Nama Barang')->setCellValueByColumnAndRow(1, $line, 'Satuan')->setCellValueByColumnAndRow(2, $line, 'Awal')->setCellValueByColumnAndRow(3, $line, 'Masuk')->setCellValueByColumnAndRow(4, $line, 'Keluar')->setCellValueByColumnAndRow(5, $line, 'Akhir');
+      $sql1        = "select distinct a.description as divisi,a.materialgroupid
+                    from materialgroup a
+                    join productplant b on b.materialgroupid=a.materialgroupid
+										join sloc c on c.slocid = b.slocid
+										join plant d on d.plantid = c.plantid
+										join company e on e.companyid = d.companyid
+										join product f on f.productid = b.productid
+                    where {$wherecom} and c.slocid = '" . $row['slocid'] . "' and 
+										f.productname like '%" . $product . "%' and f.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = c.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+					order by a.description";
+      $command1    = $this->connection->createCommand($sql1);
+      $dataReader1 = $command1->queryAll();
+      $line++;
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'GUDANG')->setCellValueByColumnAndRow(1, $line, ': ' . $row['sloccode']);
+      $totalawal1   = 0;
+      $totalmasuk1  = 0;
+      $totalkeluar1 = 0;
+      $totalakhir1  = 0;
+      foreach ($dataReader1 as $row1) {
+        $line++;
+        $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Material Group')->setCellValueByColumnAndRow(1, $line, ': ' . $row1['divisi'])->setCellValueByColumnAndRow(5, $line, $row['sloccode']);
+        $totalawal   = 0;
+        $totalmasuk  = 0;
+        $totalkeluar = 0;
+        $totalakhir  = 0;
+        $sql2        = "select b.productid,a.materialgroupid,a.description as divisi,d.slocid
+                    from materialgroup a
+                    join productplant b on b.materialgroupid = a.materialgroupid
+                    join sloc d on d.slocid = b.slocid
+                    join plant f on f.plantid = d.plantid
+                    join company e on e.companyid = f.companyid
+                    join product g on g.productid = b.productid
+                    where {$wherecom} and d.slocid = '" . $row['slocid'] . "' and a.materialgroupid = '" . $row1['materialgroupid'] . "' and 
+							      g.productname like '%" . $product . "%' and b.productid in
+                    (select distinct z.productid 
+                    from productstockdet z
+                    join sloc za on za.slocid = z.slocid
+                    join plant zb on zb.plantid = za.plantid
+                    join company zc on zc.companyid = zb.companyid
+                    where {$wherecom1} and z.slocid = b.slocid and z.unitofmeasureid = b.unitofissue and z.storagedesc like '%".$storagebin."%')
+					order by g.productname";
+        $command2    = $this->connection->createCommand($sql2);
+        $dataReader2 = $command2->queryAll();
+        foreach ($dataReader2 as $row2) {
+          $sql3 = "select * from
+							(select barang,satuan,awal,masuk,keluar,(awal+masuk+keluar) as akhir
+                            from
+                            (select barang,satuan,awal,(beli+returjual+trfin+produksi+konversiin) as masuk,(jual+returbeli+trfout+pemakaian+koreksi+konversiout) as keluar
+                            from
+                            (select 
+                            (
+                            select distinct a.productname 
+                            from productstockdet a
+                            where a.productid = t.productid and
+                            a.unitofmeasureid = t.unitofissue
+                            and a.storagedesc like '%".$storagebin."%'
+														limit 1
+                            ) as barang,
+                            (
+                            select distinct b.uomcode 
+                            from productstockdet b
+                            where b.productid = t.productid and
+                            b.unitofmeasureid = t.unitofissue
+                            and b.storagedesc like '%".$storagebin."%'
+														limit 1
+                            ) as satuan,
+                            (
+                            select ifnull(sum(aw.qty),0) 
+                            from productstockdet aw
+                            where aw.productid = t.productid and aw.unitofmeasureid = t.unitofissue and
+                            aw.transdate < '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and
+                            aw.slocid = t.slocid and aw.storagedesc like '%".$storagebin."%'
+                            ) as awal,
+                            (
+                            select ifnull(sum(c.qty),0) 
+                            from productstockdet c
+                            where c.productid = t.productid and c.unitofmeasureid = t.unitofissue and
+                            c.referenceno like 'GR-%' and
+                            c.slocid = t.slocid and
+                            c.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            ) as beli,
+                            (
+                            select ifnull(sum(d.qty),0) 
+                            from productstockdet d
+                            where d.productid = t.productid and d.unitofmeasureid = t.unitofissue and
+                            d.referenceno like 'GIR-%' and
+                            d.slocid = t.slocid and
+                            d.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and d.storagedesc like '%".$storagebin."%'
+                            ) as returjual,
+                            (
+                            select ifnull(sum(e.qty),0) 
+                            from productstockdet e
+                            where e.productid = t.productid and e.unitofmeasureid = t.unitofissue and
+                            e.referenceno like 'TFS-%' and
+                            e.qty > 0 and
+                            e.slocid = t.slocid and
+                            e.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and e.storagedesc like '%".$storagebin."%'
+                            ) as trfin,
+                            (
+                            select ifnull(sum(f.qty),0) 
+                            from productstockdet f
+                            where f.productid = t.productid and f.unitofmeasureid = t.unitofissue and
+                            f.referenceno like 'OP-%' and
+                            f.qty > 0 and
+                            f.slocid = t.slocid and
+                            f.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and f.storagedesc like '%".$storagebin."%'
+                            ) as produksi,
+                            (
+                            select ifnull(sum(g.qty),0) 
+                            from productstockdet g
+                            where g.productid = t.productid and g.unitofmeasureid = t.unitofissue and
+                            g.referenceno like 'SJ-%' and
+                            g.slocid = t.slocid and
+                            g.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and g.storagedesc like '%".$storagebin."%'
+                            ) as jual,
+                            (
+                            select ifnull(sum(h.qty),0) 
+                            from productstockdet h
+                            where h.productid = t.productid and h.unitofmeasureid = t.unitofissue and
+                            h.referenceno like 'GRR-%' and
+                            h.slocid = t.slocid and
+                            h.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and h.storagedesc like '%".$storagebin."%'
+                            ) as returbeli,
+                            (
+                            select ifnull(sum(i.qty),0) 
+                            from productstockdet i
+                            where i.productid = t.productid and i.unitofmeasureid = t.unitofissue and
+                            i.referenceno like 'TFS-%' and
+                            i.qty < 0 and
+                            i.slocid = t.slocid and
+                            i.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and i.storagedesc like '%".$storagebin."%'
+                            ) as trfout,
+                            (
+                            select ifnull(sum(j.qty),0) 
+                            from productstockdet j
+                            where j.productid = t.productid and j.unitofmeasureid = t.unitofissue and
+                            j.referenceno like 'OP-%' and
+                            j.qty < 0 and
+                            j.slocid = t.slocid and
+                            j.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and j.storagedesc like '%".$storagebin."%'
+                            ) as pemakaian,
+                            (
+                            select ifnull(sum(k.qty),0) 
+                            from productstockdet k
+                            where k.productid = t.productid and k.unitofmeasureid = t.unitofissue and
+                            k.referenceno like 'TSO-%' and
+                            k.slocid = t.slocid and
+                            k.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and k.storagedesc like '%".$storagebin."%'
+                            ) as koreksi,
+							(select ifnull(sum(l.qty),0) 
+                            from productstockdet l
+                            where l.productid = t.productid and l.unitofmeasureid = t.unitofissue and
+                            l.referenceno like '%konversi%' and
+                            l.qty > 0 and
+                            l.slocid = t.slocid
+							and l.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and l.storagedesc like '%".$storagebin."%'
+                            ) as konversiin,
+							(
+                            select ifnull(sum(m.qty),0) 
+                            from productstockdet m
+                            where m.productid = t.productid and m.unitofmeasureid = t.unitofissue and
+                            m.referenceno like '%konversi%' and
+                            m.qty < 0 and
+                            m.slocid = t.slocid and
+                            m.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and m.storagedesc like '%".$storagebin."%'
+                            ) as konversiout
+                            from productplant t
+							join materialgroup u on u.materialgroupid = t.materialgroupid
+							join sloc v on v.slocid = t.slocid
+                            where t.productid = '" . $row2['productid'] . "' and u.materialgroupid = '" . $row1['materialgroupid'] . "' 
+							and v.slocid = '" . $row['slocid'] . "' order by barang) z) zz )zzz 
+							where awal <> 0 or masuk <> 0 or keluar <> 0 or akhir <> 0 order by barang asc";
+          $command3    = $this->connection->createCommand($sql3);
+          $dataReader3 = $command3->queryAll();
+          foreach ($dataReader3 as $row3) {
+            $line++;
+            $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, $row3['barang'])->setCellValueByColumnAndRow(1, $line, $row3['satuan'])->setCellValueByColumnAndRow(2, $line, $row3['awal'])->setCellValueByColumnAndRow(3, $line, $row3['masuk'])->setCellValueByColumnAndRow(4, $line, $row3['keluar'])->setCellValueByColumnAndRow(5, $line, $row3['akhir']);
+            $totalawal += $row3['awal'];
+            $totalmasuk += $row3['masuk'];
+            $totalkeluar += $row3['keluar'];
+            $totalakhir += $row3['akhir'];
+          }
+        }
+        $line++;
+        $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, $line, 'Total Material Group ' . $row1['divisi'])->setCellValueByColumnAndRow(2, $line, $totalawal)->setCellValueByColumnAndRow(3, $line, $totalmasuk)->setCellValueByColumnAndRow(4, $line, $totalkeluar)->setCellValueByColumnAndRow(5, $line, $totalakhir);
+        $totalawal1 += $totalawal;
+        $totalmasuk1 += $totalawal;
+        $totalkeluar1 += $totalawal;
+        $totalakhir1 += $totalawal;
+        $line += 1;
+      }
+      $line++;
+      $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Total Gudang ' . $row['sloccode'])->setCellValueByColumnAndRow(2, $line, $totalawal1)->setCellValueByColumnAndRow(3, $line, $totalmasuk1)->setCellValueByColumnAndRow(4, $line, $totalkeluar1)->setCellValueByColumnAndRow(5, $line, $totalakhir1);
+      $totalawal2 += $totalawal1;
+      $totalmasuk2 += $totalawal1;
+      $totalkeluar2 += $totalawal1;
+      $totalakhir2 += $totalawal1;
+      $line += 2;
+    }
+    $line++;
+    $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $line, 'Grand Total')->setCellValueByColumnAndRow(2, $line, $totalawal2)->setCellValueByColumnAndRow(3, $line, $totalmasuk2)->setCellValueByColumnAndRow(4, $line, $totalkeluar2)->setCellValueByColumnAndRow(5, $line, $totalakhir2);
+    $this->getFooterXLS($this->phpExcel);
+  }
+	public function RekapStokBarangXLS_old($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapstokbarang';
     parent::actionDownxls();
@@ -9360,7 +9955,7 @@ class ReportinventoryController extends Controller
 					join product f on f.productid = b.productid
                     where e.companyid = " . $companyid . " and c.sloccode like '%" . $sloc . "%' and 
 					f.productname like '%" . $product . "%' and f.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -9386,7 +9981,7 @@ class ReportinventoryController extends Controller
 										join product f on f.productid = b.productid
                     where e.companyid = " . $companyid . " and c.slocid = '" . $row['slocid'] . "' and 
 										f.productname like '%" . $product . "%' and f.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -9417,7 +10012,7 @@ class ReportinventoryController extends Controller
                     join product g on g.productid = b.productid
                     where f.companyid = '" . $companyid . "' and d.slocid = '" . $row['slocid'] . "' and a.materialgroupid = '" . $row1['materialgroupid'] . "' and 
 							      g.productname like '%" . $product . "%' and b.productid in
-                    (select z.productid 
+                    (select distinct z.productid 
                     from productstockdet z
                     join sloc za on za.slocid = z.slocid
                     join plant zb on zb.plantid = za.plantid
@@ -9427,41 +10022,39 @@ class ReportinventoryController extends Controller
         $command2    = $this->connection->createCommand($sql2);
         $dataReader2 = $command2->queryAll();
         foreach ($dataReader2 as $row2) {
-          $sql3        = "select * from
+          $sql3 = "select * from
 							(select barang,satuan,awal,masuk,keluar,(awal+masuk+keluar) as akhir
                             from
                             (select barang,satuan,awal,(beli+returjual+trfin+produksi+konversiin) as masuk,(jual+returbeli+trfout+pemakaian+koreksi+konversiout) as keluar
                             from
                             (select 
                             (
-                            select distinct aa.productname 
+                            select distinct a.productname 
                             from productstockdet a
-                            join product aa on aa.productid = a.productid
-                            join sloc ab on ab.slocid = a.slocid
                             where a.productid = t.productid and
                             a.unitofmeasureid = t.unitofissue
+                            and a.storagedesc like '%".$storagebin."%'
+														limit 1
                             ) as barang,
                             (
-                            select distinct bb.uomcode 
+                            select distinct b.uomcode 
                             from productstockdet b
-                            join unitofmeasure bb on bb.unitofmeasureid = b.unitofmeasureid
-                            join sloc ba on ba.slocid = b.slocid
                             where b.productid = t.productid and
                             b.unitofmeasureid = t.unitofissue
+                            and b.storagedesc like '%".$storagebin."%'
+														limit 1
                             ) as satuan,
                             (
                             select ifnull(sum(aw.qty),0) 
                             from productstockdet aw
-                            join sloc aaw on aaw.slocid = aw.slocid
-                            where aw.productid = t.productid and
+                            where aw.productid = t.productid and aw.unitofmeasureid = t.unitofissue and
                             aw.transdate < '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' and
-                            aw.slocid = t.slocid
+                            aw.slocid = t.slocid and aw.storagedesc like '%".$storagebin."%'
                             ) as awal,
                             (
                             select ifnull(sum(c.qty),0) 
                             from productstockdet c
-                            join sloc cc on cc.slocid = c.slocid
-                            where c.productid = t.productid and
+                            where c.productid = t.productid and c.unitofmeasureid = t.unitofissue and
                             c.referenceno like 'GR-%' and
                             c.slocid = t.slocid and
                             c.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
@@ -9470,115 +10063,104 @@ class ReportinventoryController extends Controller
                             (
                             select ifnull(sum(d.qty),0) 
                             from productstockdet d
-                            join sloc dd on dd.slocid = d.slocid
-                            where d.productid = t.productid and
+                            where d.productid = t.productid and d.unitofmeasureid = t.unitofissue and
                             d.referenceno like 'GIR-%' and
                             d.slocid = t.slocid and
                             d.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and d.storagedesc like '%".$storagebin."%'
                             ) as returjual,
                             (
                             select ifnull(sum(e.qty),0) 
                             from productstockdet e
-                            join sloc ee on ee.slocid = e.slocid
-                            where e.productid = t.productid and
+                            where e.productid = t.productid and e.unitofmeasureid = t.unitofissue and
                             e.referenceno like 'TFS-%' and
                             e.qty > 0 and
                             e.slocid = t.slocid and
                             e.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and e.storagedesc like '%".$storagebin."%'
                             ) as trfin,
                             (
                             select ifnull(sum(f.qty),0) 
                             from productstockdet f
-                            join sloc ff on ff.slocid = f.slocid
-                            where f.productid = t.productid and
+                            where f.productid = t.productid and f.unitofmeasureid = t.unitofissue and
                             f.referenceno like 'OP-%' and
                             f.qty > 0 and
                             f.slocid = t.slocid and
                             f.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and f.storagedesc like '%".$storagebin."%'
                             ) as produksi,
                             (
                             select ifnull(sum(g.qty),0) 
                             from productstockdet g
-                            join sloc gg on gg.slocid = g.slocid
-                            where g.productid = t.productid and
+                            where g.productid = t.productid and g.unitofmeasureid = t.unitofissue and
                             g.referenceno like 'SJ-%' and
                             g.slocid = t.slocid and
                             g.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and g.storagedesc like '%".$storagebin."%'
                             ) as jual,
                             (
                             select ifnull(sum(h.qty),0) 
                             from productstockdet h
-                            join sloc hh on hh.slocid = h.slocid
-                            where h.productid = t.productid and
+                            where h.productid = t.productid and h.unitofmeasureid = t.unitofissue and
                             h.referenceno like 'GRR-%' and
                             h.slocid = t.slocid and
                             h.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and h.storagedesc like '%".$storagebin."%'
                             ) as returbeli,
                             (
                             select ifnull(sum(i.qty),0) 
                             from productstockdet i
-                            join sloc ii on ii.slocid = i.slocid
-                            where i.productid = t.productid and
+                            where i.productid = t.productid and i.unitofmeasureid = t.unitofissue and
                             i.referenceno like 'TFS-%' and
                             i.qty < 0 and
                             i.slocid = t.slocid and
                             i.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and i.storagedesc like '%".$storagebin."%'
                             ) as trfout,
                             (
                             select ifnull(sum(j.qty),0) 
                             from productstockdet j
-                            join sloc jj on jj.slocid = j.slocid
-                            where j.productid = t.productid and
+                            where j.productid = t.productid and j.unitofmeasureid = t.unitofissue and
                             j.referenceno like 'OP-%' and
                             j.qty < 0 and
                             j.slocid = t.slocid and
                             j.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and j.storagedesc like '%".$storagebin."%'
                             ) as pemakaian,
                             (
                             select ifnull(sum(k.qty),0) 
                             from productstockdet k
-                            join sloc kk on kk.slocid = k.slocid
-                            where k.productid = t.productid and
+                            where k.productid = t.productid and k.unitofmeasureid = t.unitofissue and
                             k.referenceno like 'TSO-%' and
                             k.slocid = t.slocid and
                             k.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and k.storagedesc like '%".$storagebin."%'
                             ) as koreksi,
 							(select ifnull(sum(l.qty),0) 
                             from productstockdet l
-                            join sloc ll on ll.slocid = l.slocid
-                            where l.productid = t.productid and
+                            where l.productid = t.productid and l.unitofmeasureid = t.unitofissue and
                             l.referenceno like '%konversi%' and
                             l.qty > 0 and
                             l.slocid = t.slocid
 							and l.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and l.storagedesc like '%".$storagebin."%'
                             ) as konversiin,
 							(
                             select ifnull(sum(m.qty),0) 
                             from productstockdet m
-                            join sloc mm on mm.slocid = m.slocid
-                            where m.productid = t.productid and
+                            where m.productid = t.productid and m.unitofmeasureid = t.unitofissue and
                             m.referenceno like '%konversi%' and
                             m.qty < 0 and
                             m.slocid = t.slocid and
                             m.transdate between '" . date(Yii::app()->params['datetodb'], strtotime($startdate)) . "' 
-                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "'
+                            and '" . date(Yii::app()->params['datetodb'], strtotime($enddate)) . "' and m.storagedesc like '%".$storagebin."%'
                             ) as konversiout
                             from productplant t
 							join materialgroup u on u.materialgroupid = t.materialgroupid
 							join sloc v on v.slocid = t.slocid
                             where t.productid = '" . $row2['productid'] . "' and u.materialgroupid = '" . $row1['materialgroupid'] . "' 
 							and v.slocid = '" . $row['slocid'] . "' order by barang) z) zz )zzz 
-							where awal <> 0 or masuk <> 0 or keluar <> 0 or akhir <> 0 
-							order by barang asc";
+							where awal <> 0 or masuk <> 0 or keluar <> 0 or akhir <> 0 order by barang asc";
           $command3    = $this->connection->createCommand($sql3);
           $dataReader3 = $command3->queryAll();
           foreach ($dataReader3 as $row3) {
@@ -9613,7 +10195,7 @@ class ReportinventoryController extends Controller
   //6
 	
 	//7
-	public function RekapStokBarangDenganRakXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangDenganRakXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapstokbarangdenganrak';
     parent::actionDownxls();
@@ -9877,7 +10459,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //8
-	public function RincianSuratJalanPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianSuratJalanPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rinciansuratjalanperdokumen';
     parent::actionDownxls();
@@ -9933,7 +10515,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //9
-	public function RekapSuratJalanPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSuratJalanPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapsuratjalanperbarang';
     parent::actionDownxls();
@@ -9994,7 +10576,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //10
-	public function RekapSuratJalanPerCustomerXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapSuratJalanPerCustomerXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapsuratjalanpercustomer';
     parent::actionDownxls();
@@ -10089,7 +10671,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //11
-	public function RincianReturJualPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianReturJualPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rincianreturjualperdokumen';
     parent::actionDownxls();
@@ -10164,7 +10746,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //12
-	public function RekapReturJualPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturJualPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapreturjualperbarang';
     parent::actionDownxls();
@@ -10233,7 +10815,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //13
-	public function RekapReturJualPerCustomerXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturJualPerCustomerXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapreturjualpercustomer';
     parent::actionDownxls();
@@ -10323,7 +10905,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //14
-	public function RincianTerimaBarangPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTerimaBarangPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rincianterimabarangperdokumen';
     parent::actionDownxls();
@@ -10376,7 +10958,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //15
-	public function RekapTerimaBarangPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTerimaBarangPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapterimabarangperbarang';
     parent::actionDownxls();
@@ -10438,7 +11020,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //16
-	public function RekapTerimaBarangPerSupplierXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTerimaBarangPerSupplierXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapterimabarangpersupplier';
     parent::actionDownxls();
@@ -10520,7 +11102,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //17
-	public function RincianReturBeliPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianReturBeliPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rincianreturpembelianperdokumen';
     parent::actionDownxls();
@@ -10572,7 +11154,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //18
-	public function RekapReturBeliPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapReturBeliPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapreturbeliperbarang';
     parent::actionDownxls();
@@ -10640,7 +11222,7 @@ class ReportinventoryController extends Controller
     }
     $this->getFooterXLS($this->phpExcel);
   }
-	/*public function RekapReturBeliPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	/*public function RekapReturBeliPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapreturbeliperbarang';
     parent::actionDownxls();
@@ -10698,7 +11280,7 @@ class ReportinventoryController extends Controller
   //19
 	
 	//20
-	public function PendinganFpbXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function PendinganFpbXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'pendinganfpb';
     parent::actionDownxls();
@@ -10790,7 +11372,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //21
-	public function PendinganFppXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function PendinganFppXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'pendinganfpp';
     parent::actionDownxls();
@@ -10857,7 +11439,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //22
-	public function RincianTransferGudangKeluarPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTransferGudangKeluarPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rinciantransfergudangkeluarperdokumen';
     parent::actionDownxls();
@@ -10912,7 +11494,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //23
-	public function RekapTransferGudangKeluarPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTransferGudangKeluarPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekaptransfergudangkeluarperbarang';
     parent::actionDownxls();
@@ -10966,7 +11548,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //24
-	public function RincianTransferGudangMasukPerDokumenXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RincianTransferGudangMasukPerDokumenXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rinciantransfergudangmasukperdokumen';
     parent::actionDownxls();
@@ -11021,7 +11603,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //25
-	public function RekapTransferGudangMasukPerBarangXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapTransferGudangMasukPerBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekaptransfergudangmasukperbarang';
     parent::actionDownxls();
@@ -11076,7 +11658,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //26
-	public function RekapStokBarangAdaTransaksiXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapStokBarangAdaTransaksiXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapstokbarangadatransaksi';
     parent::actionDownxls();
@@ -11347,7 +11929,7 @@ class ReportinventoryController extends Controller
 	//32
 	
 	//33
-	public function RekapKonversiPerDokumentBelumStatusMaxXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+	public function RekapKonversiPerDokumentBelumStatusMaxXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
  {
     $this->menuname = 'RekapKonversiPerDokumentBelumStatusMax';
     parent::actionDownxls();
@@ -11410,7 +11992,7 @@ class ReportinventoryController extends Controller
 	//38
 	
 	//39
-	public function LaporanKetersediaanBarangXLS($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+	public function LaporanKetersediaanBarangXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
 	{
 			$this->menuname = 'laporanketersediaanbarang';
 			parent::actionDownxls();
@@ -11466,7 +12048,7 @@ class ReportinventoryController extends Controller
 			$this->getFooterXLS($this->phpExcel);
 	}
 	//40
-	public function LaporanMaterialNotMovingXLS($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+	public function LaporanMaterialNotMovingXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'Laporanmaterialnotmoving';
     parent::actionDownxls();
@@ -11712,7 +12294,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
 	//41
-	public function LaporanMaterialSlowMovingXLS($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+	public function LaporanMaterialSlowMovingXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'Laporanmaterialslowmoving';
     parent::actionDownxls();
@@ -11941,7 +12523,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }      
   //42
-	public function LaporanMaterialFastMovingXLS($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+	public function LaporanMaterialFastMovingXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'Laporanmaterialfastmoving';
     parent::actionDownxls();
@@ -12170,7 +12752,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }    
 	//43
-	public function LaporanHarianXLS($companyid, $sloc, $slocto, $storagebin, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+	public function LaporanHarianXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'laporanharian';
     parent::actionDownxls();
@@ -12319,7 +12901,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
 	//44
-  public function LaporanRekapMonitoringStockXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+  public function LaporanRekapMonitoringStockXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rekapstokbarang';
     parent::actionDownxls();
@@ -12598,7 +13180,7 @@ class ReportinventoryController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
   //45
-  public function LaporanRincianMonitoringStockXLS($companyid, $sloc, $slocto, $storagebin,$customer,$sales, $product, $salesarea, $startdate, $enddate,$keluar3)
+  public function LaporanRincianMonitoringStockXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
   {
     $this->menuname = 'rincianmonitoringstock';
     parent::actionDownxls();

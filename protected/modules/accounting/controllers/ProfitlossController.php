@@ -188,6 +188,7 @@ class ProfitlossController extends Controller {
     //$this->connection->createCommand($sql)->execute();
     $this->pdf->companyid = $_GET['company'];
     $this->pdf->AddPage('L');
+    if(getUserObjectValues('companypl')==1) {
     $this->pdf->Cell(0, 0, GetCatalog('profitloss'), 0, 0, 'C');
     $this->pdf->Cell(-277, 10, 'Per : ' . date("t F Y", strtotime($_GET['date'])), 0, 0, 'C');
     $i = 0;
@@ -335,6 +336,9 @@ class ProfitlossController extends Controller {
       }
       $this->pdf->sety($this->pdf->gety() - 2);
     }
+	} else {
+        $this->pdf->text(5,10,'Anda Tidak Berhak Melihat Laporan PL Company');
+    }
     $this->pdf->Output();
   }
   public function actionDownXls() {
@@ -347,6 +351,7 @@ class ProfitlossController extends Controller {
 			and a.bulan = month('" . date(Yii::app()->params['datetodb'], strtotime($_GET['date'])) . "')
 			order by jumlah";
     $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+    if(getUserObjectValues('companypl')==1) {
     $i          = 6;
     $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 2, date(Yii::app()->params['dateviewfromdb'], strtotime($_GET['date'])));
     $sqlcompany = " select companycode from company where companyid = '" . $_GET['company'] . "' ";
@@ -357,6 +362,8 @@ class ProfitlossController extends Controller {
       $this->phpExcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, $i + 1, $row1['accountname'])->setCellValueByColumnAndRow(1, $i + 1, $row1['budgetblninitotal']/$_GET['per'])->setCellValueByColumnAndRow(2, $i + 1, $row1['budgetblninipersen'])->setCellValueByColumnAndRow(3, $i + 1, $row1['actualblninitotal']/$_GET['per'])->setCellValueByColumnAndRow(4, $i + 1, $row1['actualblninipersen'])->setCellValueByColumnAndRow(5, $i + 1, $row1['pencpersen'])->setCellValueByColumnAndRow(6, $i + 1, $row1['actualblnlalutotal']/$_GET['per'])->setCellValueByColumnAndRow(7, $i + 1, $row1['actualblnlalupersen'])->setCellValueByColumnAndRow(8, $i + 1, $row1['budgetakumtotal']/$_GET['per'])->setCellValueByColumnAndRow(9, $i + 1, $row1['budgetakumpersen'])->setCellValueByColumnAndRow(10, $i + 1, $row1['actualakumtotal']/$_GET['per'])->setCellValueByColumnAndRow(11, $i + 1, $row1['actualakumpersen'])->setCellValueByColumnAndRow(12, $i + 1, $row1['pencakumpersen']);
       $i += 1;
     }
+	
+	}
     $this->getFooterXLS($this->phpExcel);
   }
   public function actionDownPDF1() {
@@ -366,6 +373,7 @@ class ProfitlossController extends Controller {
     //$this->connection->createCommand($sql)->execute();
     $this->pdf->companyid = $_GET['company'];
     $this->pdf->AddPage('L',array(200,775));
+    if(getUserObjectValues('companypl')==1) {
     $this->pdf->Cell(0, 0, GetCatalog('profitloss'), 0, 0, 'C');
     $this->pdf->Cell(-277, 10, 'Per : ' . date("t F Y", strtotime($_GET['date'])), 0, 0, 'C');
     $i = 0;
@@ -679,6 +687,10 @@ class ProfitlossController extends Controller {
       }
       $this->pdf->sety($this->pdf->gety() - 2);
     }
+	}
+    else {
+      $this->pdf->text(5,10,'Anda Tidak Berhak Melihat Laporan PL Company');
+    }
     $this->pdf->Output();
   }
   public function actionDownXls1() {
@@ -689,6 +701,7 @@ class ProfitlossController extends Controller {
 							where a.companyid = " . $_GET['company'] . "
 		";
     $company = Yii::app()->db->createCommand($sql2)->queryScalar();
+		if(getUserObjectValues('companypl')==1) {
 		
     $sql = "select accountid,accountname,jan,janper,feb,febper,mar,marper,tri1,tri1per,
 				apr,aprper,mei,meiper,jun,junper,tri2,tri2per,sem1,sem1per,
@@ -746,6 +759,7 @@ class ProfitlossController extends Controller {
 			->setCellValueByColumnAndRow(37, $i + 1, $row1['total']/$_GET['per'])
 			->setCellValueByColumnAndRow(38, $i + 1, $row1['totalper']);
       $i += 1;
+	}
     }
     $this->getFooterXLS($this->phpExcel);
   }
@@ -754,6 +768,7 @@ class ProfitlossController extends Controller {
 		$i=0;$bulanini=0;$bulanlalu=0;$kum=0;
         $companyid = $_GET['company'];
         $per = $_GET['per'];
+    if(getUserObjectValues('companypl')==1) {
 		$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
 					ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
 					from genledger b
@@ -820,6 +835,10 @@ class ProfitlossController extends Controller {
 			Yii::app()->format->formatCurrency($kum),
 		));
 				
+	}
+    else {
+     $this->pdf->text(5,10,'Anda Tidak Berhak Melihat Laporan PL Company'); 
+    }
 		$this->pdf->Output();
   }
   public function actionDownLabaRugiUjiCobaXLS() {
@@ -827,6 +846,7 @@ class ProfitlossController extends Controller {
 		parent::actionDownxls();
         $companyid = $_GET['company'];
         $per = $_GET['per'];
+    if(getUserObjectValues('companypl')==1) {
 		$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
 					ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
 					from genledger b
@@ -888,7 +908,7 @@ class ProfitlossController extends Controller {
 					->setCellValueByColumnAndRow(4,$line,$bulanlalu)
 					->setCellValueByColumnAndRow(5,$line,$kum);
 		$line++;
-		
+	}
 		$this->getFooterXLS($this->phpExcel);
   }
   public function actionGenerateplplant() {

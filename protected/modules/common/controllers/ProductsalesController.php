@@ -252,7 +252,7 @@ class ProductsalesController extends Controller {
 			and coalesce(d.categoryname,'') like '%".$pricecategory."%'
 			";
 		if ($_GET['id'] !== '') {
-				$sql = $sql . " where a.productsalesid in (".$_GET['id'].")";
+				$sql = $sql . " and a.productsalesid in (".$_GET['id'].")";
 		}
 		$command=$this->connection->createCommand($sql);
 		$dataReader=$command->queryAll();
@@ -295,7 +295,7 @@ class ProductsalesController extends Controller {
 			and coalesce(d.categoryname,'') like '%".$pricecategory."%'
 			";
 		if ($_GET['id'] !== '') {
-				$sql = $sql . "where a.productsalesid in (".$_GET['id'].")";
+				$sql = $sql . " and a.productsalesid in (".$_GET['id'].")";
 		}
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();	
 		$i=3;

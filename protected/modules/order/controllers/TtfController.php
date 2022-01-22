@@ -474,7 +474,7 @@ class TtfController extends Controller
 			$this->pdf->sety($this->pdf->gety()+13);
 			$this->pdf->setFont('Arial','B',7);
 			$this->pdf->colalign = array('C','C','C','C','C','C');
-			$this->pdf->setwidths(array(8,40,50,30,25,30));
+			$this->pdf->setwidths(array(8,22,68,30,25,30));
 			$this->pdf->setbordercell(array('LTRB','LTRB','LTRB','LTRB','LTRB','LTRB'));
 			$this->pdf->colheader = array('No.','No. Inv','Nama Toko','Tgl Inv.', 'Tgl. JTT','Nilai Inv.');
 			$this->pdf->RowHeader();
@@ -485,7 +485,7 @@ class TtfController extends Controller
 			{	
 				$total = 0;
 				$this->pdf->colalign = array('C','C','C','C','C','C');
-				$this->pdf->setwidths(array(8,40,50,30,25,30));
+				$this->pdf->setwidths(array(8,22,68,30,25,30));
 				$this->pdf->setbordercell(array('LTRB','LTRB','LTRB','LTRB','LTRB','LTRB'));
 				$this->pdf->coldetailalign = array('L','L','C','L','C','R');
 				$this->pdf->setFont('Arial','',8);
@@ -494,7 +494,7 @@ class TtfController extends Controller
 					b.amount-ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 					from cutarinv f
 					join cutar g on g.cutarid=f.cutarid
-					where g.recordstatus=getwfmaxstatbywfname('appcutar') and f.invoiceid=a.invoiceid and g.docdate < h.docdate),0) as saldoinvoice
+					where g.recordstatus=getwfmaxstatbywfname('appcutar') and f.invoiceid=a.invoiceid and g.docdate <= h.docdate),0) as saldoinvoice
 					from ttfdetail a
 					join invoice b on b.invoiceid = a.invoiceid
 					join giheader c on c.giheaderid = b.giheaderid
@@ -558,26 +558,26 @@ class TtfController extends Controller
             $this->pdf->text(15, $this->pdf->gety()+15, 'Apabila Tansfer / Cek / Giro Ditujukan Ke:');
             $this->pdf->setFont('Arial','',9);
             $this->pdf->text(25, $this->pdf->gety()+20, '~ Rekening '.$row['bankacc1']);}
-            if ($row['bankacc2'] !== null ){
+/*            if ($row['bankacc2'] !== null ){
             $this->pdf->text(25, $this->pdf->gety() + 24, '~ Rekening '.$row['bankacc2']);}
             if ($row['bankacc3'] !== null ){
-            $this->pdf->text(25, $this->pdf->gety() + 28, '~ Rekening '.$row['bankacc3']);
-            
+            $this->pdf->text(25, $this->pdf->gety() + 28, '~ Rekening '.$row['bankacc3']);}
+*/            
             $this->pdf->setFont('Arial','',8);
 			
-			$this->pdf->text(25,$this->pdf->gety()+35,'       Disiapkan oleh,');
-			$this->pdf->text(88,$this->pdf->gety()+35,'     Diserahkan oleh,');
-			$this->pdf->text(145,$this->pdf->gety()+35,'     Diterima oleh,');
+			$this->pdf->text(25,$this->pdf->gety()+27,'       Disiapkan oleh,');
+			$this->pdf->text(88,$this->pdf->gety()+27,'     Diserahkan oleh,');
+			$this->pdf->text(145,$this->pdf->gety()+27,'     Diterima oleh,');
 			
-			$this->pdf->text(25,$this->pdf->gety()+50,'     ..............................');
-			$this->pdf->text(88,$this->pdf->gety()+50,' ..............................');
-			$this->pdf->text(145,$this->pdf->gety()+50,'..............................');
+			$this->pdf->text(25,$this->pdf->gety()+42,'     ..............................');
+			$this->pdf->text(88,$this->pdf->gety()+42,' ..............................');
+			$this->pdf->text(145,$this->pdf->gety()+42,'..............................');
 			
-			$this->pdf->text(35,$this->pdf->gety()+53,'Collector');
-			$this->pdf->text(90,$this->pdf->gety()+53,$row['employeename']);
-      $this->pdf->text(150,$this->pdf->gety()+53,'Customer');
-		}
-	  $this->pdf->Output();
+			$this->pdf->text(35,$this->pdf->gety()+45,'Collector');
+			$this->pdf->text(90,$this->pdf->gety()+45,$row['employeename']);
+			$this->pdf->text(150,$this->pdf->gety()+45,'Customer');
+			
+			$this->pdf->Output();
   }
   /*public function actionDownPDF()
   {

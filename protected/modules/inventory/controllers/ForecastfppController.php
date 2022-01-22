@@ -36,6 +36,7 @@ class ForecastfppController extends Controller {
     $productname       = isset($_POST['productname']) ? $_POST['productname'] : '';
     $sloccode       = isset($_POST['sloccode']) ? $_POST['sloccode'] : '';
     $recordstatus   = isset($_POST['recordstatus']) ? $_POST['recordstatus'] : '';
+    $collectionname   = isset($_POST['collectionname']) ? $_POST['collectionname'] : '';
     $page       = isset($_POST['page']) ? intval($_POST['page']) : 1;
     $rows       = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
     $sort       = isset($_POST['sort']) ? strval($_POST['sort']) : 'forecastfppid';
@@ -44,29 +45,37 @@ class ForecastfppController extends Controller {
     $result     = array();
     $row        = array();
     $perioddate = '';
+    $collection = '';
     if($perioddatey != '') {
         $perioddate .= "  year(perioddate) = year('{$perioddatey}-01-01') and ";
     }
     if($perioddatem != '') {
         $perioddate .= "  month(perioddate) = month('2020-{$perioddatem}-01') and ";
     }
+    if($collectionname != '') {
+        $collection .= " b.collectionname like '%".$collectionname."%' and ";
+    }
     $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
     ->from('forecastfpp t')
     ->leftjoin('company a', 'a.companyid=t.companyid')
-    ->where("{$perioddate} (a.companyname like :companyname) and
+    ->leftjoin('productcollection b','b.productcollectid = t.productcollectid')
+    ->where("{$perioddate} (a.companyname like :companyname) and {$collection} -- (b.collectionname like :collectionname) and
             t.companyid in (".getUserObjectValues('company').")", array(
         //':perioddate' => '%' . $perioddate . '%',
         ':companyname' => '%' . $companyname . '%',
+        //':collectionname' => '%' . $collectionname . '%',
     ))->queryScalar();
     $result['total'] = $cmd;
-    $cmd = Yii::app()->db->createCommand()->select('t.*,a.companyname')
+    $cmd = Yii::app()->db->createCommand()->select('t.*,a.companyname, b.collectionname')
     ->from('forecastfpp t')
     ->leftjoin('company a', 'a.companyid=t.companyid')
-    ->where("{$perioddate}  (a.companyname like :companyname) and
+    ->leftjoin('productcollection b','b.productcollectid = t.productcollectid')
+    ->where("{$perioddate}  (a.companyname like :companyname) and {$collection} -- (b.collectionname like :collectionname) and
             t.companyid in (".getUserObjectValues('company').")", array(
         
         //':perioddate' => '%' . $perioddate . '%',
         ':companyname' => '%' . $companyname . '%',
+        //':collectionname' => '%' . $collectionname . '%',
     ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     foreach ($cmd as $data) {
       $row[] = array(
@@ -75,7 +84,12 @@ class ForecastfppController extends Controller {
         'perioddate' => date(Yii::app()->params['dateviewfromdb'], strtotime($data['perioddate'])),
         'companyid' => $data['companyid'],
         'companyname' => $data['companyname'],
+        'productcollectid' => $data['productcollectid'],
+        'collectionname' => $data['collectionname'],
         'headernote' => $data['headernote'],
+        'sumpendingpo' => Yii::app()->format->formatCurrency($data['sumpendingpo']),
+        'sumpredictpo' => Yii::app()->format->formatCurrency($data['sumpredictpo']),
+        'sumtotalpo' => Yii::app()->format->formatCurrency($data['sumtotalpo']),
         'recordstatus' => $data['recordstatus'],
         'statusname' => $data['statusname']
       );
@@ -85,8 +99,7 @@ class ForecastfppController extends Controller {
     ));
     return CJSON::encode($result);
   }
-  public function actionsearchdetail()
-  {
+  public function actionsearchdetail() {
     header("Content-Type: application/json");
     $id = 0;
     if (isset($_POST['id'])) {
@@ -136,6 +149,10 @@ class ForecastfppController extends Controller {
         'prqty' => Yii::app()->format->formatNumber($data['prqty']),
         'prqtyreal' => Yii::app()->format->formatNumber($data['prqtyreal']),
         'price' => Yii::app()->format->formatNumber($data['price']),
+        'povalueout' => Yii::app()->format->formatNumber($data['povalueout']),
+        'povalue' => Yii::app()->format->formatNumber($data['povalue']),
+        'povaluetot' => Yii::app()->format->formatNumber($data['povaluetot']),
+        'qtyshare' => Yii::app()->format->formatNumber($data['qtyshare']),
       );
     }
     $result = array_merge($result, array(
@@ -176,17 +193,18 @@ class ForecastfppController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql     = 'call Insertforecastfpp(:vdocdate,:vperioddate,:vcompanyid,:vproductid,:vslocid,:vunitofmeasureid,:vleadtime,:vgrpredictreal,:vcreatedby)';
+			$sql     = 'call Insertforecastfpp(:vdocdate,:vperioddate,:vcompanyid,:vproductcollect,:vproductid,:vslocid,:vunitofmeasureid,:vleadtime,:vgrpredictreal,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 		} else {
-			$sql     = 'call Updateforecastfpp(:vid,:vdocdate,:vperioddate,:vcompanyid,:vheadernote,:vcreatedby)';
+			$sql     = 'call Updateforecastfpp(:vid,:vdocdate,:vperioddate,:vcompanyid,:vproductcollect,:vheadernote,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
 		}
 		$command->bindvalue(':vdocdate', $arraydata[1], PDO::PARAM_STR);
 		$command->bindvalue(':vperioddate', $arraydata[2], PDO::PARAM_STR);
     $command->bindvalue(':vcompanyid', $arraydata[3], PDO::PARAM_STR);
-		$command->bindvalue(':vheadernote', $arraydata[4], PDO::PARAM_STR);
+    $command->bindvalue(':vproductcollect', $arraydata[4], PDO::PARAM_STR);
+		$command->bindvalue(':vheadernote', $arraydata[5], PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -204,17 +222,19 @@ class ForecastfppController extends Controller {
       $transaction = $connection->beginTransaction();
 			try {
         $company = $objWorksheet->getCellByColumnAndRow(2, 2)->getValue();
+        $productcollect = $objWorksheet->getCellByColumnAndRow(6, 2)->getValue();
         $companyid = Yii::app()->db->createCommand("select companyid from company where companycode = '".$company."'")->queryScalar();
+        $productcollectid = Yii::app()->db->createCommand("select productcollectid from productcollection where collectionname = '".$productcollect."'")->queryScalar();
         $perioddate = date(Yii::app()->params['datetodb'],strtotime($objWorksheet->getCellByColumnAndRow(2,3)->getValue()));
-        $ch = "select ifnull(count(1),0) from forecastfpp where companyid = {$companyid} and perioddate = '{$perioddate}'";
+        $ch = "select ifnull(count(1),0) from forecastfpp where companyid = {$companyid} and perioddate = '{$perioddate}' and productcollectid = {$productcollectid}";
         $q = Yii::app()->db->createCommand($ch)->queryScalar();
         if($q>0) {
           // get ID
-          $forecastfppid = Yii::app()->db->createCommand("select forecastfppid from forecastfpp where companyid = {$companyid} and perioddate = '{$perioddate}'")->queryScalar();
+          $forecastfppid = Yii::app()->db->createCommand("select forecastfppid from forecastfpp where companyid = {$companyid} and perioddate = '{$perioddate}' and productcollectid = {$productcollectid}")->queryScalar();
         }
         else {
           // insert new row, and get ID
-          $ins = "insert into forecastfpp(docdate,perioddate,companyid,recordstatus)values(curdate(),'{$perioddate}',{$companyid},1)";
+          $ins = "insert into forecastfpp(docdate,perioddate,companyid,productcollectid,recordstatus)values(curdate(),'{$perioddate}',{$companyid},{$productcollectid},1)";
           $query = Yii::app()->db->createCommand($ins)->execute();
           $forecastfppid = Yii::app()->db->createCommand("select last_insert_id()")->queryScalar();
         }
@@ -230,9 +250,15 @@ class ForecastfppController extends Controller {
           $productid = Yii::app()->db->createCommand("select productid from product where productname = '".$product."'")->queryScalar();
           $uomcode = $objWorksheet->getCellByColumnAndRow(3, $row)->getValue();
 					$uomid = Yii::app()->db->createCommand("select unitofmeasureid from unitofmeasure where uomcode = '".$uomcode."'")->queryScalar();
+          $qtyforecast = $objWorksheet->getCellByColumnAndRow(4, $row)->getValue();
+          $avg3month = $objWorksheet->getCellByColumnAndRow(5, $row)->getValue();
+          $avgperday = $objWorksheet->getCellByColumnAndRow(6, $row)->getValue();
+          $qtymax = $objWorksheet->getCellByColumnAndRow(7, $row)->getValue();
+          $qtymin = $objWorksheet->getCellByColumnAndRow(8, $row)->getValue();
           $leadtime = $objWorksheet->getCellByColumnAndRow(9, $row)->getValue();
           $prqtyreal = $objWorksheet->getCellByColumnAndRow(14, $row)->getValue();
-					$this->ModifyDataDetail($connection,array($detid,$forecastfppid,$productid,$slocid,$uomid,$leadtime,$prqtyreal));
+          //$price = $objWorksheet->getCellByColumnAndRow(15, $row)->getValue();
+					$this->ModifyDataDetailUpload($connection,array($detid,$forecastfppid,$productid,$slocid,$uomid,$qtyforecast,$avg3month,$avgperday,$qtymax,$qtymin,$leadtime,$prqtyreal));
 				}
         $transaction->commit();
         GetMessage(false, 'insertsuccess');
@@ -249,7 +275,7 @@ class ForecastfppController extends Controller {
     $transaction = $connection->beginTransaction();
     try {
       
-			$this->ModifyData($connection,array((isset($_POST['forecastfppid'])?$_POST['forecastfppid']:''),date(Yii::app()->params['datetodb'], strtotime($_POST['docdate'])),date(Yii::app()->params['datetodb'], strtotime($_POST['perioddate'])),$_POST['companyid'],$_POST['headernote']));
+			$this->ModifyData($connection,array((isset($_POST['forecastfppid'])?$_POST['forecastfppid']:''),date(Yii::app()->params['datetodb'], strtotime($_POST['docdate'])),date(Yii::app()->params['datetodb'], strtotime($_POST['perioddate'])),$_POST['companyid'],$_POST['productcollectid'],$_POST['headernote']));
       $transaction->commit();
       
       //var_dump($_POST);
@@ -260,13 +286,13 @@ class ForecastfppController extends Controller {
       GetMessage(true, $e->getMessage());
     }
   }
-  private function ModifyDataDetail($connection,$arraydata) {
+  private function ModifyDataDetailUpload($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql     = 'call Insertforecastfppdet(:vforecastfppid,:vproductid,:vslocid,:vuomid,:vleadtime,:vprqtyreal,:vcreatedby)';
+			$sql     = 'call Insertforecastfppdetupload(:vforecastfppid,:vproductid,:vslocid,:vuomid,:vqtyforecast,:vavg3month,:vavgperday,:vqtymax,:vqtymin,:vleadtime,:vprqtyreal,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 		} else {
-			$sql     = 'call Updateforecastfppdet(:vid,:vforecastfppid,:vproductid,:vslocid,:vuomid,:vleadtime,:vprqtyreal,:vcreatedby)';
+			$sql     = 'call Updateforecastfppdetupload(:vid,:vforecastfppid,:vproductid,:vslocid,:vuomid,:vqtyforecast,:vavg3month,:vavgperday,:vqtymax,:vqtymin,:vleadtime,:vprqtyreal,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
 		}
@@ -274,8 +300,34 @@ class ForecastfppController extends Controller {
 		$command->bindvalue(':vproductid', $arraydata[2], PDO::PARAM_STR);
     $command->bindvalue(':vslocid', $arraydata[3], PDO::PARAM_STR);
 		$command->bindvalue(':vuomid', $arraydata[4], PDO::PARAM_STR);
-		$command->bindvalue(':vleadtime', $arraydata[5], PDO::PARAM_STR);
-		$command->bindvalue(':vprqtyreal', $arraydata[6], PDO::PARAM_STR);
+		$command->bindvalue(':vqtyforecast', $arraydata[5], PDO::PARAM_STR);
+		$command->bindvalue(':vavg3month', $arraydata[6], PDO::PARAM_STR);
+		$command->bindvalue(':vavgperday', $arraydata[7], PDO::PARAM_STR);
+		$command->bindvalue(':vqtymax', $arraydata[8], PDO::PARAM_STR);
+		$command->bindvalue(':vqtymin', $arraydata[9], PDO::PARAM_STR);
+		$command->bindvalue(':vleadtime', $arraydata[10], PDO::PARAM_STR);
+		$command->bindvalue(':vprqtyreal', $arraydata[11], PDO::PARAM_STR);
+		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
+		$command->execute();
+	}
+  private function ModifyDataDetail($connection,$arraydata) {
+		$id = (isset($arraydata[0])?$arraydata[0]:'');
+		if ($id == '') {
+			$sql     = 'call Insertforecastfppdet(:vforecastfppid,:vproductid,:vslocid,:vuomid,:vqtymax,:vqtymin,:vleadtime,:vprqtyreal,:vcreatedby)';
+			$command = $connection->createCommand($sql);
+		} else {
+			$sql     = 'call Updateforecastfppdet(:vid,:vforecastfppid,:vproductid,:vslocid,:vuomid,:vqtymax,:vqtymin,:vleadtime,:vprqtyreal,:vcreatedby)';
+			$command = $connection->createCommand($sql);
+			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
+		}
+		$command->bindvalue(':vforecastfppid', $arraydata[1], PDO::PARAM_STR);
+		$command->bindvalue(':vproductid', $arraydata[2], PDO::PARAM_STR);
+    $command->bindvalue(':vslocid', $arraydata[3], PDO::PARAM_STR);
+		$command->bindvalue(':vuomid', $arraydata[4], PDO::PARAM_STR);
+		$command->bindvalue(':vqtymax', $arraydata[5], PDO::PARAM_STR);
+		$command->bindvalue(':vqtymin', $arraydata[6], PDO::PARAM_STR);
+		$command->bindvalue(':vleadtime', $arraydata[7], PDO::PARAM_STR);
+		$command->bindvalue(':vprqtyreal', $arraydata[8], PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -287,7 +339,7 @@ class ForecastfppController extends Controller {
     $transaction = $connection->beginTransaction();
     try {
 			$this->ModifyDataDetail($connection,array((isset($_POST['forecastfppdetid'])?$_POST['forecastfppdetid']:''),$_POST['forecastfppid'],$_POST['productid'],$_POST['slocid'],
-				$_POST['unitofmeasureid'],$_POST['leadtime'],$_POST['prqtyreal']));
+				$_POST['unitofmeasureid'],$_POST['qtymax'],$_POST['qtymin'],$_POST['leadtime'],$_POST['prqtyreal']));
 			$transaction->commit();
       GetMessage(false, 'insertsuccess');
     }
@@ -369,6 +421,30 @@ class ForecastfppController extends Controller {
       GetMessage(true, 'chooseone');
     }
   }
+  public function actionPurgedetail()
+  {
+    header("Content-Type: application/json");
+    if (isset($_POST['id'])) {
+      $id          = $_POST['id'];
+      $connection  = Yii::app()->db;
+      $transaction = $connection->beginTransaction();
+      try {
+        $sql     = 'call PurgeForecastfppdet(:vid,:vcreatedby)';
+        $command = $connection->createCommand($sql);
+        $command->bindvalue(':vid', $_POST['id'], PDO::PARAM_STR);
+        $command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
+        $command->execute();
+        $transaction->commit();
+        GetMessage(false, 'insertsuccess');
+      }
+      catch (Exception $e) {
+        $transaction->rollback();
+        GetMessage(true, $e->getMessage());
+      }
+    } else {
+      GetMessage(true, 'chooseone');
+    }
+  }
   public function actionDownPDF() {
     parent::actionDownload();
     //$forecastfppid = filter_input(INPUT_GET,'forecastfppid');
@@ -408,7 +484,7 @@ class ForecastfppController extends Controller {
             left join product b on b.productid = t.productid
             left join sloc c on c.slocid = t.slocid
             left join unitofmeasure d on d.unitofmeasureid = t.unitofmeasureid
-            where coalesce(t.forecastfppid,'') like '%".$forecastfppid."%' 
+            where coalesce(t.forecastfppid,'') = ".$forecastfppid."
             and coalesce(ta.perioddate,'') like '%".$perioddate."%' 
             and coalesce(a.companyname,'') like '%".$companyname."%' 
             and coalesce(b.productname,'') like '%".$productname."%' 
@@ -445,6 +521,9 @@ class ForecastfppController extends Controller {
       'R',
       'R',
       'R',
+      'R',
+      'R',
+      'R',
     );
     $this->pdf->colheader = array(
       GetCatalog('ID'),
@@ -466,6 +545,10 @@ class ForecastfppController extends Controller {
       GetCatalog('prqtygen'),
       GetCatalog('prqtyreal'),
       getUserObjectValues('purchasing') == 1 ? GetCatalog('price') : '',
+      getUserObjectValues('purchasing') == 1 ? GetCatalog('povalueout') : '',
+      getUserObjectValues('purchasing') == 1 ? GetCatalog('povalue') : '',
+      getUserObjectValues('purchasing') == 1 ? GetCatalog('povaluetot') : '',
+      GetCatalog('qtyshare'),
     );
     $this->pdf->setwidths(array(
       15,
@@ -474,6 +557,10 @@ class ForecastfppController extends Controller {
       35,
       25,
       35,
+      20,
+      20,
+      20,
+      20,
       20,
       20,
       20,
@@ -510,6 +597,10 @@ class ForecastfppController extends Controller {
       'R',
       'R',
       'R',
+      'R',
+      'R',
+      'R',
+      'R',
     );
     foreach ($dataReader as $row1) {
       $this->pdf->row(array(
@@ -532,6 +623,10 @@ class ForecastfppController extends Controller {
         Yii::app()->format->formatCurrency($row1['prqty']),
         Yii::app()->format->formatCurrency($row1['prqtyreal']),
         getUserObjectValues('purchasing') == 1  ? Yii::app()->format->formatCurrency($row1['price']) : '',
+        getUserObjectValues('purchasing') == 1  ? Yii::app()->format->formatCurrency($row1['povalueout']) : '',
+        getUserObjectValues('purchasing') == 1  ? Yii::app()->format->formatCurrency($row1['povalue']) : '',
+        getUserObjectValues('purchasing') == 1  ? Yii::app()->format->formatCurrency($row1['povaluetot']) : '',
+        Yii::app()->format->formatCurrency($row1['qtyshare']),
       ));
     }
     $this->pdf->Output();
@@ -552,14 +647,15 @@ class ForecastfppController extends Controller {
     $bulanini = date('Y-m-d',($day1));
     $bulanlalu = date('Y-m-d',($day2));
     
-    $sql = "select t.*, ta.perioddate, ta.docdate, a.companyname, a.companycode, b.productname, c.sloccode as sloccode, d.uomcode, ta.companyid
+    $sql = "select t.*, ta.perioddate, ta.docdate, a.companyname, a.companycode, b.productname, c.sloccode as sloccode, d.uomcode, ta.companyid,ta.productcollectid, e.collectionname
     from forecastfpp ta
     join forecastfppdet t on t.forecastfppid = ta.forecastfppid
     join company a on a.companyid = ta.companyid
     left join product b on b.productid = t.productid
     left join sloc c on c.slocid = t.slocid
     left join unitofmeasure d on d.unitofmeasureid = t.unitofmeasureid
-    where coalesce(t.forecastfppid,'') like '%".$forecastfppid."%' 
+    left join productcollection e on e.productcollectid = ta.productcollectid
+    where coalesce(t.forecastfppid,'') = ".$forecastfppid." 
     and coalesce(ta.perioddate,'') like '%".$perioddate."%' 
     and coalesce(a.companyname,'') like '%".$companyname."%' 
     and coalesce(b.productname,'') like '%".$productname."%' 
@@ -575,6 +671,8 @@ class ForecastfppController extends Controller {
           ->setCellValueByColumnAndRow(0, 2, 'Perusahaan:')
           ->setCellValueByColumnAndRow(2, 2, $header['companycode'])
           ->setCellValueByColumnAndRow(0, 3, 'Periode')
+          ->setCellValueByColumnAndRow(5, 2, 'Product: ')
+          ->setCellValueByColumnAndRow(6, 2, $header['collectionname'])
           ->setCellValueByColumnAndRow(2, 3, $header['perioddate']);
     //$i++;
     
@@ -594,7 +692,11 @@ class ForecastfppController extends Controller {
           ->setCellValueByColumnAndRow(12, $i, getCatalog('grpredict'))
           ->setCellValueByColumnAndRow(13, $i, getCatalog('prqtygen'))
           ->setCellValueByColumnAndRow(14, $i, getCatalog('prqtyreal'))
-          ->setCellValueByColumnAndRow(15, $i, getCatalog('price'));
+          ->setCellValueByColumnAndRow(15, $i, getCatalog('price'))
+          ->setCellValueByColumnAndRow(16, $i, getCatalog('povalueout'))
+          ->setCellValueByColumnAndRow(17, $i, getCatalog('povalue'))
+          ->setCellValueByColumnAndRow(18, $i, getCatalog('povaluetot'))
+          ->setCellValueByColumnAndRow(19, $i, getCatalog('qtyshare'));
     $i++;
     
     foreach ($dataReader as $row1) {
@@ -614,7 +716,11 @@ class ForecastfppController extends Controller {
           ->setCellValueByColumnAndRow(12, $i, $row1['grpredict'])
           ->setCellValueByColumnAndRow(13, $i, $row1['prqty'])
           ->setCellValueByColumnAndRow(14, $i, $row1['prqtyreal'])
-          ->setCellValueByColumnAndRow(15, $i, $row1['price']);
+          ->setCellValueByColumnAndRow(15, $i, $row1['price'])
+          ->setCellValueByColumnAndRow(16, $i, $row1['povalueout'])
+          ->setCellValueByColumnAndRow(17, $i, $row1['povalue'])
+          ->setCellValueByColumnAndRow(18, $i, $row1['povaluetot'])
+          ->setCellValueByColumnAndRow(19, $i, $row1['qtyshare']);
       $i++;
     }
     $this->getFooterXLS($this->phpExcel);

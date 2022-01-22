@@ -1,20 +1,20 @@
-<?php
-$this->widget('Form',	array(
-	'menuname' => $this->menuname,
-	'idfield' => 'forecastfppid',
-	'formtype' => 'masterdetail',
-	'url' => Yii::app()->createUrl('inventory/forecastfpp/index', array('grid' => true)),
-	'urlgetdata' => Yii::app()->createUrl('inventory/forecastfpp/getData'),
-	'saveurl' => Yii::app()->createUrl('inventory/forecastfpp/save', array('grid' => true)),
+<?php 
+$this->widget('Form',	array('menuname'=>$this->menuname,
+	'idfield'=>'forecastfppid',    
+	'formtype'=>'masterdetail',
+	'url'=>Yii::app()->createUrl('inventory/forecastfpp/index',array('grid'=>true)),
+	'urlgetdata'=>Yii::app()->createUrl('inventory/forecastfpp/getData'),
+	'saveurl'=>Yii::app()->createUrl('inventory/forecastfpp/save',array('grid'=>true)),
 	//'updateurl'=>Yii::app()->createUrl('inventory/forecastfpp/save',array('grid'=>true)),
-	'ispost' => 1,
-	'isreject' => 1,
-	'approveurl' => Yii::app()->createUrl('inventory/forecastfpp/approve'),
-	'rejecturl' => Yii::app()->createUrl('inventory/forecastfpp/delete'),
-	'uploadurl' => Yii::app()->createUrl('inventory/forecastfpp/upload'),
-	'downpdf' => Yii::app()->createUrl('inventory/forecastfpp/downpdf'),
-	'downxls' => Yii::app()->createUrl('inventory/forecastfpp/downxls'),
-	'downloadbuttons' => "
+  'ispost' => 1,
+  'iswrite' => 1,
+  'isreject' => 1,
+	'approveurl'=>Yii::app()->createUrl('inventory/forecastfpp/approve'),
+	'rejecturl'=>Yii::app()->createUrl('inventory/forecastfpp/delete'),
+	'uploadurl'=>Yii::app()->createUrl('inventory/forecastfpp/upload'),
+	'downpdf'=>Yii::app()->createUrl('inventory/forecastfpp/downpdf'),
+	'downxls'=>Yii::app()->createUrl('inventory/forecastfpp/downxls'),
+	'downloadbuttons'=>"
 	<select class=\"easyui-combogrid\" id=\"dlg_search_companyid\" name=\"dlg_search_companyid\" style=\"width:250px\" data-options=\"
 								panelWidth: 500,
 								required: true,
@@ -22,14 +22,14 @@ $this->widget('Form',	array(
 								textField: 'companyname',
 								pagination:true,
 								mode:'remote',
-								url: '" . Yii::app()->createUrl('admin/company/indexauth', array('grid' => true)) . "',
+								url: '".Yii::app()->createUrl('admin/company/indexauth',array('grid'=>true))."',
 								method: 'get',
 								onHidePanel: function(){
 									$('#dlg_search_plantid').combogrid('setValue','');
 								},
 								columns: [[
-										{field:'companyid',title:'" . GetCatalog('companyid') . "'},
-										{field:'companyname',title:'" . GetCatalog('companyname') . "'},
+										{field:'companyid',title:'".GetCatalog('companyid')."'},
+										{field:'companyname',title:'".GetCatalog('companyname')."'},
 								]],
 								fitColumns: true,
 								prompt:'Company'
@@ -37,10 +37,10 @@ $this->widget('Form',	array(
 				</select>
 		<input class='easyui-datebox' type='text' id='dlg_search_date' name='dlg_search_date' data-options=\"formatter:dateformatter,required:true,parser:dateparser,prompt:'As of Date Company'\"></input>
 		<a href='javascript:void(0)' title='Generate FPP' class='easyui-linkbutton' iconCls='icon-forecastfpp' plain='true' alt='Generate FPP' onclick='generatefpp()' id='generatefpp'></a>",
-	'addonscripts' => "
+		'addonscripts'=>"
 			function generatefpp() {
 				openloader();
-				jQuery.ajax({'url':'" . Yii::app()->createUrl('/inventory/forecastfpp/generatefpp') . "',
+				jQuery.ajax({'url':'".Yii::app()->createUrl('/inventory/forecastfpp/generatefpp')."',
 					'data':{			
 						'companyid':$('#dlg_search_companyid').combogrid('getValue'),
 						'perioddate':$('#dlg_search_date').datebox('getValue')},
@@ -54,10 +54,10 @@ $this->widget('Form',	array(
 					'cache':false});
 			};
 		",
-	'columns' => "
+	'columns'=>"
 	{
 		field:'forecastfppid',
-		title:'" . GetCatalog('forecastfppid') . "',
+		title:'". GetCatalog('forecastfppid') ."',
 		sortable: true,
 		width:'50px',
 		formatter: function(value,row,index){
@@ -65,9 +65,8 @@ $this->widget('Form',	array(
 	}},
 	{
 		field:'docdate',
-		title:'" . GetCatalog('docdate') . "', 
-		editor:{type:'datebox'},
-		width:'100px',
+		title:'". GetCatalog('docdate')."', 
+		width:'80px',
 		sortable:'true',
 		formatter: function(value,row,index){
 			return value;
@@ -75,9 +74,8 @@ $this->widget('Form',	array(
 	},
 		{
 			field:'perioddate',
-			title:'" . GetCatalog('perioddate') . "', 
-			editor:{type:'datebox'},
-			width:'100px',
+			title:'". GetCatalog('perioddate')."', 
+			width:'80px',
 			sortable:'true',
 			formatter: function(value,row,index){
 				return value;
@@ -85,67 +83,71 @@ $this->widget('Form',	array(
 		},
 		{
 			field:'companyid',
-			title:'" . GetCatalog('companyname') . "',
+			title:'". GetCatalog('companyname') ."',
 			sortable: true,
-			editor:{
-				type : 'combogrid',
-				options: {
-					panelWidth:'500px',
-					mode: 'remote',
-					method: 'get',
-					idField: 'companyid',
-					textField: 'companyname',
-					required: true,
-					pagination: true,
-					url:'" . Yii::app()->createUrl('admin/company/indexauth', array('grid' => true,)) . "',
-					fitColumns: true,
-					loadMsg: '" . GetCatalog('pleasewait') . "',
-					columns:[[
-							{field:'companyid',title:'" . GetCatalog('companyid') . "'},
-							{field:'companyname',title:'" . GetCatalog('company') . "'},
-					]],
-					onBeforeLoad: function(param) {
-							var row = $('#dg-forecastfpp').edatagrid('getSelected');
-							if(row==null){
-									$(\"input[name='companyid']\").val('0');
-							}
-					},
-					onSelect: function(index,row){
-							var companyid = row.companyid;
-							$(\"input[name='companyid']\").val(row.companyid);
-					},
-				},
-			},
-			width:'350px',
+			width:'250px',
 			formatter: function(value,row,index){
 				return row.companyname;
 			}
 		},
+    {
+			field:'productcollectid',
+			title:'". GetCatalog('productcollection') ."',
+			sortable: true,
+			width:'110px',
+			formatter: function(value,row,index){
+				return row.collectionname;
+			}
+		},
+		
+    {
+    field:'sumpendingpo',
+    title:'".GetCatalog('sumpendingpo')."',
+    sortable: true,
+    width:'125px',
+    formatter: function(value,row,index){
+      return value;
+    }},
+    {
+    field:'sumpredictpo',
+    title:'".GetCatalog('sumpredictpo')."',
+    sortable: true,
+    width:'125px',
+    formatter: function(value,row,index){
+      return value;
+    }},
+    {
+    field:'sumtotalpo',
+    title:'".GetCatalog('sumtotalpo')."',
+    sortable: true,
+    width:'175px',
+    formatter: function(value,row,index){
+      return value;
+    }},
 		{
 			field:'headernote',
-			title:'" . getCatalog('description') . "',
+			title:'".getCatalog('description') ."',
 			sortable: true,
-			width:'350px',
+			width:'150px',
 			formatter: function(value,row,index){
 				return value;
 		}},
 		{
 			field:'recordstatus',
-			title:'" . getCatalog('recordstatus') . "',
-			width:'180px',
+			title:'".getCatalog('recordstatus') ."',
+			width:'120px',
 			align:'left',
-			editor:{type:'checkbox',options:{on:'1',off:'0'}},
 			sortable: true,
 			formatter: function(value,row,index){
 				return row.statusname;
 			}
 		}",
-	'searchfield' => array('forecastfppid', 'perioddateyear', 'perioddatemonth', 'companyname', 'productname', 'sloccode'),
-	'headerform' => "
+	'searchfield'=> array ('forecastfppid','perioddateyear','perioddatemonth','companyname','productname','sloccode','collectionname'),
+	'headerform'=> "
 		<input type='hidden' id='forecastfppid' name='forecastfppid'></input>
 		<table cellpadding='5'>
 		<tr>
-			<td>" . GetCatalog('company') . "</td>
+			<td>".GetCatalog('company')."</td>
 			<td><select class='easyui-combogrid' id='companyid' name='companyid' style='width:250px' data-options=\"
 							panelWidth: '500px',
 							required: true,
@@ -154,72 +156,95 @@ $this->widget('Form',	array(
 							pagination:true,
 							mode:'remote',
 							method: 'get',
-							url:'" . Yii::app()->createUrl('admin/company/indexauth', array('grid' => true)) . "',
+							url:'".Yii::app()->createUrl('admin/company/indexauth',array('grid'=>true))."',
 							columns: [[
-									{field:'companyid',title:'" . GetCatalog('companyid') . "'},
-									{field:'companyname',title:'" . GetCatalog('companyname') . "'},
+									{field:'companyid',title:'".GetCatalog('companyid')."'},
+									{field:'companyname',title:'".GetCatalog('companyname')."'},
 							]],
 							fitColumns: true
 					\">
 			</select></td>
 		</tr>
 			<tr>
-				<td>" . getCatalog('docdate') . "</td>
+				<td>".getCatalog('docdate')."</td>
 				<td><input class='easyui-datebox' type='text' id='docdate' name='docdate' data-options='formatter:dateformatter,required:true,parser:dateparser' ></input></td>
 			</tr>
 			<tr>
-				<td>" . getCatalog('perioddate') . "</td>
+				<td>".getCatalog('perioddate')."</td>
 				<td><input class='easyui-datebox' type='text' id='perioddate' name='perioddate' data-options='formatter:dateformatter,required:true,parser:dateparser' ></input></td>
 			</tr>
+      <tr>
+			<td>".GetCatalog('productcollect')."</td>
+			<td><select class='easyui-combogrid' id='productcollectid' name='productcollectid' style='width:250px' data-options=\"
+							panelWidth: '500px',
+							required: true,
+							idField: 'productcollectid',
+							textField: 'collectionname',
+							pagination:true,
+							mode:'remote',
+							method: 'get',
+							url:'".Yii::app()->createUrl('common/productcollection/index',array('grid'=>true))."',
+							columns: [[
+									{field:'productcollectid',title:'".GetCatalog('productcollectid')."'},
+									{field:'collectionname',title:'".GetCatalog('collectionname')."'},
+							]],
+							fitColumns: true
+					\">
+			</select></td>
+		</tr>
 			<tr>
-			<td>" . GetCatalog('headernote') . "</td>
+			<td>".GetCatalog('headernote')."</td>
 			<td><input class='easyui-textbox' id='headernote' name='headernote' data-options='multiline:true,required:true' style='width:300px;height:100px'></input></td>
 		</tr>
 		</table>
 	",
-	'columndetails' => array(
+	'columndetails'=> array (
 		array(
-			'id' => 'detail',
-			'idfield' => 'forecastfppdetid',
-			'urlsub' => Yii::app()->createUrl('inventory/forecastfpp/indexdetail', array('grid' => true)),
-			'url' => Yii::app()->createUrl('inventory/forecastfpp/searchdetail', array('grid' => true)),
-			'saveurl' => Yii::app()->createUrl('inventory/forecastfpp/savedetail', array('grid' => true)),
-			'updateurl' => Yii::app()->createUrl('inventory/forecastfpp/savedetail', array('grid' => true)),
-			'destroyurl' => Yii::app()->createUrl('inventory/forecastfpp/purgedetail', array('grid' => true)),
-			'subs' => "
-				{field:'productname',title:'" . getCatalog('productname') . "',width:'400px'},
-				{field:'uomcode',title:'" . getCatalog('uom') . "',width:'80px'},
-				{field:'sloccode',title:'" . getCatalog('sloc') . "',width:'100px'},
-				{field:'qtyforecast',title:'" . getCatalog('qtyforecast') . "',align:'right',width:'80px'},
-				{field:'avg3month',title:'" . getCatalog('avg3month') . "',align:'right',width:'80px'},
-				{field:'avgperday',title:'" . getCatalog('avgperday') . "',align:'right',width:'80px'},
-				{field:'qtymax',title:'" . getCatalog('qtymax') . "',align:'right',width:'80px'},
-				{field:'qtymin',title:'" . getCatalog('qtymin') . "',align:'right',width:'80px'},
-				{field:'leadtime',title:'" . getCatalog('leadtime') . "',align:'right',width:'80px'},
-				{field:'pendingpo',title:'" . getCatalog('pendingpo') . "',align:'right',width:'80px'},
-				{field:'saldoawal',title:'" . getCatalog('saldoawal') . "',align:'right',width:'80px'},
-				{field:'grpredict',title:'" . getCatalog('grpredict') . "',align:'right',width:'80px'},
-				{field:'prqty',title:'" . getCatalog('prqty') . "',align:'right',width:'80px'},
-				{field:'prqtyreal',title:'" . getCatalog('prqtyreal') . "',align:'right',width:'80px'},
-				{field:'price',title:'" . getCatalog('price') . "',align:'right',width:'80px'},
+			'id'=>'detail',
+			'idfield'=>'forecastfppdetid',
+			'urlsub'=>Yii::app()->createUrl('inventory/forecastfpp/indexdetail',array('grid'=>true)),
+			'url'=>Yii::app()->createUrl('inventory/forecastfpp/searchdetail',array('grid'=>true)),
+			'saveurl'=>Yii::app()->createUrl('inventory/forecastfpp/savedetail',array('grid'=>true)),
+			'updateurl'=>Yii::app()->createUrl('inventory/forecastfpp/savedetail',array('grid'=>true)),
+			'destroyurl'=>Yii::app()->createUrl('inventory/forecastfpp/purgedetail',array('grid'=>true)),
+			'subs'=>"
+				{field:'productname',title:'".getCatalog('productname') ."',width:'400px'},
+				{field:'uomcode',title:'".getCatalog('uom') ."',width:'80px'},
+				{field:'sloccode',title:'".getCatalog('sloc') ."',width:'100px'},
+				{field:'qtyforecast',title:'".getCatalog('qtyforecast') ."',align:'right',width:'80px'},
+				{field:'avg3month',title:'".getCatalog('avg3month') ."',align:'right',width:'80px'},
+				{field:'avgperday',title:'".getCatalog('avgperday') ."',align:'right',width:'80px'},
+				{field:'qtymax',title:'".getCatalog('qtymax') ."',align:'right',width:'80px'},
+				{field:'qtymin',title:'".getCatalog('qtymin') ."',align:'right',width:'80px'},
+				{field:'leadtime',title:'".getCatalog('leadtime') ."',align:'right',width:'80px'},
+				{field:'pendingpo',title:'".getCatalog('pendingpo') ."',align:'right',width:'80px'},
+				{field:'saldoawal',title:'".getCatalog('saldoawal') ."',align:'right',width:'80px'},
+				{field:'grpredict',title:'".getCatalog('grpredict') ."',align:'right',width:'80px'},
+				{field:'prqty',title:'".getCatalog('prqty') ."',align:'right',width:'80px'},
+				{field:'prqtyreal',title:'".getCatalog('prqtyreal') ."',align:'right',width:'80px'},
+				{field:'price',title:'".getCatalog('price') ."',align:'right',width:'80px'},
+				{field:'povalueout',title:'".getCatalog('povalueout') ."',align:'right',width:'80px'},
+				{field:'povalue',title:'".getCatalog('povalue') ."',align:'right',width:'80px'},
+				{field:'povaluetot',title:'".getCatalog('povaluetot') ."',align:'right',width:'80px'},
+				{field:'qtyshare',title:'".getCatalog('qtyshare') ."',align:'right',width:'80px'},
 			",
-			'onsuccess' => "
+			'onsuccess'=>"
 				$('#dg-forecastfpp-detail').edatagrid('reload');
 			",
-			'onerror' => "
+			'onerror'=>"
 				$('#dg-forecastfpp-detail').edatagrid('reload');
 			",
-			'onbeforesave' => "
+			'onbeforesave'=>"
 				var row = $('#dg-forecastfpp-detail').edatagrid('getSelected');
 				if (row)
 				{
 					row.forecastfppid = $('#forecastfppid').val();
 				}
 			",
-			'columns' => "
+			'columns'=>"
 				{
 					field:'forecastfppid',
-					title:'" . getCatalog('forecastfppid') . "',
+					title:'".getCatalog('forecastfppid') ."',
 					hidden:true,
 					sortable: true,
 					formatter: function(value,row,index){
@@ -228,7 +253,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'forecastfppdetid',
-					title:'" . getCatalog('forecastfppdetailid') . "',
+					title:'".getCatalog('forecastfppdetailid') ."',
 					sortable: true,
 					formatter: function(value,row,index){
 						return value;
@@ -236,7 +261,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'productid',
-					title:'" . getCatalog('product') . "',
+					title:'".getCatalog('product') ."',
 					editor:{
 						type:'combogrid',
 						options:{
@@ -245,31 +270,39 @@ $this->widget('Form',	array(
 							method:'get',
 							idField:'productid',
 							textField:'productname',
-							url:'" . Yii::app()->createUrl('common/product/index', array('grid' => true, 'combo' => true)) . "',
+							url:'".Yii::app()->createUrl('common/product/index',array('grid'=>true,'combo'=>true)) ."',
 							fitColumns:true,
 							pagination:true,		
 							required:true,
+              onBeforeLoad: function(param) {
+                param.productcollectid = $('#productcollectid').combogrid('getValue');
+              },
 							onChange:function(newValue,oldValue) {
 								if ((newValue !== oldValue) && (newValue !== ''))
 								{
 									var tr = $(this).closest('tr.datagrid-row');
 									var index = parseInt(tr.attr('datagrid-row-index'));
 									var productid = $('#dg-forecastfpp-detail').datagrid('getEditor', {index: index, field:'productid'});
-									var uomid = $('#dg-forecastfpp-detail').datagrid('getEditor', {index: index, field:'uomid'});
-									jQuery.ajax({'url':'" . Yii::app()->createUrl('common/productplant/getdata') . "',
-										'data':{'productid':$(productid.target).combogrid('getValue')},
+									var slocid = $('#dg-forecastfpp-detail').datagrid('getEditor', {index: index, field:'slocid'});
+									var uomid = $('#dg-forecastfpp-detail').datagrid('getEditor', {index: index, field:'unitofmeasureid'});
+									jQuery.ajax({'url':'".Yii::app()->createUrl('common/productplant/getdatafpb') ."',
+										'data':{
+                      'productid':$(productid.target).combogrid('getValue'),
+                      'companyid':$('#companyid').combogrid('getValue'),
+                    },
 										'type':'post','dataType':'json',
 										'success':function(data)
 										{
 											$(uomid.target).combogrid('setValue',data.uomid);
+											$(slocid.target).combogrid('setValue',data.slocid);
 										} ,
 										'cache':false});
 								}
 							},
-							loadMsg: '" . getCatalog('pleasewait') . "',
+							loadMsg: '".getCatalog('pleasewait')."',
 							columns:[[
-								{field:'productid',title:'" . getCatalog('productid') . "',width:'80px'},
-								{field:'productname',title:'" . getCatalog('productname') . "',width:'300px'},
+								{field:'productid',title:'".getCatalog('productid')."',width:'80px'},
+								{field:'productname',title:'".getCatalog('productname')."',width:'300px'},
 							]]
 						}	
 					},
@@ -281,7 +314,7 @@ $this->widget('Form',	array(
 				},
 				{
 				field:'slocid',
-				title:'" . GetCatalog('sloc') . "',
+				title:'".GetCatalog('sloc')."',
 				editor:{
 						type:'combogrid',
 						options:{
@@ -290,7 +323,7 @@ $this->widget('Form',	array(
 								method:'get',
 								idField:'slocid',
 								textField:'sloccode',
-								url:'" . Yii::app()->createUrl('common/sloc/indextrx', array('grid' => true)) . "',
+								url:'".Yii::app()->createUrl('common/sloc/indextrxcom',array('grid'=>true))."',
 								fitColumns:true,
 								required:true,
 								pagination:true,
@@ -309,11 +342,11 @@ $this->widget('Form',	array(
 										param.companyid = $(\"input[name='companyid']\").val(); 
 									}
 								},
-								loadMsg: '" . GetCatalog('pleasewait') . "',
+								loadMsg: '".GetCatalog('pleasewait')."',
 								columns:[[
-									{field:'slocid',title:'" . GetCatalog('slocid') . "'},
-									{field:'sloccode',title:'" . GetCatalog('sloccode') . "'},
-									{field:'description',title:'" . GetCatalog('description') . "'},
+									{field:'slocid',title:'".GetCatalog('slocid')."'},
+									{field:'sloccode',title:'".GetCatalog('sloccode')."'},
+									{field:'description',title:'".GetCatalog('description')."'},
 								]]
 						}	
 					},
@@ -325,7 +358,7 @@ $this->widget('Form',	array(
 						},
 						{
 							field:'unitofmeasureid',
-							title:'" . GetCatalog('uom') . "',
+							title:'". GetCatalog('uom') ."',
 							editor:{
 								type:'combogrid',
 								options:{
@@ -334,18 +367,18 @@ $this->widget('Form',	array(
 										method:'get',
 										idField:'unitofmeasureid',
 										textField:'uomcode',
-										url:'" . Yii::app()->createUrl('common/unitofmeasure/index', array('grid' => true)) . "',
+										url:'". Yii::app()->createUrl('common/unitofmeasure/index',array('grid'=>true)) ."',
 										fitColumns:true,
 										pagination:true,
 										required:true,
 										queryParams:{
 											combo:true
 										},
-										loadMsg: '" . GetCatalog('pleasewait') . "',
+										loadMsg: '". GetCatalog('pleasewait')."',
 										columns:[[
-											{field:'unitofmeasureid',title:'" . GetCatalog('unitofmeasureid') . "',width:'80px'},
-											{field:'uomcode',title:'" . GetCatalog('uomcode') . "',width:'80px'},
-											{field:'description',title:'" . GetCatalog('description') . "',width:'200px'},
+											{field:'unitofmeasureid',title:'". GetCatalog('unitofmeasureid')."',width:'80px'},
+											{field:'uomcode',title:'". GetCatalog('uomcode')."',width:'80px'},
+											{field:'description',title:'". GetCatalog('description')."',width:'200px'},
 										]]
 								}	
 							},
@@ -356,7 +389,7 @@ $this->widget('Form',	array(
 						}},
 				{
 					field:'qtyforecast',
-					title:'" . GetCatalog('qtyforecast') . "',
+					title:'". GetCatalog('qtyforecast') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -375,7 +408,7 @@ $this->widget('Form',	array(
 				},
 						{
 					field:'avg3month',
-					title:'" . GetCatalog('avg3month') . "',
+					title:'". GetCatalog('avg3month') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -394,7 +427,7 @@ $this->widget('Form',	array(
 				},
 						{
 					field:'avgperday',
-					title:'" . GetCatalog('avgperday') . "',
+					title:'". GetCatalog('avgperday') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -413,7 +446,7 @@ $this->widget('Form',	array(
 				},
 						{
 					field:'qtymax',
-					title:'" . GetCatalog('qtymax') . "',
+					title:'". GetCatalog('qtymax') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -421,7 +454,7 @@ $this->widget('Form',	array(
 							required:true,
 							decimalSeparator:',',
 							groupSeparator:'.',
-							disabled:true,
+							disabled:false,
 						}
 					},
 					//width:'80px',
@@ -432,7 +465,7 @@ $this->widget('Form',	array(
 				},
 						{
 					field:'qtymin',
-					title:'" . GetCatalog('qtymin') . "',
+					title:'". GetCatalog('qtymin') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -440,7 +473,7 @@ $this->widget('Form',	array(
 							required:true,
 							decimalSeparator:',',
 							groupSeparator:'.',
-							disabled:true,
+							disabled:false,
 						}
 					},
 					//width:'80px',
@@ -451,7 +484,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'leadtime',
-					title:'" . GetCatalog('leadtime') . "',
+					title:'". GetCatalog('leadtime') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -470,7 +503,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'pendingpo',
-					title:'" . GetCatalog('pendingpo') . "',
+					title:'". GetCatalog('pendingpo') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -489,7 +522,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'saldoawal',
-					title:'" . GetCatalog('saldoawal') . "',
+					title:'". GetCatalog('saldoawal') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -508,7 +541,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'grpredict',
-					title:'" . GetCatalog('grpredict') . "',
+					title:'". GetCatalog('grpredict') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -527,7 +560,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'prqty',
-					title:'" . GetCatalog('prqtygen') . "',
+					title:'". GetCatalog('prqtygen') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -546,7 +579,7 @@ $this->widget('Form',	array(
 				},
 				{
 					field:'prqtyreal',
-					title:'" . GetCatalog('prqtyreal') . "',
+					title:'". GetCatalog('prqtyreal') ."',
 					editor:{
 						type:'numberbox',
 						options:{
@@ -555,6 +588,101 @@ $this->widget('Form',	array(
 							decimalSeparator:',',
 							groupSeparator:'.',
 							disabled:false,
+						}
+					},
+					//width:'80px',
+					sortable: true,
+					formatter: function(value,row,index){
+						return '<div style=\"text-align:right\">'+value+'</div>';
+					}
+				},
+        {
+					field:'price',
+					title:'". GetCatalog('price') ."',
+					editor:{
+						type:'numberbox',
+						options:{
+							precision:4,
+							//required:true,
+							decimalSeparator:',',
+							groupSeparator:'.',
+							disabled:true,
+						}
+					},
+					//width:'80px',
+					sortable: true,
+					formatter: function(value,row,index){
+						return '<div style=\"text-align:right\">'+value+'</div>';
+					}
+				},
+        {
+					field:'povalueout',
+					title:'". GetCatalog('povalueout') ."',
+					editor:{
+						type:'numberbox',
+						options:{
+							precision:4,
+							//required:true,
+							decimalSeparator:',',
+							groupSeparator:'.',
+							disabled:true,
+						}
+					},
+					//width:'80px',
+					sortable: true,
+					formatter: function(value,row,index){
+						return '<div style=\"text-align:right\">'+value+'</div>';
+					}
+				},
+        {
+					field:'povalue',
+					title:'". GetCatalog('povalue') ."',
+					editor:{
+						type:'numberbox',
+						options:{
+							precision:4,
+							//required:true,
+							decimalSeparator:',',
+							groupSeparator:'.',
+							disabled:true,
+						}
+					},
+					//width:'80px',
+					sortable: true,
+					formatter: function(value,row,index){
+						return '<div style=\"text-align:right\">'+value+'</div>';
+					}
+				},
+        {
+					field:'povaluetot',
+					title:'". GetCatalog('povaluetot') ."',
+					editor:{
+						type:'numberbox',
+						options:{
+							precision:4,
+							//required:true,
+							decimalSeparator:',',
+							groupSeparator:'.',
+							disabled:true,
+						}
+					},
+					//width:'80px',
+					sortable: true,
+					formatter: function(value,row,index){
+						return '<div style=\"text-align:right\">'+value+'</div>';
+					}
+				},
+        {
+					field:'qtyshare',
+					title:'". GetCatalog('qtyshare') ."',
+					editor:{
+						type:'numberbox',
+						options:{
+							precision:4,
+							//required:true,
+							decimalSeparator:',',
+							groupSeparator:'.',
+							disabled:true,
 						}
 					},
 					//width:'80px',

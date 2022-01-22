@@ -607,7 +607,7 @@ class SoheaderController extends Controller {
 				when (((t.currentlimit + t.totalaftdisc + t.pendinganso) > t.creditlimit) and (b.top <= 0)) then 3 
 				else 4	end as warna,
 				t.pendinganso,
-				t.recordstatus, t.isdisplay, t.sotype,case when sotype = 1 then "JENIS MATERIAL" when sotype = 2 then "PAKET" when sotype = 3 then "CABANG" end as sotypename,
+				t.recordstatus, t.isdisplay, t.sotype,case when sotype = 1 then "Jenis Material" when sotype = 2 then "PAKET" end as sotypename,
                 t.materialtypeid, t.packageid,f.description, g.packagename,t.qtypackage,t.createddate,t.updatedate
 			'.$from.' '.$where;
     $result['total'] = $connection->createCommand($sqlcount)->queryScalar();
