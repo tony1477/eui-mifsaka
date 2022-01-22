@@ -16,6 +16,7 @@ class AccountController extends Controller {
   }
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
+    $a='';
 		if ($id == '') {
 			$sql     = 'call Insertaccount(:vaccountcode,:vaccountname,:vparentaccountid,:vcurrencyid,:vaccounttypeid,:vcompanyid,:vrecordstatus,:vcreatedby)';
 			$command = $connection->createCommand($sql);

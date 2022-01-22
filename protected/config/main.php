@@ -49,7 +49,7 @@ return array(
 			'caseSensitive' => false,
 		),
 		'db' => array(
-			'connectionString' => 'mysql:port=3306;dbname=agemlive;host=localhost',
+			'connectionString' => 'mysql:port=5000;dbname=agemlive;host=localhost',
 			'emulatePrepare' => true,
 			'username' => 'root',
 			'password' => 'martoni14',
