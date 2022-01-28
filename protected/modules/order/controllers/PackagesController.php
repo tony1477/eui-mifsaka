@@ -129,7 +129,7 @@ class PackagesController extends Controller
       ->leftjoin('custcategory e', 'e.custcategoryid = t.custcategoryid')
       ->leftjoin('custgrade f', 'f.custgradeid = t.custgradeid')
       ->where(
-        "(fullname like :fullname) and iscustomer = 1 and t.recordstatus=1
+        "(fullname like :fullname) and iscustomer = 1 and t.recordstatus=1 and t.isextern=1
                           and t.addressbookid not in(select customerid from tempcustomer where tableid = {$_GET['packageid']})",
         array(':fullname' => '%' . $fullname . '%')
       )
@@ -149,7 +149,7 @@ class PackagesController extends Controller
       ->leftjoin('tax g', 'g.taxid = t.taxid')
       ->leftjoin('paymentmethod h', 'h.paymentmethodid = t.paymentmethodid')
       ->where(
-        "(fullname like :fullname) and iscustomer = 1 and t.recordstatus=1
+        "(fullname like :fullname) and iscustomer = 1 and t.recordstatus=1 and t.isextern=1
                         and t.addressbookid not in(select customerid from tempcustomer where tableid = {$_GET['packageid']})",
         array(':fullname' => '%' . $fullname . '%')
       )

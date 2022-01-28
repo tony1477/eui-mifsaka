@@ -50,7 +50,15 @@ class SupplierController extends Controller {
 		$offset = ($page-1) * $rows;
 		$result = array();
 		$row = array();
-		if (!isset($_GET['combo'])) {
+		if(isset($_GET['trxpo'])) {
+			$cmd = Yii::app()->db->createCommand()
+				->select('count(1) as total')
+				->from('addressbook t')
+				->leftjoin('account a','a.accountid = t.acchutangid')
+				->where("isvendor=1 and t.addressbookid = ".$_REQUEST['addressbookid'])
+				->queryScalar();
+		}
+		else if (!isset($_GET['combo'])) {
 			$cmd = Yii::app()->db->createCommand()
 				->select('count(1) as total')
 				->from('addressbook t')
@@ -88,7 +96,18 @@ class SupplierController extends Controller {
 				->queryScalar();
 		}
 		$result['total'] = $cmd;
-		if (!isset($_GET['combo'])) {
+		if(isset($_GET['trxpo'])) {
+			$cmd = Yii::app()->db->createCommand()
+				->select('t.*, a.accountname')
+				->from('addressbook t')
+				->leftjoin('account a','a.accountid = t.acchutangid')
+				->where('isvendor=1 and t.addressbookid = '.$_REQUEST['addressbookid'])
+				->offset($offset)
+				->limit($rows)
+				->order($sort.' '.$order)
+				->queryAll();
+		}
+		else if (!isset($_GET['combo'])) {
 			$cmd = Yii::app()->db->createCommand()
 				->select('t.*,a.accountname')			
 				->from('addressbook t')
@@ -143,6 +162,7 @@ class SupplierController extends Controller {
 			'bankname'=>$data['bankname'],
 			'accountowner'=>$data['accountowner'],
 			'recordstatussupplier'=>$data['recordstatus'],
+			'isextern'=>$data['isextern'],
 			);
 		}
 		$result=array_merge($result,array('rows'=>$row));

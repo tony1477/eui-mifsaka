@@ -111,7 +111,7 @@ class CustomerController extends Controller {
 				->leftjoin('custgrade f','f.custgradeid = t.custgradeid')
 				->leftjoin('tax g','g.taxid = t.taxid')
 				->leftjoin('paymentmethod h','h.paymentmethodid = t.paymentmethodid')
-				->where("(fullname like :fullname) and t1.recordstatus = 1 and iscustomer = 1 and t.recordstatus=1 and t1.companyid=".$companyid,
+				->where("(fullname like :fullname) and t1.recordstatus = 1 and iscustomer = 1 and t.isextern = 1 and t.recordstatus=1 and t1.companyid=".$companyid,
 						array(':fullname'=>'%'.$fullname.'%'))
 				->queryScalar();
 		}
@@ -175,7 +175,7 @@ class CustomerController extends Controller {
         ->leftjoin('province i','i.provinceid = t.provinceid')
 				->leftjoin('marketarea j','j.marketareaid = t.marketareaid')
 				->leftjoin('customertype k','k.customertypeid = t.customertypeid')
-				->where("(fullname like :fullname) and t1.recordstatus = 1 and iscustomer = 1 and t.recordstatus=1 and t1.companyid=".$companyid,
+				->where("(fullname like :fullname) and t1.recordstatus = 1 and iscustomer = 1 and t.isextern = 1 and t.recordstatus=1 and t1.companyid=".$companyid,
 						array(':fullname'=>'%'.$fullname.'%'))
 				->offset($offset)
 				->limit($rows)
