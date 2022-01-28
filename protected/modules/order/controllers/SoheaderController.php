@@ -144,6 +144,28 @@ class SoheaderController extends Controller {
     }
     Yii::app()->end();
   }
+
+  public function actionGetinfopo() {
+    header("Content-Type: application/json");
+    $poheaderid = $_POST['id'];
+
+    $q = "select pono, b.companyname, c.addressbookid,a.paymentmethodid,(select p.paycode from paymentmethod p where p.paymentmethodid=a.paymentmethodid) as paycode
+      from poheader a
+      join company b on b.companyid = a.companyid
+      join addressbook c on c.fullname = b.companyname
+      where a.poheaderid = ".$poheaderid;
+
+    $sql = Yii::app()->db->createCommand($q)->queryRow();
+    echo json_encode(array(
+      'status' => 'success',
+      'pono' => $sql['pono'],
+      'addressbookid' => $sql['addressbookid'],
+      'paymentmethodid' => $sql['paymentmethodid'],
+      'companyname' => $sql['companyname'],
+      'paycode' => $sql['paycode'],
+    ));
+  }
+
   public function actionGenerateaddress() {
 		$sql = "select concat(addressname,ifnull(cityname,'')) 
 			from address a 
@@ -607,7 +629,7 @@ class SoheaderController extends Controller {
 				when (((t.currentlimit + t.totalaftdisc + t.pendinganso) > t.creditlimit) and (b.top <= 0)) then 3 
 				else 4	end as warna,
 				t.pendinganso,
-				t.recordstatus, t.isdisplay, t.sotype,case when sotype = 1 then "Jenis Material" when sotype = 2 then "PAKET" end as sotypename,
+				t.recordstatus, t.isdisplay, t.sotype,case when sotype = 1 then "JENIS MATERIAL" when sotype = 2 then "PAKET" when sotype = 3 then "CABANG" end as sotypename,
                 t.materialtypeid, t.packageid,f.description, g.packagename,t.qtypackage,t.createddate,t.updatedate
 			'.$from.' '.$where;
     $result['total'] = $connection->createCommand($sqlcount)->queryScalar();
