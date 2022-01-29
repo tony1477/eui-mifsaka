@@ -384,10 +384,13 @@ function suppliertoCompany(supplierid) {
 function checksupplier(supplierid,plant=null) {
 	const hideplantid = document.querySelector('#sp_plantid');
 	const form =  $(document.forms['ff-poheader-modif']).find('#plantid');
+	const tax =  $(document.forms['ff-poheader-modif']).find('#taxid');
+	tax.combogrid('readonly',false);
 	if (plant !== null) { 
 		hideplantid.style.display = 'table-row'; 
 		form.combogrid({required:true}); 
 		form.combogrid('setValue',plant);
+		tax.combogrid('readonly',true);
 		return ''; 
 	}
 
@@ -395,6 +398,7 @@ function checksupplier(supplierid,plant=null) {
 	const plantid = getPlantid ||  form.combogrid('setValue','');
 	hideplantid.style.display = 'none';
 	form.combogrid({required:false});
+	$('#taxid').combogrid('setValue','');
 	$.ajax({
 		'url':'<?= Yii::app()->createUrl('common/supplier/index',array('grid'=>true,'trxpo'=>true))?>',
 		'data':{'addressbookid':supplierid},
@@ -404,6 +408,8 @@ function checksupplier(supplierid,plant=null) {
 			if(data.rows[0].isextern==0) {
 				hideplantid.style.display = 'table-row'; 
 				form.combogrid({required:true});
+				$('#taxid').combogrid('setValue',5);
+				$('#taxid').combogrid('readonly',true);
 			}
 		},
 		'cache':false
