@@ -393,6 +393,8 @@ class PoheaderController extends Controller {
   }
 	public function searchpoplant() {
     header("Content-Type: application/json");
+    $pono              = isset($_POST['pono']) ? $_POST['pono'] : '';
+    $pono              = isset($_GET['q']) ? $_GET['q'] : $pono;
     $page            = isset($_POST['page']) ? intval($_POST['page']) : 1;
     $rows            = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
     $sort            = isset($_POST['sort']) ? strval($_POST['sort']) : 'accountid';
@@ -412,7 +414,7 @@ class PoheaderController extends Controller {
                 where a.recordstatus=5 
                 -- and a.addressbookid in (".getUserObjectValues('supplier').")
                 and a.addressbookid = (select x.addressbookid from addressbook x where x.fullname = (select companyname from company ca where ca.companyid = {$_REQUEST['companyid']}) and isextern=0)
-                and a.pono like '%{$_REQUEST['q']}%'
+                and (coalesce(pono,'') like '%{$pono}%')
 								and a.poheaderid in 
 								(
 								select z.poheaderid 
@@ -431,7 +433,8 @@ class PoheaderController extends Controller {
                 where a.recordstatus=5 
                 -- and a.addressbookid in (".getUserObjectValues('supplier').")
                 and a.addressbookid = (select x.addressbookid from addressbook x where x.fullname = (select companyname from company ca where ca.companyid = {$_REQUEST['companyid']}) and isextern=0)
-                and a.pono like '%{$_REQUEST['q']}%'
+                and (coalesce(pono,'') like '%{$pono}%')
+                and c.recordstatus=1
 								and a.poheaderid in 
 								(
 								select z.poheaderid 
