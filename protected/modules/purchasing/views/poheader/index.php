@@ -434,7 +434,7 @@ function getPricePlant(plantid) {
 				$('#dg-podetail').datagrid('reload');
 				show('Message',data.msg);
 			}
-			if(data.isError==true) 	show('Message',data.msg); plant.combogrid('setValue',''); 
+			if(data.isError==true) { show('Message',data.msg); plant.combogrid('setValue',''); }
 		},
 		'cache':false
 	});
@@ -598,6 +598,14 @@ sortable: true,
 width:'250px',
 formatter: function(value,row,index){
 						return row.fullname;
+					}},
+{
+field:'plantid',
+title:'<?php echo GetCatalog('plantcode') ?>',
+sortable: true,
+width:'80px',
+formatter: function(value,row,index){
+						return row.plantcode;
 					}},
 
 {

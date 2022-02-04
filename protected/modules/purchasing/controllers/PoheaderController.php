@@ -248,11 +248,11 @@ class PoheaderController extends Controller {
     $result['total'] = $cmd;
 		
     if (isset($_GET['list'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z where z.poheaderid = t.poheaderid
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
+			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
       ((coalesce(poheaderid,'') like :poheaderid) and 
 				(coalesce(docdate,'') like :docdate) and 
 				(coalesce(pono,'') like :pono) and 
@@ -267,11 +267,11 @@ class PoheaderController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else if (isset($_GET['grpo'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z where z.poheaderid = t.poheaderid
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("((poheaderid like :poheaderid) or 
+			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("((poheaderid like :poheaderid) or 
                                     (docdate like :docdate) or 
                                     (pono like :pono) or 
                                     (b.fullname like :addressbookid) or 
@@ -291,11 +291,11 @@ class PoheaderController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else if (isset($_GET['grrpo'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z where z.poheaderid = t.poheaderid
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("((poheaderid like :poheaderid) or 
+			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("((poheaderid like :poheaderid) or 
                                     (docdate like :docdate) or 
                                     (pono like :pono) or 
                                     (b.fullname like :addressbookid) or 
@@ -314,11 +314,11 @@ class PoheaderController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else if (isset($_GET['invpo'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z where z.poheaderid = t.poheaderid
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
+			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
       ((coalesce(poheaderid,'') like :poheaderid) or 
 				(coalesce(docdate,'') like :docdate) or 
 				(coalesce(pono,'') like :pono) or 
@@ -338,11 +338,11 @@ class PoheaderController extends Controller {
 			//echo $cmd;
 			//Yii::app()->end();
     } else {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z where z.poheaderid = t.poheaderid
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
+			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
       ((coalesce(poheaderid,'') like :poheaderid) and 
 				(coalesce(docdate,'') like :docdate) and 
 				(coalesce(pono,'') like :pono) and 
@@ -371,13 +371,14 @@ class PoheaderController extends Controller {
         'purchasinggroupcode' => $data['description'],
         'addressbookid' => $data['addressbookid'],
         'plantid' => $data['plantid'],
+        'plantcode' => $data['plantcode'],
         'fullname' => $data['fullname'],
         'headernote' => $data['headernote'],
         'paymentmethodid' => $data['paymentmethodid'],
         'companyid' => $data['companyid'],
         'companyname' => $data['companyname'],
         'paycode' => $data['paycode'],
-	    'warna' => $data['warna'],
+	      'warna' => $data['warna'],
         'shipto' => $data['shipto'],
         'billto' => $data['billto'],
         'taxid' => $data['taxid'],

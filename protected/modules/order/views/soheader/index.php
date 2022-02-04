@@ -531,7 +531,7 @@ function getsotype() {
             var qty = $("#dg-sodetail").datagrid("getEditor", {index: rowIndex, field:"qty"});
             $(productid.target).combogrid('readonly',false);
             $(qty.target).combogrid('readonly',false);
-            if(data.sotype == 1) { 
+            if(data.sotype == 1 || data.sotype == 3) { 
               $(productid.target).combogrid('readonly',true);
               $(qty.target).combogrid('readonly',true);
               //console.log($('#dg-sodetail').edatagrid('getSelected'));
@@ -596,7 +596,7 @@ $('#sotype').combobox({
             $('#materialtypeid').combogrid({required:false});
 						$('#poheaderid').combogrid({required:false});
             $('#packageid').combogrid({required:true});
-            $('#qtypackage').numberbox({required: true, readonly: false});
+            $('#qtypackage').numberbox({required: true, disabled: false});
 						$('#addressbookid').combogrid({required:true,readonly:false});
 						$('#addressbookid').combogrid('setValue','');
             //$("#addsodisc").css('display','none');
@@ -1288,6 +1288,7 @@ function editSoheader($i) {
             {
 							$('#packagegrid').show();
 							$('#qtypackages').show();
+							$('#qtypackage').numberbox({required: true, disabled: false});
 							$('#isdisplay').prop('checked',false);
 							$('#isdisplaygrid').hide();
 							$('#materialtypesgrid').hide();
@@ -1435,7 +1436,7 @@ $('#dg-sodetail').edatagrid({
 		row.soheaderid = $('#soheaderid').val();
 	},
   onBeginEdit:function(index,row) {
-    var ed = $("#dg-sodetail").datagrid('getEditor',{index: index, field:"price"});
+    let ed = $("#dg-sodetail").datagrid('getEditor',{index: index, field:"price"});
     let iseditprice = $('#iseditprice').val();
     let sotype = $('#sotype').combobox('getValue');
     $(ed.target).numberbox({disabled:true});
@@ -1454,6 +1455,7 @@ $('#dg-sodetail').edatagrid({
     if(sotype == 2 || sotype == 3) { 
       $(productid.target).combogrid('readonly',true);
       $(qty.target).combogrid('readonly',true);
+      $(ed.target).numberbox('readonly',true);
       //console.log($('#dg-sodetail').edatagrid('getSelected'));
       //console.log(rowIndex);
       //console.log(tbl);
