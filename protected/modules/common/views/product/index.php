@@ -252,6 +252,23 @@
 				return row.seriesdesc;
 		}},
     {
+			field:'qtypack',
+			title:'". GetCatalog('qtypack') ."',
+			width:'100px',
+			editor:{
+				type:'numberbox',
+				options:{
+				precision:2,
+				decimalSeparator:',',
+				groupSeparator:'.',
+				}
+			},
+			align: 'right',
+			sortable: true,
+			formatter: function(value,row,index){
+			return value;
+		}},
+    {
 			field:'leadtime',
 			title:'". GetCatalog('leadtime') ."',
 			width:'100px',
