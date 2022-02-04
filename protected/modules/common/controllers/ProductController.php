@@ -22,6 +22,7 @@ class ProductController extends Controller {
 		$collectionname = isset ($_POST['collectionname']) ? $_POST['collectionname'] : '';
 		$productseries = isset ($_POST['productseries']) ? $_POST['productseries'] : '';
 		$leadtime = isset ($_POST['leadtime']) ? $_POST['leadtime'] : '';
+		$qtypack = isset ($_POST['qtypack']) ? $_POST['qtypack'] : '';
     $k3lnumber = isset ($_POST['k3lnumber']) ? $_POST['k3lnumber'] : '';
 		$length = isset ($_POST['length']) ? $_POST['length'] : '';
 		$width = isset ($_POST['width']) ? $_POST['width'] : '';
@@ -41,6 +42,7 @@ class ProductController extends Controller {
 		$collectionname = isset ($_GET['q']) ? $_GET['q'] : $collectionname;
 		$productseries = isset ($_GET['q']) ? $_GET['q'] : $productseries;
 		$leadtime = isset ($_GET['q']) ? $_GET['q'] : $leadtime;
+		$qtypack = isset ($_GET['q']) ? $_GET['q'] : $qtypack;
     $k3lnumber = isset ($_GET['q']) ? $_GET['q'] : $k3lnumber;
 		$length = isset ($_GET['q']) ? $_GET['q'] : $length;
 		$width = isset ($_GET['q']) ? $_GET['q'] : $width;
@@ -264,6 +266,7 @@ class ProductController extends Controller {
 				'k3lnumber'=>$data['k3lnumber'],
 				'seriesdesc'=>$data['seriesdesc'],
 				'leadtime'=>$data['leadtime'],
+				'qtypack'=>$data['qtypack'],
 				'slocdesc'=>$data['slocdesc'],
 				'rak'=>$data['rak'],
 				'productname'=>$data['productname'],
@@ -282,33 +285,34 @@ class ProductController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql = 'call Insertproduct(:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Insertproduct(:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vqtypack,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
-			$sql = 'call Updateproduct(:vid,:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
+			$sql = 'call Updateproduct(:vid,:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vqtypack,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
 		}
 		$command->bindvalue(':vproductname',$arraydata[1],PDO::PARAM_STR);
 		$command->bindvalue(':visstock',$arraydata[2],PDO::PARAM_STR);
-		$command->bindvalue(':visfohulbom',$arraydata[17],PDO::PARAM_STR);
-		$command->bindvalue(':viscontinue',$arraydata[18],PDO::PARAM_STR);
+		$command->bindvalue(':visfohulbom',$arraydata[18],PDO::PARAM_STR);
+		$command->bindvalue(':viscontinue',$arraydata[19],PDO::PARAM_STR);
 		$command->bindvalue(':vproductpic',$arraydata[3],PDO::PARAM_STR);
 		$command->bindvalue(':vbarcode',$arraydata[4],PDO::PARAM_STR);
-		$command->bindvalue(':vk3lnumber',$arraydata[15],PDO::PARAM_STR);
+		$command->bindvalue(':vk3lnumber',$arraydata[16],PDO::PARAM_STR);
 		$command->bindvalue(':vmaterialtypeid',$arraydata[5],PDO::PARAM_STR);
 		$command->bindvalue(':vproductidentityid',$arraydata[6],PDO::PARAM_STR);
 		$command->bindvalue(':vproductbrandid',$arraydata[7],PDO::PARAM_STR);
 		$command->bindvalue(':vproductcollectid',$arraydata[8],PDO::PARAM_STR);
 		$command->bindvalue(':vproductseriesid',$arraydata[9],PDO::PARAM_STR);
 		$command->bindvalue(':vleadtime',$arraydata[10],PDO::PARAM_STR);
-		$command->bindvalue(':vpanjang',$arraydata[11],PDO::PARAM_STR);
-		$command->bindvalue(':vlebar',$arraydata[12],PDO::PARAM_STR);
-		$command->bindvalue(':vtinggi',$arraydata[13],PDO::PARAM_STR);
-		$command->bindvalue(':vdensity',$arraydata[16],PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus',$arraydata[14],PDO::PARAM_STR);
+		$command->bindvalue(':vqtypack',$arraydata[11],PDO::PARAM_STR);
+		$command->bindvalue(':vpanjang',$arraydata[12],PDO::PARAM_STR);
+		$command->bindvalue(':vlebar',$arraydata[13],PDO::PARAM_STR);
+		$command->bindvalue(':vtinggi',$arraydata[14],PDO::PARAM_STR);
+		$command->bindvalue(':vdensity',$arraydata[17],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[15],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();			
 	}
@@ -332,12 +336,12 @@ class ProductController extends Controller {
 					$productpic = $objWorksheet->getCellByColumnAndRow(2, $row)->getValue();
 					$issto = $objWorksheet->getCellByColumnAndRow(3, $row)->getValue();
 					$isstock = Yii::app()->db->createCommand("select case when '".$issto."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$isfoh = $objWorksheet->getCellByColumnAndRow(17, $row)->getValue();
+					$isfoh = $objWorksheet->getCellByColumnAndRow(18, $row)->getValue();
 					$isfohulbom = Yii::app()->db->createCommand("select case when '".$isfoh."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$iscont = $objWorksheet->getCellByColumnAndRow(18, $row)->getValue();
+					$iscont = $objWorksheet->getCellByColumnAndRow(19, $row)->getValue();
 					$iscontinue = Yii::app()->db->createCommand("select case when '".$iscont."' = 'Yes' then '1' else '0' end")->queryScalar();
 					$barcode = $objWorksheet->getCellByColumnAndRow(4, $row)->getValue();
-					$k3lnumber = $objWorksheet->getCellByColumnAndRow(15, $row)->getValue();
+					$k3lnumber = $objWorksheet->getCellByColumnAndRow(16, $row)->getValue();
 					$materialtypecode = $objWorksheet->getCellByColumnAndRow(5, $row)->getValue();
 					$materialtypeid = Yii::app()->db->createCommand("select materialtypeid from materialtype where materialtypecode = '".$materialtypecode."'")->queryScalar();
 					$identity = $objWorksheet->getCellByColumnAndRow(6, $row)->getValue();
@@ -349,13 +353,14 @@ class ProductController extends Controller {
 					$series = $objWorksheet->getCellByColumnAndRow(9, $row)->getValue();
                     $seriesid = Yii::app()->db->createCommand("select productseriesid from productseries where description = '".$series."'")->queryScalar();
 					$leadtime = $objWorksheet->getCellByColumnAndRow(10, $row)->getValue();
-					$panjang = $objWorksheet->getCellByColumnAndRow(11, $row)->getValue();
-					$lebar = $objWorksheet->getCellByColumnAndRow(12, $row)->getValue();
-					$tinggi = $objWorksheet->getCellByColumnAndRow(13, $row)->getValue();
-					$density = $objWorksheet->getCellByColumnAndRow(16, $row)->getValue();
-					$rec = $objWorksheet->getCellByColumnAndRow(14, $row)->getValue();
+					$qtypack = $objWorksheet->getCellByColumnAndRow(11, $row)->getValue();
+					$panjang = $objWorksheet->getCellByColumnAndRow(12, $row)->getValue();
+					$lebar = $objWorksheet->getCellByColumnAndRow(13, $row)->getValue();
+					$tinggi = $objWorksheet->getCellByColumnAndRow(14, $row)->getValue();
+					$density = $objWorksheet->getCellByColumnAndRow(17, $row)->getValue();
+					$rec = $objWorksheet->getCellByColumnAndRow(15, $row)->getValue();
 					$recordstatus = Yii::app()->db->createCommand("select case when '".$rec."' = 'Yes' then '1' else '0' end")->queryScalar();
-					$this->ModifyData($connection,array($id,$productname,$isstock,$productpic,$barcode,$materialtypeid,$identityid,$brandid,$collectionid,$seriesid,$leadtime,$panjang,$lebar,$tinggi,$recordstatus,$k3lnumber,$density,$isfohulbom,$iscontinue));
+					$this->ModifyData($connection,array($id,$productname,$isstock,$productpic,$barcode,$materialtypeid,$identityid,$brandid,$collectionid,$seriesid,$leadtime,$qtypack,$panjang,$lebar,$tinggi,$recordstatus,$k3lnumber,$density,$isfohulbom,$iscontinue));
 				}
 				$transaction->commit();			
 				GetMessage(false,'insertsuccess');
@@ -371,7 +376,7 @@ class ProductController extends Controller {
 		$connection=Yii::app()->db;
 		$transaction=$connection->beginTransaction();
 		try {
-			$this->ModifyData($connection,array((isset($_POST['productid'])?$_POST['productid']:''),$_POST['productname'],$_POST['isstock'],$_POST['productpic'],$_POST['barcode'],$_POST['materialtypeid'],$_POST['productidentityid'],$_POST['productbrandid'],$_POST['productcollectid'],$_POST['productseriesid'],$_POST['leadtime'],$_POST['panjang'],$_POST['lebar'],$_POST['tinggi'],$_POST['recordstatus'],$_POST['k3lnumber'],$_POST['density'],$_POST['isfohulbom'],$_POST['iscontinue']));
+			$this->ModifyData($connection,array((isset($_POST['productid'])?$_POST['productid']:''),$_POST['productname'],$_POST['isstock'],$_POST['productpic'],$_POST['barcode'],$_POST['materialtypeid'],$_POST['productidentityid'],$_POST['productbrandid'],$_POST['productcollectid'],$_POST['productseriesid'],$_POST['leadtime'],$_POST['qtypack'],$_POST['panjang'],$_POST['lebar'],$_POST['tinggi'],$_POST['recordstatus'],$_POST['k3lnumber'],$_POST['density'],$_POST['isfohulbom'],$_POST['iscontinue']));
 			$transaction->commit();			
 			GetMessage(false,'insertsuccess');
 		}
@@ -564,7 +569,7 @@ class ProductController extends Controller {
 	public function actionDownxls()	{
 		$this->menuname='product';
 		parent::actionDownxls();
-		$sql = "select productid,productname,productpic,leadtime,
+		$sql = "select productid,productname,productpic,leadtime,qtypack,
 						case when isstock = 1 then 'Yes' else 'No' end as isstock,
 						case when isfohulbom = 1 then 'Yes' else 'No' end as isfohulbom,
 						case when iscontinue = 1 then 'Yes' else 'No' end as iscontinue,
@@ -634,14 +639,15 @@ class ProductController extends Controller {
 				->setCellValueByColumnAndRow(8,$i,$row1['collectionname'])
 				->setCellValueByColumnAndRow(9,$i,$row1['productseries'])
 				->setCellValueByColumnAndRow(10,$i,$row1['leadtime'])
-				->setCellValueByColumnAndRow(11,$i,$row1['panjang'])
-				->setCellValueByColumnAndRow(12,$i,$row1['lebar'])
-				->setCellValueByColumnAndRow(13,$i,$row1['tinggi'])
-				->setCellValueByColumnAndRow(14,$i,$row1['recordstatus'])
-				->setCellValueByColumnAndRow(15,$i,$row1['k3lnumber'])
-				->setCellValueByColumnAndRow(16,$i,$row1['density'])
-				->setCellValueByColumnAndRow(17,$i,$row1['isfohulbom'])
-				->setCellValueByColumnAndRow(18,$i,$row1['iscontinue']);
+				->setCellValueByColumnAndRow(11,$i,$row1['qtypack'])
+				->setCellValueByColumnAndRow(12,$i,$row1['panjang'])
+				->setCellValueByColumnAndRow(13,$i,$row1['lebar'])
+				->setCellValueByColumnAndRow(14,$i,$row1['tinggi'])
+				->setCellValueByColumnAndRow(15,$i,$row1['recordstatus'])
+				->setCellValueByColumnAndRow(16,$i,$row1['k3lnumber'])
+				->setCellValueByColumnAndRow(17,$i,$row1['density'])
+				->setCellValueByColumnAndRow(18,$i,$row1['isfohulbom'])
+				->setCellValueByColumnAndRow(19,$i,$row1['iscontinue']);
 			$i++;
 		}
 		

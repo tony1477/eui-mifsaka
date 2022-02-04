@@ -868,6 +868,8 @@ $('#dg-soheader').datagrid({
 					{field:'total',title:'<?php echo GetCatalog('total') ?>',align:'right',width:'150px',
           hidden: (row.packageid === null) ? false : true},
 					{field:'delvdate',title:'<?php echo GetCatalog('delvdate') ?>',width:'100px'},
+					{field:'underdelvtol',title:'<?php echo GetCatalog('underdelvtol') ?>',width:'100px'},
+					{field:'overdelvtol',title:'<?php echo GetCatalog('overdelvtol') ?>',width:'100px'},
 					{field:'itemnote',title:'<?php echo GetCatalog('itemnote') ?>',width:'150px'},
 				]],
 			});
@@ -1715,7 +1717,7 @@ $('#dg-sodetail').edatagrid({
 								return value;
 		}
 	},
-			{
+	{
 		field:'delvdate',
 		title:'<?php echo getCatalog('delvdate') ?>',
 		editor: {
@@ -1724,6 +1726,42 @@ $('#dg-sodetail').edatagrid({
 			formatter:dateformatter,
 			required:true,
 			parser:dateparser
+			}
+		},
+		width:'150px',
+		sortable: true,
+		formatter: function(value,row,index){
+								return value;
+		}
+	},
+	{
+		field:'overdelvtol',
+		title:'<?php echo GetCatalog('overdelvtol') ?>',
+		editor:{
+			type:'numberbox',
+			options:{
+				precision:2,
+				decimalSeparator:',',
+				groupSeparator:'.',
+				required:false,
+			}
+		},
+		width:'150px',
+		sortable: true,
+		formatter: function(value,row,index){
+								return value;
+		}
+	},
+	{
+		field:'underdelvtol',
+		title:'<?php echo GetCatalog('underdelvtol') ?>',
+		editor:{
+			type:'numberbox',
+			options:{
+				precision:2,
+				decimalSeparator:',',
+				groupSeparator:'.',
+				required:false,
 			}
 		},
 		width:'150px',

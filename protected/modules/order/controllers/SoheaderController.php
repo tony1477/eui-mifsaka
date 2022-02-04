@@ -774,6 +774,8 @@ class SoheaderController extends Controller {
         'slocid' => $data['slocid'],
         'sloccode' => $data['sloccode'],
         'delvdate' => date(Yii::app()->params['dateviewfromdb'], strtotime($data['delvdate'])),
+        'underdelvtol' => $data['underdelvtol'],
+        'overdelvtol' => $data['overdelvtol'],
         'currencyname' => $data['currencyname'],
         'itemnote' => $data['itemnote'],
         'isbonus' => $data['isbonus']
@@ -1106,10 +1108,10 @@ class SoheaderController extends Controller {
 	private function ModifyDataDetail($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql     = 'call Insertsodetail(:vsoheaderid,:vproductid,:vqty,:vuomid,:vslocid,:vprice,:vcurrencyid,:vcurrencyrate,:vdescription,:vdelvdate,:visbonus,:vcreatedby)';
+			$sql     = 'call Insertsodetail(:vsoheaderid,:vproductid,:vqty,:vuomid,:vslocid,:vprice,:vcurrencyid,:vcurrencyrate,:vdescription,:vdelvdate,:vunderdelvtol,:voverdelvtol,:visbonus,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 		} else {
-			$sql     = 'call Updatesodetail(:vid,:vsoheaderid,:vproductid,:vqty,:vuomid,:vslocid,:vprice,:vcurrencyid,:vcurrencyrate,:vdescription,:vdelvdate,:visbonus,:vcreatedby)';
+			$sql     = 'call Updatesodetail(:vid,:vsoheaderid,:vproductid,:vqty,:vuomid,:vslocid,:vprice,:vcurrencyid,:vcurrencyrate,:vdescription,:vdelvdate,:vunderdelvtol,:voverdelvtol,:visbonus,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
 		}
@@ -1123,7 +1125,9 @@ class SoheaderController extends Controller {
 		$command->bindvalue(':vcurrencyrate', $arraydata[8], PDO::PARAM_STR);
 		$command->bindvalue(':vdescription', $arraydata[9], PDO::PARAM_STR);
 		$command->bindvalue(':vdelvdate', $arraydata[10], PDO::PARAM_STR);
-		$command->bindvalue(':visbonus', $arraydata[11], PDO::PARAM_STR);
+		$command->bindvalue(':vunderdelvtol', $arraydata[11], PDO::PARAM_STR);
+		$command->bindvalue(':voverdelvtol', $arraydata[12], PDO::PARAM_STR);
+		$command->bindvalue(':visbonus', $arraydata[13], PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -1136,7 +1140,7 @@ class SoheaderController extends Controller {
     try {
 			$this->ModifyDataDetail($connection,array((isset($_POST['sodetailid'])?$_POST['sodetailid']:''),$_POST['soheaderid'],$_POST['productid'],$_POST['qty'],
 				$_POST['unitofmeasureid'],$_POST['slocid'],$_POST['price'],$_POST['currencyid'],$_POST['currencyrate'],$_POST['itemnote'],
-				date(Yii::app()->params['datetodb'], strtotime($_POST['delvdate'])),$_POST['isbonus']));
+				date(Yii::app()->params['datetodb'], strtotime($_POST['delvdate'])),$_POST['underdelvtol'],$_POST['overdelvtol'],$_POST['isbonus']));
 			$transaction->commit();
       GetMessage(false, 'insertsuccess');
     }
