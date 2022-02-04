@@ -44,11 +44,11 @@ class ReportpurchaseorderController extends Controller {
         ':companyname' => '%' . $companyname . '%'
       ))->queryScalar();
     $result['total']   = $cmd;
-    $cmd               = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,
+    $cmd               = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,f.plantcode,
       e.taxcode,(
       select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
       from podetail z where z.poheaderid=t.poheaderid
-      ) as warna')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')
+      ) as warna')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('plant f', 'f.plantid = t.plantid')->leftjoin('tax e', 'e.taxid = t.taxid')
       ->where("
       (coalesce(docdate,'') like :docdate) 
       and (coalesce(pono,'') like :pono) 
@@ -72,6 +72,8 @@ class ReportpurchaseorderController extends Controller {
         'purchasinggroupid' => $data['purchasinggroupid'],
         'purchasinggroupcode' => $data['description'],
         'addressbookid' => $data['addressbookid'],
+        'plantid' => $data['plantid'],
+        'plantcode' => $data['plantcode'],
         'fullname' => $data['fullname'],
         'headernote' => $data['headernote'],
         'paymentmethodid' => $data['paymentmethodid'],

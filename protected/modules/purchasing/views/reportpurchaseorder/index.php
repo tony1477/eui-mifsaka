@@ -145,6 +145,14 @@ $this->widget('Form',	array('menuname'=>$this->menuname,
 				return row.fullname;
 		}},
 		{
+			field:'plantide',
+			title:'".GetCatalog('plantcode') ."',
+			width:'80px',
+			sortable: true,
+			formatter: function(value,row,index){
+				return row.plantcode;
+		}},
+		{
 			field:'paymentmethodid',
 			title:'".GetCatalog('paymentmethod') ."',
 			width:'80px',

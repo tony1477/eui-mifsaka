@@ -11895,6 +11895,10 @@ class RepaccpersController extends Controller
 			{
 				$this->RekapProdukDariKainXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
+			else if($_GET['lro'] == 51)
+			{
+				$this->RekapStokPlastikXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['storagebin'],$_GET['product'],$_GET['productcollect'],$_GET['account'],$_GET['startacccode'],$_GET['endacccode'],$_GET['keluar3'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
 		}
 	}
 	
@@ -19770,16 +19774,16 @@ class RepaccpersController extends Controller
 			->setCellValueByColumnAndRow(0,4,'NO.')
 			->setCellValueByColumnAndRow(1,4,'NAMA BARANG');
 				
-/*		$this->phpExcel->setActiveSheetIndex(0)
-			->setCellValueByColumnAndRow($column,5,'Saldo Awal')
-			->setCellValueByColumnAndRow($column+1,5,'Qty Produksi')
-			->setCellValueByColumnAndRow($column+2,5,'Qty Jual')
-			->setCellValueByColumnAndRow($column+3,5,'HPP/Unit')
-			->setCellValueByColumnAndRow($column+4,5,'Total HPP')
-			->setCellValueByColumnAndRow($column+5,5,'Jual/Unit')
-			->setCellValueByColumnAndRow($column+6,5,'Total Jual')
-			->setCellValueByColumnAndRow($column+7,5,'GM');
-*/
+		/*		$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow($column,5,'Saldo Awal')
+					->setCellValueByColumnAndRow($column+1,5,'Qty Produksi')
+					->setCellValueByColumnAndRow($column+2,5,'Qty Jual')
+					->setCellValueByColumnAndRow($column+3,5,'HPP/Unit')
+					->setCellValueByColumnAndRow($column+4,5,'Total HPP')
+					->setCellValueByColumnAndRow($column+5,5,'Jual/Unit')
+					->setCellValueByColumnAndRow($column+6,5,'Total Jual')
+					->setCellValueByColumnAndRow($column+7,5,'GM');
+		*/
 		$line=5;$i=0;
 
 		foreach($dataReader as $row)
@@ -19850,4 +19854,78 @@ class RepaccpersController extends Controller
 		}
 		$this->getFooterXLS($this->phpExcel);
 	}
+	//51
+	public function RekapStokPlastikXLS($companyid,$sloc,$materialgroup,$storagebin,$product,$productcollectid,$account,$startacccode,$endacccode,$keluar3,$startdate,$enddate,$per)
+	{
+		$this->menuname = 'rekapstokplastik';
+		parent::actionDownxls();
+
+		$sql = "select a.description, productseriesid
+			from productseries a
+			where a.recordstatus=1 and a.productseriesid in(6,7,8)";
+		$dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+		$this->phpExcel->setActiveSheetIndex(0)
+			//->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+			//->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+			->mergeCellsByColumnAndRow(0,4,0,5)
+			->setCellValueByColumnAndRow(0,4,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+			->setCellValueByColumnAndRow(3,1,GetCompanyCode(24));
+
+
+			$column = 1;
+			$line = 4;
+			foreach($dataReader as $row) {
+				$totalqty = 0;
+				$totalnilai = 0;
+				$linetitle = 4;
+				$columntitle = 1;
+				// $linecol = 4;
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(0,$line+2,$row['description']);
+					
+				$sql1 = "select plantid, plantcode
+					from plant a
+					join company b on b.companyid = a.companyid
+					where b.recordstatus=1 and a.recordstatus=1 and b.companyid not in(11,12,15,24)
+					and a.plantid not in(56,58,60,67)
+					order by b.nourut asc,a.plantid asc";
+				
+				$dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+				foreach($dataReader1 as $row1) {
+					$this->phpExcel->setActiveSheetIndex(0)
+						->mergeCellsByColumnAndRow($columntitle,4,$columntitle+1,4)
+						->setCellValueByColumnAndRow($columntitle,$linetitle,$row1['plantcode'])
+						->setCellValueByColumnAndRow($columntitle,$linetitle+1,'Qty')
+						->setCellValueByColumnAndRow($columntitle+1,$linetitle+1,'Nilai');
+
+					$sql2 = "select ifnull(sum(qty),0) as qty, ifnull(sum(qty*buyprice),0) as nilai
+					from productdetail p
+					join product p1 on p1.productid = p.productid
+					join productseries p2 on p2.productseriesid = p1.productseriesid
+					where p2.productseriesid = {$row['productseriesid']} and p.slocid in(select slocid from sloc s where s.plantid = {$row1['plantid']})";
+					$row2 = Yii::app()->db->createCommand($sql2)->queryRow();
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow($columntitle,$line+2,$row2['qty'])
+						->setCellValueByColumnAndRow($columntitle+1,$line+2,$row2['nilai']);
+					
+						$columntitle = $columntitle+2;
+
+						$totalqty += $row2['qty'];
+						$totalnilai += $row2['nilai'];
+				}
+					//$column = $column+2;
+					$this->phpExcel->setActiveSheetIndex(0)
+					->mergeCellsByColumnAndRow($columntitle,4,$columntitle+1,4)
+					->setCellValueByColumnAndRow($columntitle,$linetitle,'Jumlah')
+					->setCellValueByColumnAndRow($columntitle,$linetitle+1,'Qty')
+					->setCellValueByColumnAndRow($columntitle+1,$linetitle+1,'Nilai')
+					->setCellValueByColumnAndRow($columntitle,$line+2,$totalqty)
+					->setCellValueByColumnAndRow($columntitle+1,$line+2,$totalnilai);
+				$line++;
+			}
+
+		$this->getFooterXLS($this->phpExcel);
+	}
+
 }
