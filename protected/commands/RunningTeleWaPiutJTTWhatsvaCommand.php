@@ -30,9 +30,12 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 				$bankacc3 = $data['bankacc3'];
 				$sql1 = "select addressbookid,fullname,replace((select aa.wanumber from addresscontact aa where aa.addressbookid=z.addressbookid Limit 1),'+','') as wanumber,(select aa.telegramid from addresscontact aa where aa.addressbookid=z.addressbookid Limit 1) as telegramid
 						from (select c.addressbookid,b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_Display'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
-						date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
+					if(a.companyid = 18,if(a.invoicedate < '2021-09-01',date_add(a.invoicedate, INTERVAL e.paydays day),if(e.paydays < 30,date_add(a.invoicedate, INTERVAL e.paydays day),if(c.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),date_add(a.invoicedate, INTERVAL 45 day),if(c.materialtypeid in (14,15,22,3),date_add(a.invoicedate, INTERVAL 30 day),date_add(a.invoicedate, INTERVAL 45 day))))),date_add(a.invoicedate, INTERVAL e.paydays day)) as jatuhtempo,
+						-- date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 						datediff('{$enddate}',a.invoicedate) as umur,
-						datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,a.amount,ff.fullname as sales,
+					datediff('{$enddate}',date_add(a.invoicedate, INTERVAL if(a.companyid = 18,if(a.invoicedate < '2021-09-01',e.paydays,if(e.paydays < 30,e.paydays,if(c.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),45,if(c.materialtypeid in (14,15,22,3),30,45)))),e.paydays) DAY)) as umurtempo,
+						-- datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,
+						a.amount,ff.fullname as sales,
 						ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 						from cutarinv f
 						join cutar g on g.cutarid=f.cutarid
@@ -62,9 +65,12 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 					$pesan=""; $pesan1=""; $pesan2=""; $pesan3=""; $pesan4=""; $pesan5=""; $i=0; $total=0;
 					$sql2 = "select *, (amount-payamount) as sisa,(amount) as nilai
 							from (select b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_Display'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
-							date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
+						if(a.companyid = 18,if(a.invoicedate < '2021-09-01',date_add(a.invoicedate, INTERVAL e.paydays day),if(e.paydays < 30,date_add(a.invoicedate, INTERVAL e.paydays day),if(c.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),date_add(a.invoicedate, INTERVAL 45 day),if(c.materialtypeid in (14,15,22,3),date_add(a.invoicedate, INTERVAL 30 day),date_add(a.invoicedate, INTERVAL 45 day))))),date_add(a.invoicedate, INTERVAL e.paydays day)) as jatuhtempo,
+							-- date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 							datediff('{$enddate}',a.invoicedate) as umur,
-							datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,a.amount,ff.fullname as sales,
+						datediff('{$enddate}',date_add(a.invoicedate, INTERVAL if(a.companyid = 18,if(a.invoicedate < '2021-09-01',e.paydays,if(e.paydays < 30,e.paydays,if(c.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),45,if(c.materialtypeid in (14,15,22,3),30,45)))),e.paydays) DAY)) as umurtempo,
+							-- datediff('{$enddate}',date_add(a.invoicedate, INTERVAL e.paydays DAY)) as umurtempo,
+							a.amount,ff.fullname as sales,
 							ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 							from cutarinv f
 							join cutar g on g.cutarid=f.cutarid
@@ -116,11 +122,11 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 					$totalamount = Yii::app()->numberFormatter->formatCurrency($total,'Rp.');
 					if ($bankacc1 == "")
 					{$norek1 = "";} else	{$norek1 = $bankacc1."\n";}
-					if ($bankacc2 == "")
+/*					if ($bankacc2 == "")
 					{$norek2 = "";} else	{$norek2 = $bankacc2."\n";}
 					if ($bankacc3 == "")
 					{$norek3 = "";} else	{$norek3 = $bankacc3."\n";}
-
+*/
 					if ($data1['wanumber'] > 0)
 					{$sendtocustomer = "\n\n*_SUDAH TERKIRIM ke No WA Customer_* ".$data1['wanumber'];}
 					else
@@ -140,49 +146,26 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 					else if ($companyid == 15) {$telegroupid = "-1001264861899";} //AGEM
 					else if ($companyid == 14) {$telegroupid = "-1001406450805";} //AKP
 					
+					//device-key
+					$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+					$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+					$as = "";
+					
 					$time = date('Y-m-d H:i:s');
 				
 					if ($i < 36) {
-						$wamessage1 = "*Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :*\n_{$data1['fullname']}._ \n{$pesan1} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage1 = "*Pemberitahuan Piutang Telah Jatuh Tempo untuk Customer {$companycode} :*\n_{$data1['fullname']}._ \n{$pesan1} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage1 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage1,$data1['wanumber']);
+							
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
+						sendwajapri($siaga,$wamessage1,$whatsvano);
 
 						if ($telegramid > 0)
 						{
@@ -212,43 +195,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage2)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage2 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage2,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage2)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage2,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage2);
@@ -271,47 +225,18 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
 						
-						$wamessage3 = "\n{$pesan2} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage3 = "\n{$pesan2} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage3)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage3 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage3,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 					
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage3)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage3,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage3);
@@ -340,43 +265,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage4)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage4 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage4,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage4)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage4,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage4);
@@ -403,43 +299,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage5)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage5 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage5,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage5)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage5,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage5);
@@ -462,47 +329,18 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
 						
-						$wamessage6 = "\n{$pesan3} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage6 = "\n{$pesan3} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage6)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage6 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage6,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 					
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage6)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage6,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage6);
@@ -531,43 +369,15 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage7)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage7 ".$res.". \n";
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage7,$data1['wanumber']);
+							//echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage7 ".$res.". \n";
 							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage7)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage7,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage7);
@@ -594,43 +404,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage8)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage8 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage8,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage8)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage8,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage8);
@@ -657,43 +438,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage9)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage9 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage9,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage9)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage9,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage9);
@@ -716,47 +468,18 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
 						
-						$wamessage10 = "\n{$pesan4} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage10 = "\n{$pesan4} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage10)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage10 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage10,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 					
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage10)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage10,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage10);
@@ -785,43 +508,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage11)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage11 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage11,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage11)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage11,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage11);
@@ -848,43 +542,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage12)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage12 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage12,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage12)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage12,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage12);
@@ -911,43 +576,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage13)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage13 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage13,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage13)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage13,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage13);
@@ -974,43 +610,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage14)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage14 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage14,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage14)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage14,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage14);
@@ -1033,47 +640,18 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
 						
-						$wamessage15 = "\n{$pesan5} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage15 = "\n{$pesan5} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage15)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage15 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage15,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 					
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage15)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage15,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage15);
@@ -1102,43 +680,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage16)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage16 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage16,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage16)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage16,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage16);
@@ -1165,43 +714,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage17)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage17 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage17,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage17)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage17,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage17);
@@ -1228,43 +748,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage18)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage18 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage18,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage18)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage18,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage18);
@@ -1291,43 +782,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage19)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage19 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage19,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage19)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage19,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage19);
@@ -1354,43 +816,14 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage20)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage20 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage20,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 	
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage20)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage20,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage20);
@@ -1413,47 +846,18 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
 						
-						$wamessage21 = "\n{$pesan6} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage21 = "\n{$pesan6} \nJumlah Piutang Telah Jatuh Tempo {$totalamount} \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang yang telah ditentukan, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 						if ($data1['wanumber'] > 0)
 						{
-						//url dan kirim data untuk wa japri ke customer
-							$ch = curl_init();
-							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage21)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
-								CURLOPT_RETURNTRANSFER => true,
-								CURLOPT_ENCODING => "",
-								CURLOPT_MAXREDIRS => 10,
-								CURLOPT_TIMEOUT => 0,
-								CURLOPT_FOLLOWLOCATION => true,
-								CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-								CURLOPT_CUSTOMREQUEST => "POST",
-								CURLOPT_HTTPHEADER => array(
-									"apikey: t0k3nb4ruwh4ts4k4"
-								),
-							));
-							$res=curl_exec($ch);
-							echo $companycode." ".$data1['fullname']." ".$data1['wanumber']." wamessage21 ".$res.". \n";
-							if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
+						//url dan kirim data untuk wa ke customer
+							sendwajapri($siaga,$wamessage21,$data1['wanumber']);
+							//if ($res != '{"success":true,"message":"berhasil"}') {if ($data1['wanumber'] > 0) {if ($res != '') {$sendtocustomer = "\n\n*TIDAK TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n".$res;} else {$sendtocustomer = "\n\n*GAGAL TERKIRIM ke No WA Customer*\n".$data1['wanumber']." (".$row['fullname'].")\n";}}}
 						}
 					
 					//url dan kirim data untuk wa japri
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage21)."&tujuan=".$whatsvano."@s.whatsapp.net",
-							CURLOPT_RETURNTRANSFER => true,
-							CURLOPT_ENCODING => "",
-							CURLOPT_MAXREDIRS => 10,
-							CURLOPT_TIMEOUT => 0,
-							CURLOPT_FOLLOWLOCATION => true,
-							CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							CURLOPT_CUSTOMREQUEST => "POST",
-							CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							),
-						));
-						$res = curl_exec($ch);
-
+						sendwajapri($siaga,$wamessage21,$whatsvano);
+						
 						if ($telegramid > 0)
 						{
 							$url = Yii::app()->params['tele']."/sendMessage?chat_id=".$telegramid."&text=".urlencode($wamessage21);
@@ -1477,10 +881,10 @@ class RunningTeleWaPiutJTTWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 					}
 					
-					//sleep(5);
+					sleep(5);
 				}
 			}
-			curl_close($ch);
+			//curl_close($ch);
 			//GetMessage(false, 'insertsuccess');
 			//$transaction->commit();
 		}

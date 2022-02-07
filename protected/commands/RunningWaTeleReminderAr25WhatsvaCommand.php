@@ -7,6 +7,11 @@ class Runningwatelereminderar25WhatsvaCommand extends CConsoleCommand
 		//$transaction=$connection->beginTransaction();
 		try
 		{
+			//device-key
+			$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+			$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+			$as = "";
+			
 			date_default_timezone_set('Asia/Jakarta');
 			
 			$msgtele = "Selamat Pagi%0ASIAGA (System Information AKA Group - Automatic) hanya ingin mengingatkan.%0A%0A<b>JANGAN LUPA OPNAME FAKTUR SUDAH TANGGAL 25.</b>%0A%0ATerima Kasih.";
@@ -62,22 +67,7 @@ class Runningwatelereminderar25WhatsvaCommand extends CConsoleCommand
 				if ($wauserid > 0)
 				{
 				//send pesan whatsapp ke Chief Accounting
-					$ch = curl_init();
-					curl_setopt_array($ch, array(
-					CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$wauserid."@s.whatsapp.net",
-						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_ENCODING => "",
-						CURLOPT_MAXREDIRS => 10,
-						CURLOPT_TIMEOUT => 0,
-						CURLOPT_FOLLOWLOCATION => true,
-						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						CURLOPT_CUSTOMREQUEST => "POST",
-						CURLOPT_HTTPHEADER => array(
-							"apikey: t0k3nb4ruwh4ts4k4"
-						),
-					));
-					$res = curl_exec($ch);
-					echo $user['username']." ".$wauserid." ".$res."\n";
+					sendwajapri($siaga,$pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time,$wauserid);
 				}
 			}
 			$time = date('d-m-Y H:i:s');
@@ -96,24 +86,9 @@ class Runningwatelereminderar25WhatsvaCommand extends CConsoleCommand
 		//send pesan whatsapp ke ius.tan
 			$whatsvano = '6281717212109';
 			
-			$ch = curl_init();
-			curl_setopt_array($ch, array(
-			CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 0,
-				CURLOPT_FOLLOWLOCATION => true,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_HTTPHEADER => array(
-					"apikey: t0k3nb4ruwh4ts4k4"
-				),
-			));
-			$res = curl_exec($ch);
-			echo "ius.tan ".$whatsvano." ".$res."\n";
+			sendwajapri($siaga,$pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time,$whatsvano);
 
-			curl_close($ch);
+			//curl_close($ch);
 		}
 		catch(Exception $e) // an exception is raised if a query fails
 		{

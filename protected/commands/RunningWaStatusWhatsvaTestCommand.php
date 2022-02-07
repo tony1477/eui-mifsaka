@@ -27,7 +27,7 @@ class RunningWaStatusWhatsvaTestCommand extends CConsoleCommand
 			
 			$ch = curl_init();
 			curl_setopt_array($ch, array(
-			CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
+			CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => "",
 				CURLOPT_MAXREDIRS => 10,
@@ -47,7 +47,7 @@ class RunningWaStatusWhatsvaTestCommand extends CConsoleCommand
 			
 			$ch = curl_init();
 			curl_setopt_array($ch, array(
-			CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
+			CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => "",
 				CURLOPT_MAXREDIRS => 10,
@@ -115,7 +115,7 @@ class RunningWaStatusWhatsvaTestCommand extends CConsoleCommand
 			
 /*			$ch = curl_init();
 			curl_setopt_array($ch, array(
-				CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvagroup."@g.us",
+				CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=5&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvagroup."@g.us",
 				  CURLOPT_RETURNTRANSFER => true,
 				  CURLOPT_ENCODING => "",
 				  CURLOPT_MAXREDIRS => 10,

@@ -131,6 +131,12 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 					//else if ($companyid == 15) {$telegroupid = "-1001264861899"; $wagroupid = "EdJpLXyACDg3egNWEWWUun";} //AGEM
 					else if ($companyid == 14) {$telegroupid = "-1001406450805"; $wagroupid = "6285265644828-1539936063";} //AKP
 
+
+					//device-key
+					$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+					$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+					$as = "";
+			
 					$wanumber = '6281717212109';
 				
 					if ($i < 41) {
@@ -145,24 +151,9 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						);
 						curl_setopt_array($ch, $optArray);
 						$result = curl_exec($ch);
-			
+						
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage1 ".$res."\n";
+						sendwagroup($siaga,$wamessage1,$wagroupid);
 					} else
 					
 					if ($i < 81) {
@@ -179,22 +170,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage2)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage2 ".$res."\n";
+						sendwagroup($siaga,$wamessage2,$wagroupid);
 						
 						$wamessage3 = "\n{$pesan2} \nJumlah Piutang {$totalamount} \n\n*SEGERA DIPROSES / DITAGIH / DILUNASI, SESUAI SOP YANG BERLAKU*\n\nKarena ini adalah *PENJUALAN CASH*\n\nTerima kasih.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 
@@ -209,22 +185,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 					
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage3)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage3 ".$res."\n";
+						sendwagroup($siaga,$wamessage3,$wagroupid);
 					} else
 					
 					if ($i < 121) {
@@ -241,22 +202,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage4)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage4 ".$res."\n";
+						sendwagroup($siaga,$wamessage4,$wagroupid);
 						
 						$wamessage5 = "\n{$pesan2} \n";
 
@@ -271,22 +217,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage5)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage5 ".$res."\n";
+						sendwagroup($siaga,$wamessage5,$wagroupid);
 						
 						$wamessage6 = "\n{$pesan3} \nJumlah Piutang {$totalamount} \n\n*SEGERA DIPROSES / DITAGIH / DILUNASI, SESUAI SOP YANG BERLAKU*\n\nKarena ini adalah *PENJUALAN CASH*\n\nTerima kasih.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 
@@ -301,22 +232,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 					
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage6)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage6 ".$res."\n";
+						sendwagroup($siaga,$wamessage6,$wagroupid);
 					} else
 					
 					if ($i < 161) {
@@ -333,22 +249,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage7)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage7 ".$res."\n";
+						sendwagroup($siaga,$wamessage7,$wagroupid);
 						
 						$wamessage8 = "\n{$pesan2} \n";
 
@@ -363,22 +264,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage8)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage8 ".$res."\n";
+						sendwagroup($siaga,$wamessage8,$wagroupid);
 						
 						$wamessage9 = "\n{$pesan3} \n";
 
@@ -393,22 +279,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage9)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage9 ".$res."\n";
+						sendwagroup($siaga,$wamessage9,$wagroupid);
 						
 						$wamessage10 = "\n{$pesan4} \nJumlah Piutang {$totalamount} \n\n*SEGERA DIPROSES / DITAGIH / DILUNASI, SESUAI SOP YANG BERLAKU*\n\nKarena ini adalah *PENJUALAN CASH*\n\nTerima kasih.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 
@@ -423,22 +294,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 					
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage10)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage10 ".$res."\n";
+						sendwagroup($siaga,$wamessage10,$wagroupid);
 					} else
 					
 					if ($i < 201) {
@@ -455,22 +311,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage11)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage11 ".$res."\n";
+						sendwagroup($siaga,$wamessage11,$wagroupid);
 						
 						$wamessage12 = "\n{$pesan2} \n";
 
@@ -485,22 +326,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage12)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage12 ".$res."\n";
+						sendwagroup($siaga,$wamessage12,$wagroupid);
 						
 						$wamessage13 = "\n{$pesan3} \n";
 
@@ -515,22 +341,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage13)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage13 ".$res."\n";
+						sendwagroup($siaga,$wamessage13,$wagroupid);
 						
 						$wamessage14 = "\n{$pesan4} \n";
 
@@ -545,22 +356,7 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 	
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage14)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage14 ".$res."\n";
+						sendwagroup($siaga,$wamessage14,$wagroupid);
 						
 						$wamessage15 = "\n{$pesan5} \nJumlah Piutang {$totalamount} \n\n*SEGERA DIPROSES / DITAGIH / DILUNASI, SESUAI SOP YANG BERLAKU*\n\nKarena ini adalah *PENJUALAN CASH*\n\nTerima kasih.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 
@@ -575,28 +371,13 @@ class RunningTeleWaPiutCashWhatsvaCommand extends CConsoleCommand
 						$result = curl_exec($ch);
 					
 						//url dan kirim data untuk wa group
-						$ch = curl_init();
-						curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage15)."&tujuan=".$wagroupid."@g.us",
-							  CURLOPT_RETURNTRANSFER => true,
-							  CURLOPT_ENCODING => "",
-							  CURLOPT_MAXREDIRS => 10,
-							  CURLOPT_TIMEOUT => 0,
-							  CURLOPT_FOLLOWLOCATION => true,
-							  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-							  CURLOPT_CUSTOMREQUEST => "POST",
-							  CURLOPT_HTTPHEADER => array(
-								"apikey: t0k3nb4ruwh4ts4k4"
-							  ),
-						));
-						$res = curl_exec($ch);
-						echo $companycode." ".$wagroupid." wamessage15 ".$res."\n";
+						sendwagroup($siaga,$wamessage15,$wagroupid);
 					}
 					
 					sleep(15);
 				}
 			}
-			curl_close($ch);
+			//curl_close($ch);
 			//GetMessage(false, 'insertsuccess');
 			//$transaction->commit();
 		}
