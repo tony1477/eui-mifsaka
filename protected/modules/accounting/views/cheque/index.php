@@ -470,6 +470,7 @@ function searchcheque(value){
 chequeno:value,
 companyid:value,
 bankid:value,
+plantid:value,
 recordstatus:value,
 	});
 }
