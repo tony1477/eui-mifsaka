@@ -416,6 +416,7 @@ class PoheaderController extends Controller {
                 -- and a.addressbookid in (".getUserObjectValues('supplier').")
                 and a.addressbookid = (select x.addressbookid from addressbook x where x.fullname = (select companyname from company ca where ca.companyid = {$_REQUEST['companyid']}) and isextern=0)
                 and (coalesce(pono,'') like '%{$pono}%')
+                and a.isgenerateso = 0
 								and a.poheaderid in 
 								(
 								select z.poheaderid 
@@ -436,6 +437,7 @@ class PoheaderController extends Controller {
                 and a.addressbookid = (select x.addressbookid from addressbook x where x.fullname = (select companyname from company ca where ca.companyid = {$_REQUEST['companyid']}) and isextern=0)
                 and (coalesce(pono,'') like '%{$pono}%')
                 and c.recordstatus=1
+                and a.isgenerateso = 0
 								and a.poheaderid in 
 								(
 								select z.poheaderid 
@@ -894,12 +896,22 @@ class PoheaderController extends Controller {
   }
 	public function actionGeneratedetail() {
     if (isset($_POST['supplierid']) & isset($_POST['prmaterialid'])) {
-      $podetail  = Yii::app()->db->createCommand()->select('t.*,e.slocid,b.prno,c.productname,d.uomcode,(t.qty - t.poqty) as posisa,e.sloccode')->from('prmaterial t')->join('prheader b', 'b.prheaderid = t.prheaderid')->join('product c', 'c.productid = t.productid')->join('unitofmeasure d', 'd.unitofmeasureid = t.unitofmeasureid')->leftjoin('deliveryadvicedetail f', 'f.deliveryadvicedetailid = t.deliveryadvicedetailid')->leftjoin('deliveryadvice g', 'g.deliveryadviceid = f.deliveryadviceid')->join('sloc e', 'e.slocid = g.slocid')->where('t.prmaterialid = ' . $_POST['prmaterialid'] . ' and t.qty > t.poqty ' . ' and b.prno is not null')->queryRow();
+      $podetail  = Yii::app()->db->createCommand()
+        ->select('t.*,e.slocid,b.prno,c.productname,d.uomcode,(t.qty - t.poqty) as posisa,e.sloccode')
+        ->from('prmaterial t')
+        ->join('prheader b', 'b.prheaderid = t.prheaderid')
+        ->join('product c', 'c.productid = t.productid')
+        ->join('unitofmeasure d', 'd.unitofmeasureid = t.unitofmeasureid')
+        ->leftjoin('deliveryadvicedetail f', 'f.deliveryadvicedetailid = t.deliveryadvicedetailid')
+        ->leftjoin('deliveryadvice g', 'g.deliveryadviceid = f.deliveryadviceid')
+        ->join('sloc e', 'e.slocid = g.slocid')
+        ->where('t.prmaterialid = ' . $_POST['prmaterialid'] . ' and t.qty > t.poqty ' . ' and b.prno is not null')
+      ->queryRow();
       
       // get supplierid
       $sql = "select addressbookid,isextern from addressbook a where a.addressbookid=".$_POST['supplierid'];
       $addressbook = Yii::app()->db->createCommand($sql)->queryRow();
-
+      $newpoqty = 0;
       if($addressbook['isextern']==0 && $_POST['plantid']!='') {
         $tambahan = 0;
 
@@ -935,13 +947,21 @@ class PoheaderController extends Controller {
       else 
         $pirdetail = Yii::app()->db->createCommand()->select('ifnull(underdelvtol,0) as underdelvtol, ifnull(overdelvtol,0) as overdelvtol,price,currencyid')->from('purchinforec t')->where('t.addressbookid = ' . $_POST['supplierid'] . ' and t.productid = ' . $podetail['productid'] .' order by biddate desc limit 1')->queryRow();
 
+      $qtypack = Yii::app()->db->createCommand("select ifnull(qtypack,1) from product p where p.productid = ".$podetail['productid'])->queryScalar();
+
+      $sisa = $podetail['posisa']%$qtypack;
+      if($sisa>0) $newpoqty = $qtypack - $sisa;
+      $poqty = $newpoqty + $podetail['posisa'];
+
+
+
       echo CJSON::encode(array(
         'status' => 'success',
         'prmaterialid' => $podetail['prmaterialid'],
         'prno' => $podetail['prno'],
         'productid' => $podetail['productid'],
         'productname' => $podetail['productname'],
-        'poqty' => $podetail['posisa'],
+        'poqty' => $poqty,
         'unitofmeasureid' => $podetail['unitofmeasureid'],
         'uomcode' => $podetail['uomcode'],
         'slocid' => $podetail['slocid'],
