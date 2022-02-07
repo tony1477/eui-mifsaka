@@ -15,6 +15,7 @@ class ChequeController extends Controller {
 		$tglbayar      = isset($_POST['tglbayar']) ? $_POST['tglbayar'] : '';
 		$chequeno      = isset($_POST['chequeno']) ? $_POST['chequeno'] : '';
 		$bankid        = isset($_POST['bankid']) ? $_POST['bankid'] : '';
+		$plantid        = isset($_POST['plantid']) ? $_POST['plantid'] : '';
 		$tglcheque     = isset($_POST['tglcheque']) ? $_POST['tglcheque'] : '';
 		$tgltempo      = isset($_POST['tgltempo']) ? $_POST['tgltempo'] : '';
 		$tglcair       = isset($_POST['tglcair']) ? $_POST['tglcair'] : '';
@@ -26,6 +27,7 @@ class ChequeController extends Controller {
 		$tglbayar      = isset($_GET['q']) ? $_GET['q'] : $tglbayar;
 		$chequeno      = isset($_GET['q']) ? $_GET['q'] : $chequeno;
 		$bankid        = isset($_GET['q']) ? $_GET['q'] : $bankid;
+		$plantid        = isset($_GET['q']) ? $_GET['q'] : $plantid;
 		$tglcheque     = isset($_GET['q']) ? $_GET['q'] : $tglcheque;
 		$tgltempo      = isset($_GET['q']) ? $_GET['q'] : $tgltempo;
 		$tglcair       = isset($_GET['q']) ? $_GET['q'] : $tglcair;
@@ -43,22 +45,38 @@ class ChequeController extends Controller {
 		$offset        = ($page - 1) * $rows;
 		$result        = array();
 		$row           = array();
-		$cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('cheque t')->join('addressbook a', 'a.addressbookid=t.addressbookid')->join('currency b', 'b.currencyid=t.currencyid')->join('bank c', 'c.bankid=t.bankid')->join('company d', 'd.companyid=t.companyid')->where("(coalesce(t.chequeid,'') like :chequeid) and (coalesce(t.chequeno,'') like :chequeno) and (coalesce(d.companyname,'') like :companyid) and (coalesce(c.bankname,'') like :bankid)
+		$cmd = Yii::app()->db->createCommand()->select('count(1) as total')
+			->from('cheque t')
+			->join('addressbook a', 'a.addressbookid=t.addressbookid')
+			->join('currency b', 'b.currencyid=t.currencyid')
+			->join('bank c', 'c.bankid=t.bankid')
+			->join('company d', 'd.companyid=t.companyid')
+			->leftjoin('plant e', 'e.plantid=t.plantid')
+			->where("((coalesce(t.chequeid,'') like :chequeid) or (coalesce(t.chequeno,'') like :chequeno) or (coalesce(d.companyname,'') like :companyid) or (coalesce(c.bankname,'') like :bankid) or (coalesce(e.plantcode,'') like :plantcode))
 				and t.recordstatus <> 0 and
 				t.companyid in (".getUserObjectValues('company').")", array(
 		':chequeid' => '%' . $chequeid . '%',
 		':chequeno' => '%' . $chequeno . '%',
 		':companyid' => '%' . $companyid . '%',
 		':bankid' => '%' . $bankid . '%',
+		':plantcode' => '%' . $plantid . '%',
 		))->queryScalar();
 		$result['total'] = $cmd;
-		$cmd = Yii::app()->db->createCommand()->select('t.*,a.fullname,b.currencyname,c.bankname,d.companyname, e.plantcode')->from('cheque t')->join('addressbook a', 'a.addressbookid=t.addressbookid')->join('currency b', 'b.currencyid=t.currencyid')->join('bank c', 'c.bankid=t.bankid')->join('company d', 'd.companyid=t.companyid')->leftjoin('plant e', 'e.plantid=t.plantid')->where("(coalesce(t.chequeid,'') like :chequeid) and (coalesce(t.chequeno,'') like :chequeno) and (coalesce(d.companyname,'') like :companyid) and (coalesce(c.bankname,'') like :bankid)
+		$cmd = Yii::app()->db->createCommand()->select('t.*,a.fullname,b.currencyname,c.bankname,d.companyname, e.plantcode')
+			->from('cheque t')
+			->join('addressbook a', 'a.addressbookid=t.addressbookid')
+			->join('currency b', 'b.currencyid=t.currencyid')
+			->join('bank c', 'c.bankid=t.bankid')
+			->join('company d', 'd.companyid=t.companyid')
+			->leftjoin('plant e', 'e.plantid=t.plantid')
+			->where("((coalesce(t.chequeid,'') like :chequeid) or (coalesce(t.chequeno,'') like :chequeno) or (coalesce(d.companyname,'') like :companyid) or (coalesce(c.bankname,'') like :bankid) or (coalesce(e.plantcode,'') like :plantcode))
 			and t.recordstatus <> 0 and
 			t.companyid in (".getUserObjectValues('company').")", array(
         ':chequeid' => '%' . $chequeid . '%',
         ':chequeno' => '%' . $chequeno . '%',
         ':companyid' => '%' . $companyid . '%',
         ':bankid' => '%' . $bankid . '%',
+        ':plantcode' => '%' . $plantid . '%',
         ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
 		foreach ($cmd as $data) {
 			$row[] = array(
