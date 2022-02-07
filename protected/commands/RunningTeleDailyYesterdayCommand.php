@@ -53,6 +53,7 @@ class RunningTeleDailyYesterdayCommand extends CConsoleCommand
 							from company a
 							where a.recordstatus = 1
 							and a.nourut > 0
+							and a.companyid <> 12
 							order by a.nourut asc
 			";
 			$dataReader1=$connection->createCommand($sql1)->queryAll();

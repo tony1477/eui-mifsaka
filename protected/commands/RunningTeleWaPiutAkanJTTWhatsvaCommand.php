@@ -148,10 +148,10 @@ class RunningTeleWaPiutAkanJTTWhatsvaCommand extends CConsoleCommand
 					if ($bankacc1 == "")
 					{$norek1 = "";} else	{$norek1 = $bankacc1."\n";}
 					if ($bankacc2 == "")
-					{$norek2 = "";} else	{$norek2 = $bankacc2."\n";}
+/*					{$norek2 = "";} else	{$norek2 = $bankacc2."\n";}
 					if ($bankacc3 == "")
 					{$norek3 = "";} else	{$norek3 = $bankacc3."\n";}
-
+*/
 					if ($data1['wanumber'] > 0)
 					{$sendtocustomer = "\n\n*_SUDAH TERKIRIM ke No WA Customer_* ".$data1['wanumber'];}
 					else
@@ -177,14 +177,14 @@ class RunningTeleWaPiutAkanJTTWhatsvaCommand extends CConsoleCommand
 					$time = date('Y-m-d H:i:s');
 				
 /*					if ($i < 36) {*/
-						$wamessage1 = "*Pemberitahuan Piutang untuk Customer {$companycode} :*\n_{$data1['fullname']}._ \n{$pesan1} \n*Jumlah Piutang Telah Jatuh Tempo {$totalamount2}* \n{$pesan2} \n*Jumlah Piutang Akan Jatuh Tempo {$totalamount3}* \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}{$norek2}{$norek3}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran via Transfer diluar Rekening Resmi yang tertera diatas, *BUKAN MENJADI TANGGUNG JAWAB PERUSAHAAN AKA GROUP*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
+						$wamessage1 = "*Pemberitahuan Piutang untuk Customer {$companycode} :*\n_{$data1['fullname']}._ \n{$pesan1} \n*Jumlah Piutang Telah Jatuh Tempo {$totalamount2}* \n{$pesan2} \n*Jumlah Piutang Akan Jatuh Tempo {$totalamount3}* \n\nAnda bisa melakukan pembayaran melalui No. Rek. sebagai berikut:\n{$norek1}\n_*Pembayaran dengan Cek/Giro dianggap lunas apabila telah dicairkan.*_\n\nPembayaran KE REKENING SALES atau DILUAR DARI REKENING yang TELAH DITENTUKAN, maka dianggap TIDAK SAH / TIDAK DIAKUI sebagai PEMBAYARAN*\nTerima kasih.\n\nApabila ada yang *Tidak Sesuai*\nSilahkan konfirmasi dengan klik >> https://t.me/kangaroospringbed_bot atau https://wa.me/6285272087379 , dengan melampirkan pesan ini.\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
 						
 /*						if ($data1['wanumber'] > 0)
 						{
 						//url dan kirim data untuk wa japri ke customer
 							$ch = curl_init();
 							curl_setopt_array($ch, array(
-							CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
+							CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$data1['wanumber']."@s.whatsapp.net",
 								CURLOPT_RETURNTRANSFER => true,
 								CURLOPT_ENCODING => "",
 								CURLOPT_MAXREDIRS => 10,
@@ -204,7 +204,7 @@ class RunningTeleWaPiutAkanJTTWhatsvaCommand extends CConsoleCommand
 					//url dan kirim data untuk wa japri
 						$ch = curl_init();
 						curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$whatsvano."@s.whatsapp.net",
+						CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($wamessage1)."&tujuan=".$whatsvano."@s.whatsapp.net",
 							CURLOPT_RETURNTRANSFER => true,
 							CURLOPT_ENCODING => "",
 							CURLOPT_MAXREDIRS => 10,

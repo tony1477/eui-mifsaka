@@ -7,6 +7,11 @@ class RunningWaStatusWhatsvaCommand extends CConsoleCommand
 		//$transaction=$connection->beginTransaction();
 		try
 		{
+			//device-key
+			$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+			$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+			$as = "";
+			
 			date_default_timezone_set('Asia/Jakarta');
 			$time = date('Y-m-d H:i:s');
 				
@@ -25,43 +30,13 @@ class RunningWaStatusWhatsvaCommand extends CConsoleCommand
 		//Whatsva
 			$whatsvano = '6285265644828';
 			
-			$ch = curl_init();
-			curl_setopt_array($ch, array(
-			CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 0,
-				CURLOPT_FOLLOWLOCATION => true,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_HTTPHEADER => array(
-					"apikey: t0k3nb4ruwh4ts4k4"
-				),
-			));
-			$res = curl_exec($ch);
-			echo $whatsvano." ".$res."\n";
+			sendwajapri($siaga,"Status WA Otomatis: *PHONE ONLINE*\n\n".$time,$whatsvano);
 			
 			//url dan kirim data untuk wa japri ke MRT
 		//Whatsva
 			$whatsvano = '6285376361879';
 			
-			$ch = curl_init();
-			curl_setopt_array($ch, array(
-			CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => "",
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 0,
-				CURLOPT_FOLLOWLOCATION => true,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => "POST",
-				CURLOPT_HTTPHEADER => array(
-					"apikey: t0k3nb4ruwh4ts4k4"
-				),
-			));
-			$res = curl_exec($ch);
-			echo $whatsvano." ".$res."\n";
+			sendwajapri($siaga,"Status WA Otomatis: *PHONE ONLINE*\n\n".$time,$whatsvano);
 				
 			//url dan kirim data untuk wa group
 		//Whatsva
@@ -76,7 +51,7 @@ class RunningWaStatusWhatsvaCommand extends CConsoleCommand
 			
 /*			$ch = curl_init();
 			curl_setopt_array($ch, array(
-				CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvagroup."@g.us",
+				CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode("Status WA Otomatis: *PHONE ONLINE*\n\n".$time)."&tujuan=".$whatsvagroup."@g.us",
 				  CURLOPT_RETURNTRANSFER => true,
 				  CURLOPT_ENCODING => "",
 				  CURLOPT_MAXREDIRS => 10,
@@ -139,7 +114,7 @@ class RunningWaStatusWhatsvaCommand extends CConsoleCommand
 			);
 			echo $res=curl_exec($ch);
 			
-*/			curl_close($ch);
+*/			//curl_close($ch);
 		}
 		catch(Exception $e) // an exception is raised if a query fails
 		{

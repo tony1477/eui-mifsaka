@@ -549,24 +549,29 @@ $pesan .= $msg;
 				$persenup120 = $row9['up120'] / ($row9['0sd30']+$row9['31sd60']+$row9['61sd90']+$row9['91sd120']+$row9['up120']);
 			}
 			
-$msg = "\nPD 1-30 ".Yii::app()->numberFormatter->formatCurrency($row9['0sd30']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen0sd30)* 100,'')." %";
+$msg = "\nPD 1-30 ".Yii::app()->numberFormatter->formatCurrency($row9['0sd30']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen0sd30)* 100,'');
 $pesan .= $msg;
 
-$msg = "\nPD 31-60 ".Yii::app()->numberFormatter->formatCurrency($row9['31sd60']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen31sd60)* 100,'')." %";
+$msg = "\nPD 31-60 ".Yii::app()->numberFormatter->formatCurrency($row9['31sd60']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen31sd60)* 100,'');
 $pesan .= $msg;
 
-$msg = "\nPD 61-90 ".Yii::app()->numberFormatter->formatCurrency($row9['61sd90']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen61sd90)* 100,'')." %";
+$msg = "\nPD 61-90 ".Yii::app()->numberFormatter->formatCurrency($row9['61sd90']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen61sd90)* 100,'');
 $pesan .= $msg;
 
-$msg = "\nPD 91-120 ".Yii::app()->numberFormatter->formatCurrency($row9['91sd120']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen91sd120)* 100,'')." %";
+$msg = "\nPD 91-120 ".Yii::app()->numberFormatter->formatCurrency($row9['91sd120']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persen91sd120)* 100,'');
 $pesan .= $msg;
 
-$msg = "\nPD > 120 ".Yii::app()->numberFormatter->formatCurrency($row9['up120']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persenup120)* 100,'')." %";
+$msg = "\nPD > 120 ".Yii::app()->numberFormatter->formatCurrency($row9['up120']/$per,"Rp.")." ".Yii::app()->numberFormatter->formatCurrency(($persenup120)* 100,'');
 $pesan .= $msg;
 
-$msg = "\nTotal PD ".Yii::app()->numberFormatter->formatCurrency(($row9['0sd30']+$row9['31sd60']+$row9['61sd90']+$row9['91sd120']+$row9['up120'])/$per,"Rp.")." "."100.00 %";
+$msg = "\nTotal PD ".Yii::app()->numberFormatter->formatCurrency(($row9['0sd30']+$row9['31sd60']+$row9['61sd90']+$row9['91sd120']+$row9['up120'])/$per,"Rp.")." 100.00";
 
 $pesan .= $msg;
+
+			//device-key
+			$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+			$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+			$as = "";
 
 			date_default_timezone_set('Asia/Jakarta');
 			$time = date('d-m-Y H:i:s');
@@ -574,47 +579,17 @@ $pesan .= $msg;
 			//url dan kirim data untuk wa japri ke Ius Tan
 			$whatsvano = '6281717212109';
 			
-			$ch = curl_init();
-			curl_setopt_array($ch, array(
-				CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$whatsvano."@s.whatsapp.net",
-				  CURLOPT_RETURNTRANSFER => true,
-				  CURLOPT_ENCODING => "",
-				  CURLOPT_MAXREDIRS => 10,
-				  CURLOPT_TIMEOUT => 0,
-				  CURLOPT_FOLLOWLOCATION => true,
-				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				  CURLOPT_CUSTOMREQUEST => "POST",
-				  CURLOPT_HTTPHEADER => array(
-					"apikey: t0k3nb4ruwh4ts4k4"
-				  ),
-			));
-			$res = curl_exec($ch);
-			echo $whatsvano." ".$res."\n";
+			sendwajapri($siaga,$pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time,$whatsvano);
 				
 			//url dan kirim data untuk wa group
 			$developgroup = '6281717212109-1615804565';
 			
-			$ch = curl_init();
-			curl_setopt_array($ch, array(
-				CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$developgroup."@g.us",
-				  CURLOPT_RETURNTRANSFER => true,
-				  CURLOPT_ENCODING => "",
-				  CURLOPT_MAXREDIRS => 10,
-				  CURLOPT_TIMEOUT => 0,
-				  CURLOPT_FOLLOWLOCATION => true,
-				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				  CURLOPT_CUSTOMREQUEST => "POST",
-				  CURLOPT_HTTPHEADER => array(
-					"apikey: t0k3nb4ruwh4ts4k4"
-				  ),
-			));
-			$res = curl_exec($ch);
-			echo $developgroup." ".$res."\n";
+			sendwagroup($siaga,$pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time,$developgroup);
 			
 /*				//url dan kirim data untuk wa group
 			$ch = curl_init();
 			curl_setopt_array($ch, array(
-				CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$groupexcellent."@g.us",
+				CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$groupexcellent."@g.us",
 				  CURLOPT_RETURNTRANSFER => true,
 				  CURLOPT_ENCODING => "",
 				  CURLOPT_MAXREDIRS => 10,
@@ -647,7 +622,7 @@ $pesan .= $msg;
 				//url dan kirim data untuk wa japri
 				$ch = curl_init();
 				curl_setopt_array($ch, array(
-					CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$wabm['wanumber']."@s.whatsapp.net",
+					CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$wabm['wanumber']."@s.whatsapp.net",
 					  CURLOPT_RETURNTRANSFER => true,
 					  CURLOPT_ENCODING => "",
 					  CURLOPT_MAXREDIRS => 10,
@@ -682,7 +657,7 @@ $pesan .= $msg;
 				//url dan kirim data untuk wa japri
 				$ch = curl_init();
 				curl_setopt_array($ch, array(
-					CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$waca['wanumber']."@s.whatsapp.net",
+					CURLOPT_URL => Yii::app()->params['whatsva']."/sendText?id_device=1&message=".urlencode($pesan."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$waca['wanumber']."@s.whatsapp.net",
 					  CURLOPT_RETURNTRANSFER => true,
 					  CURLOPT_ENCODING => "",
 					  CURLOPT_MAXREDIRS => 10,
@@ -698,7 +673,7 @@ $pesan .= $msg;
 				echo $waca['username']." ".$waca['wanumber']." ".$res."\n";
 			}
 */				
-			curl_close($ch);
+			//curl_close($ch);
 		}
 		catch(Exception $e) // an exception is raised if a query fails
 		{

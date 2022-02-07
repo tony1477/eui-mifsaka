@@ -7,6 +7,11 @@ class RunningWaTeleReminderUltahWhatsvaCommand extends CConsoleCommand
 		//$transaction=$connection->beginTransaction();
 		try
 		{
+			//device-key
+			$indosat = "d4987114-8563-4fdf-b15c-ed328057fae2";
+			$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+			$as = "";
+			
 			date_default_timezone_set('Asia/Jakarta');
 			
 			$sqldate = "SELECT REPLACE(DATE(NOW()),YEAR(NOW()),'')";
@@ -32,7 +37,7 @@ class RunningWaTeleReminderUltahWhatsvaCommand extends CConsoleCommand
 							LEFT JOIN orgstructure c ON c.orgstructureid=b.orgstructureid
 							LEFT JOIN company d ON d.companyid=c.companyid
 							WHERE a.birthdate LIKE '%{$date}%' AND a.employeeid <> 11
-							AND (a.resigndate IS NULL OR a.resigndate = '1970-01-01') Limit 1
+							AND (a.resigndate IS NULL OR a.resigndate = '1970-01-01')
 				";
 				$fulldata = Yii::app()->db->createCommand($sql)->queryAll();
 
@@ -47,8 +52,21 @@ class RunningWaTeleReminderUltahWhatsvaCommand extends CConsoleCommand
 				
 					$pesanwhatsapp = "*SELAMAT ULANG TAHUN* yang ke-{$umur}\n{$data['fullname']}\nKaryawan dari {$data['companyname']}";
 					
+					//send pesan whatsapp ke Group Develop
+					sendwagroup($siaga,$pesanwhatsapp,"6281717212109-1615804565");
+					
 					//send pesan telegram ke ius.tan
 					$url = Yii::app()->params['tele']."/sendMessage?chat_id=875856213&text=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time);
+					$ch = curl_init();
+					$optArray = array(
+						CURLOPT_URL => $url,
+						CURLOPT_RETURNTRANSFER => true
+					);
+					curl_setopt_array($ch, $optArray);
+					$result = curl_exec($ch);
+					
+					//send pesan telegram ke yuliana
+					$url = Yii::app()->params['tele']."/sendMessage?chat_id=2042560992&text=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time);
 					$ch = curl_init();
 					$optArray = array(
 						CURLOPT_URL => $url,
@@ -61,42 +79,15 @@ class RunningWaTeleReminderUltahWhatsvaCommand extends CConsoleCommand
 					//send pesan whatsapp ke ius.tan
 					$wano = '6285265644828';
 					
+					sendwajapri($siaga,$pesanwhatsapp,$wano);
 					$ch = curl_init();
-					curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$wano."@s.whatsapp.net",
-						  CURLOPT_RETURNTRANSFER => true,
-						  CURLOPT_ENCODING => "",
-						  CURLOPT_MAXREDIRS => 10,
-						  CURLOPT_TIMEOUT => 0,
-						  CURLOPT_FOLLOWLOCATION => true,
-						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						  CURLOPT_CUSTOMREQUEST => "POST",
-						  CURLOPT_HTTPHEADER => array(
-							"apikey: t0k3nb4ruwh4ts4k4"
-						  ),
-					));
-					$res = curl_exec($ch);
 					
-					//send pesan whatsapp ke yuni debora
-					$wano = '6282288082066';
+					//send pesan whatsapp ke 
+					$wano = '6281290909041';
 					
-					$ch = curl_init();
-					curl_setopt_array($ch, array(
-						CURLOPT_URL => "http://akagroup.co.id:8888/api/sendText?id_device=1&message=".urlencode($pesanwhatsapp."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time)."&tujuan=".$wano."@s.whatsapp.net",
-						  CURLOPT_RETURNTRANSFER => true,
-						  CURLOPT_ENCODING => "",
-						  CURLOPT_MAXREDIRS => 10,
-						  CURLOPT_TIMEOUT => 0,
-						  CURLOPT_FOLLOWLOCATION => true,
-						  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-						  CURLOPT_CUSTOMREQUEST => "POST",
-						  CURLOPT_HTTPHEADER => array(
-							"apikey: t0k3nb4ruwh4ts4k4"
-						  ),
-					));
-					$res = curl_exec($ch);
+					sendwajapri($siaga,$pesanwhatsapp,$wano);
 				}
-				curl_close($ch);
+				//curl_close($ch);
 			}
 		}
 		catch(Exception $e) // an exception is raised if a query fails
