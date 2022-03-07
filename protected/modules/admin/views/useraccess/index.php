@@ -54,6 +54,15 @@
 				return value;
 		}},
 		{
+			field:'employeeid',
+			title:'".GetCatalog('ID Karyawan') ."',
+			editor:'text',
+			width:'150px',
+			sortable: true,
+			formatter: function(value,row,index){
+				return value;
+		}},
+		{
 			field:'phoneno',
 			title:'".GetCatalog('phoneno') ."',
 			editor:'text',
