@@ -156,11 +156,19 @@ class PodirectController extends Controller {
     }
     $result['total'] = $cmd;
     if (isset($_GET['list'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z 
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
+			) as warna ')
+      ->from('poheader t')
+      ->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')
+      ->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')
+      ->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')
+      ->leftjoin('company d', 'd.companyid = t.companyid')
+      ->leftjoin('tax e', 'e.taxid = t.taxid')
+      ->leftjoin('plant f', 'f.plantid = t.plantid')
+      ->where("
       ((coalesce(t.poheaderid,'') like :poheaderid) and 
 				(coalesce(docdate,'') like :docdate) and 
 				(coalesce(pono,'') like :pono) and 
@@ -175,11 +183,19 @@ class PodirectController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else if (isset($_GET['grpo'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z 
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("((t.poheaderid like :poheaderid) or 
+			) as warna ')
+      ->from('poheader t')
+      ->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')
+      ->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')
+      ->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')
+      ->leftjoin('company d', 'd.companyid = t.companyid')
+      ->leftjoin('tax e', 'e.taxid = t.taxid')
+      ->leftjoin('plant f', 'f.plantid = t.plantid')
+      ->where("((t.poheaderid like :poheaderid) or 
                                     (docdate like :docdate) or 
                                     (pono like :pono) or 
                                     (b.fullname like :addressbookid) or 
@@ -196,11 +212,19 @@ class PodirectController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else if (isset($_GET['invpo'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,f.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z 
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->where("
+			) as warna ')
+      ->from('poheader t')
+      ->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')
+      ->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')
+      ->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')
+      ->leftjoin('company d', 'd.companyid = t.companyid')
+      ->leftjoin('tax e', 'e.taxid = t.taxid')
+      ->leftjoin('plant f', 'f.plantid = t.plantid')
+      ->where("
       ((coalesce(t.poheaderid,'') like :poheaderid) or 
 				(coalesce(docdate,'') like :docdate) or 
 				(coalesce(pono,'') like :pono) or 
@@ -218,11 +242,18 @@ class PodirectController extends Controller {
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else {
-      $cmd = Yii::app()->db->createCommand()->select('distinct t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,
+      $cmd = Yii::app()->db->createCommand()->select('distinct t.*,a.description,b.fullname,c.paycode,d.companyname,e.taxcode,g.plantcode,
 			(
 			select case when sum(z.poqty) > sum(z.qtyres) then 1 else 0 end
 			from podetail z 
-			) as warna ')->from('poheader t')->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')->leftjoin('tax e', 'e.taxid = t.taxid')->leftjoin('podetail f', 'f.poheaderid = t.poheaderid')->where("
+			) as warna ')
+      ->from('poheader t')
+      ->leftjoin('purchasinggroup a', 'a.purchasinggroupid = t.purchasinggroupid')->leftjoin('addressbook b', 'b.addressbookid = t.addressbookid')
+      ->leftjoin('paymentmethod c', 'c.paymentmethodid = t.paymentmethodid')->leftjoin('company d', 'd.companyid = t.companyid')
+      ->leftjoin('tax e', 'e.taxid = t.taxid')
+      ->leftjoin('podetail f', 'f.poheaderid = t.poheaderid')
+      ->leftjoin('plant g', 'g.plantid = t.plantid')
+      ->where("
       ((coalesce(t.poheaderid,'') like :poheaderid) and 
 				(coalesce(docdate,'') like :docdate) and 
 				(coalesce(pono,'') like :pono) and 
@@ -250,6 +281,8 @@ class PodirectController extends Controller {
         'purchasinggroupcode' => $data['description'],
         'addressbookid' => $data['addressbookid'],
         'fullname' => $data['fullname'],
+        'plantid' => $data['plantid'],
+        'plantcode' => $data['plantcode'],
         'headernote' => $data['headernote'],
         'paymentmethodid' => $data['paymentmethodid'],
         'companyid' => $data['companyid'],
@@ -419,14 +452,16 @@ class PodirectController extends Controller {
         $command->bindvalue(':vpono', $arraydata[4], PDO::PARAM_STR);
         $command->bindvalue(':vrecordstatus', $arraydata[11], PDO::PARAM_STR);
       } else {
-        $sql     = 'call Updatepoheader(:vid,:vpurchasinggroupid,:vdocdate,:vaddressbookid,:vheadernote,:vpaymentmethodid,:vshipto,:vbillto,:vcompanyid,:vtaxid,:vcreatedby)';
+        $sql     = 'call Updatepoheader(:vid,:vpurchasinggroupid,:vdocdate,:vaddressbookid,:vplantid,:vheadernote,:vpaymentmethodid,:vshipto,:vbillto,:vcompanyid,:vtaxid,:vcreatedby)';
         $command = $connection->createCommand($sql);
         $command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
+        $command->bindvalue(':vplantid', $arraydata[12], PDO::PARAM_STR);
         $this->DeleteLock($this->menuname, $arraydata[0]);
       }
       $command->bindvalue(':vcompanyid', $arraydata[1], PDO::PARAM_STR);
       $command->bindvalue(':vpurchasinggroupid', $arraydata[2], PDO::PARAM_STR);
       $command->bindvalue(':vdocdate', $arraydata[3], PDO::PARAM_STR);
+      $command->bindvalue(':vaddressbookid', $arraydata[5], PDO::PARAM_STR);
       $command->bindvalue(':vaddressbookid', $arraydata[5], PDO::PARAM_STR);
       $command->bindvalue(':vpaymentmethodid', $arraydata[6], PDO::PARAM_STR);
       $command->bindvalue(':vtaxid', $arraydata[7], PDO::PARAM_STR);
@@ -632,7 +667,7 @@ class PodirectController extends Controller {
 			$_POST['shipto'],
 			$_POST['billto'],
 			$_POST['headernote'],
-			''
+			'',$_POST['plantid']
 			));
         $transaction->commit();
         GetMessage(false, 'insertsuccess');
