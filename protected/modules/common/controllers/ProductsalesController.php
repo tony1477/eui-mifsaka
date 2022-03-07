@@ -142,11 +142,22 @@ class ProductsalesController extends Controller {
 	}
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
+		$olddata = null;
 		if ($id == '') {
+			$title = 'Add';
 			$sql = 'call Insertproductsales(:vproductid,:vcurrencyid,:vcurrencyvalue,:vpricecategoryid,:vuomid,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
+			$title = 'Ubah';
+			$olddata = Yii::app()->db->createCommand("select p1.productname, c.currencyname, p2.categoryname, u.uomcode, p.currencyvalue
+					from productsales p
+					join product p1 on p1.productid = p.productid
+					join currency c on c.currencyid = p.currencyid
+					join pricecategory p2 on p2.pricecategoryid = p.pricecategoryid
+					join unitofmeasure u on u.unitofmeasureid = p.uomid
+					where p.productsalesid = ".$arraydata[0])->queryAll();
+
 			$sql = 'call Updateproductsales(:vid,:vproductid,:vcurrencyid,:vcurrencyvalue,:vpricecategoryid,:vuomid,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
@@ -159,6 +170,34 @@ class ProductsalesController extends Controller {
 		$command->bindvalue(':vuomid',$arraydata[5],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();
+		$this->SendNotifWA($title,$olddata,$arraydata);
+	}
+
+	private function SendNotifWA($title,$olddata=null,$newdata) 
+	{
+		$oldtext = "Menu = ".$this->menuname."\n";
+		if($olddata!=null) {
+			foreach($olddata as $value) { 
+				$oldtext .= "Data Lama ID : ".$newdata[0]."\nProductname = ".$value['productname']."\nCurrency = ".$value['currencyname']."\nHarga = ".Yii::app()->format->formatCurrency($value['currencyvalue'])."\nCategory = ".$value['categoryname']."\nUOM = ".$value['uomcode']."\n\n";
+			}
+		}
+		$judul = '';
+		$user = Yii::app()->db->createCommand("select realname from useraccess where username='".Yii::app()->user->name."'")->queryScalar();
+		$judul = ($title == 'Add' ? 'Data Baru ditambahkan oleh '.$user : 'Data Telah Diubah oleh : '.$user);
+		//$text = '';
+		
+		$productname = Yii::app()->db->createCommand('select productname from product where productid='.$newdata[1])->queryScalar();
+		$currencyname = Yii::app()->db->createCommand('select currencyname from currency where currencyid='.$newdata[2])->queryScalar();
+		$value = $newdata[3];
+		$pricecategory = Yii::app()->db->createCommand('select categoryname from pricecategory where pricecategoryid='.$newdata[4])->queryScalar();
+		$uom = Yii::app()->db->createCommand('select uomcode from unitofmeasure where unitofmeasureid='.$newdata[5])->queryScalar();
+
+		$text = $oldtext.$judul."\nProductname = ".$productname."\nCurrency = ".$currencyname."\nHarga = ".$value."\nCategory = ".$pricecategory."\nUOM = ".$uom;
+
+		$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+		//$pesanwa = "$text;
+		$wano = '6285376361879';
+		sendwajapri($siaga,$text,$wano);
 	}
 	public function actionUpload() {
 		parent::actionUpload();

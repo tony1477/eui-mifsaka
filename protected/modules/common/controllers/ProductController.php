@@ -284,11 +284,23 @@ class ProductController extends Controller {
 	}
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
+		$olddata = null;
 		if ($id == '') {
+			$title='Add';
 			$sql = 'call Insertproduct(:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vqtypack,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
+			$title='Ubah';
+			$olddata = Yii::app()->db->createCommand("select productname, productpic, barcode, ifnull(k3lnumber,'-') as k3lnumber, ifnull(leadtime,0) as leadtime, ifnull(qtypack,0) as qtypack, isstock, isfohulbom, iscontinue, m.description as mattype, p1.identityname, p2.brandname, p3.collectionname, p4.description as seriesname,panjang , lebar , tinggi , density , p.recordstatus 
+			from product p 
+			join materialtype m on m.materialtypeid = p.materialtypeid
+			join productidentity p1 on p1.productidentityid = p.productidentityid
+			join productbrand p2 on p2.productbrandid = p.productbrandid 
+			join productcollection p3 on p3.productcollectid = p.productcollectid 
+			join productseries p4 on p4.productseriesid = p.productseriesid
+			where p.productid = ".$arraydata[0])->queryAll();
+
 			$sql = 'call Updateproduct(:vid,:vproductname,:visstock,:visfohulbom,:viscontinue,:vproductpic,:vbarcode,:vk3lnumber,:vmaterialtypeid,:vproductidentityid,:vproductbrandid,:vproductcollectid,:vproductseriesid,:vleadtime,:vqtypack,:vpanjang,:vlebar,:vtinggi,:vdensity,:vrecordstatus,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
@@ -314,7 +326,50 @@ class ProductController extends Controller {
 		$command->bindvalue(':vdensity',$arraydata[17],PDO::PARAM_STR);
 		$command->bindvalue(':vrecordstatus',$arraydata[15],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
-		$command->execute();			
+		$command->execute();
+		$this->SendNotifWA($title,$olddata,$arraydata);
+	}
+	private function SendNotifWA($title,$olddata=null,$newdata) 
+	{
+		$oldtext = "Menu = ".$this->menuname."\n";
+		if($olddata!=null) {
+			foreach($olddata as $value) { 
+				 $oldtext .= "Data Lama ID : ".$newdata[0]."\nProductname = ".$value['productname']."\nGambar = ".$value['productpic']."\nBarcode = ".$value['barcode']."\nNo K3L = ".$value['k3lnumber']."\nLead Time = ".$value['leadtime']."\nQty/Pack = ".$value['qtypack']."\nIsstock? = ".$value['isstock']."\nIsFohulBOM = ".$value['isfohulbom']."\nIsContinue? = ".$value['iscontinue']."\nJenis Material = ".$value['mattype']."\nProduct Identity = ".$value['identityname']."\nProduct Brand = ".$value['brandname']."\nKelompok Product = ".$value['collectionname']."\nProduct Series = ".$value['seriesname']."\nPanjang = ".$value['panjang']."\nLebar = ".$value['lebar']."\nTinggi = ".$value['tinggi']."\nDesnity = ".$value['density']."\nStatus = ".$value['recordstatus']."\n\n";
+			}
+		}
+		$judul = '';
+		$user = Yii::app()->db->createCommand("select realname from useraccess where username='".Yii::app()->user->name."'")->queryScalar();
+		$judul = ($title == 'Add' ? 'Data Baru ditambahkan oleh '.$user : 'Data Telah Diubah oleh : '.$user);
+		//$text = '';
+		
+		// $productname = Yii::app()->db->createCommand('select productname from product where productid='.$newdata[0])->queryScalar();
+		$productname = $newdata[1];
+		$productpic = $newdata[3];
+		$barcode = $newdata[4];
+		$k3lnumber = $newdata[16];
+		$leadtime = $newdata[10];
+		$qtypack = $newdata[11];
+		$isstock = $newdata[2];
+		$isfohulbom = $newdata[18];
+		$iscontinue = $newdata[19];
+		$mattype = Yii::app()->db->createCommand('select description from materialtype where materialtypeid='.$newdata[5])->queryScalar();
+		$identity = Yii::app()->db->createCommand('select identityname from productidentity where productidentityid='.$newdata[6])->queryScalar();
+		$brand = Yii::app()->db->createCommand('select brandname from productbrand where productbrandid='.$newdata[7])->queryScalar();
+		$collect = Yii::app()->db->createCommand('select collectionname from productcollection where productcollectid='.$newdata[8])->queryScalar();
+		$series = Yii::app()->db->createCommand('select description from productseries where productseriesid='.$newdata[9])->queryScalar();
+		$panjang = $newdata[12];
+		$lebar = $newdata[13];
+		$tinggi = $newdata[14];
+		$density = $newdata[17];
+		$status = $newdata[15];	
+
+		 $text = $oldtext.$judul."\nProductname = ".$productname."\nGambar = ".$productpic."\nBarcode = ".$barcode."\nNo K3L = ".$k3lnumber."\nLead Time = ".$leadtime."\nQty/Pack = ".$qtypack."\nIsstock? = ".$isstock."\nIsFohulBOM = ".$isfohulbom."\nIsContinue? = ".$iscontinue."\nJenis Material = ".$mattype."\nProduct Identity = ".$identity."\nProduct Brand = ".$brand."\nKelompok Product = ".$collect."\nProduct Series = ".$series."\nPanjang = ".$panjang."\nLebar = ".$lebar."\nTinggi = ".$tinggi."\nDesnity = ".$density."\nStatus = ".$status;
+
+		//$text=$oldtext.$judul;
+		$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+		//$pesanwa = "$text;
+		$wano = '6285376361879';
+		sendwajapri($siaga,$text,$wano);
 	}
 	public function actionUpload() {
 		parent::actionUpload();
