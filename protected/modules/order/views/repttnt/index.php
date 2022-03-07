@@ -4,6 +4,12 @@
 	<?php if (CheckAccess($this->menuname, $this->isdownload) == 1) {  ?>
 		<a href="javascript:void(0)" title="Export Ke PDF"class="easyui-linkbutton" iconCls="icon-pdf" plain="true" onclick="downpdfttnt()"></a>
 <?php }?>
+<?php if (getUserObjectValues('rejectttnt') === 'true') {  ?>
+		<a href="javascript:void(0)" title="Batal " class="easyui-linkbutton" iconCls="icon-clear" plain="true" onclick="rejectttnt()" >Batal</a>
+<?php }?>
+<?php if (getUserObjectValues('backttnt') === 'true') {  ?>
+		<a href="javascript:void(0)" title="Balik " class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="backttnt()" >Balik</a>
+<?php }?>
 <table>
 <tr>
 <td><?php echo GetCatalog('id')?></td>
@@ -227,6 +233,32 @@ formatter: function(value,row,index){
 					return '';
 				}
 			}},
+			{
+field:'isreturn',
+title:'<?php echo GetCatalog('isreturn?') ?>',
+align:'center',
+width:'110px',
+sortable: true,
+formatter: function(value,row,index){
+				if (value == 1){
+					return '<img src="<?php echo Yii::app()->request->baseUrl?>/images/ok.png"></img>';
+				} else {
+					return '';
+				}
+			}},
+			{
+field:'isreject',
+title:'<?php echo GetCatalog('isreject?') ?>',
+align:'center',
+width:'110px',
+sortable: true,
+formatter: function(value,row,index){
+				if (value == 1){
+					return '<img src="<?php echo Yii::app()->request->baseUrl?>/images/ok.png"></img>';
+				} else {
+					return '';
+				}
+			}},
 {
 field:'description',
 title:'<?php echo GetCatalog('description') ?>',
@@ -255,6 +287,101 @@ function searchrepttnt(value){
         companyid:$('#repttnt_search_companyname').val()
 	});
 }
+
+function rejectttnt() {
+	var x = confirm('Apa Anda Yakin Mau Batalin TTNT ini ?');
+	if(x==true) {
+		openloader();
+		let ss = [];
+		const rows = $('#dg-repttnt').edatagrid('getSelections');
+		for(var i=0; i<rows.length; i++){
+				let row = rows[i];
+				ss.push(row.ttntid);
+		}
+		jQuery.ajax({'url':'<?=$this->createUrl('ttnt/cancelttnt')?>',
+			'data':{'id':ss},
+			'type':'post',
+			'dataType':'json',
+			'success':function(data)
+			{
+				closeloader();
+				show('Pesan',data.msg);
+				$('#dg-repttnt').edatagrid('reload');				
+			} ,
+			'cache':false
+		});
+	}
+	else {
+		console.log('no');
+	}
+}
+
+function rejectttnt() {
+	$.messager.confirm({
+		title: 'Konfirmasi',
+		msg: 'Apakah Anda Yakin Untuk Batal TTNT Ini?',
+		ok: 'Ya',
+		cancel: 'Tidak',
+		fn: function(r){
+			if (r){
+				openloader();
+				let ss = [];
+				const rows = $('#dg-repttnt').edatagrid('getSelections');
+				for(var i=0; i<rows.length; i++){
+						let row = rows[i];
+						ss.push(row.ttntid);
+				}
+				jQuery.ajax({'url':'<?=$this->createUrl('ttnt/cancelttnt')?>',
+					'data':{'id':ss},
+					'type':'post',
+					'dataType':'json',
+					'success':function(data)
+					{
+						closeloader();
+						show('Pesan',data.msg);
+						$('#dg-repttnt').edatagrid('reload');				
+					} ,
+					'cache':false
+				});
+			}
+		}
+	});
+		//alert('confirmed: '+r);			
+}
+
+function backttnt() {
+	$.messager.confirm({
+		title: 'Konfirmasi',
+		msg: 'TTNT Kembali / Balik?',
+		ok: 'Ya',
+		cancel: 'Tidak',
+		fn: function(r){
+			if (r){
+				openloader();
+				let ss = [];
+				const rows = $('#dg-repttnt').edatagrid('getSelections');
+				for(var i=0; i<rows.length; i++){
+						let row = rows[i];
+						ss.push(row.ttntid);
+				}
+				jQuery.ajax({'url':'<?=$this->createUrl('ttnt/backttnt')?>',
+					'data':{'id':ss},
+					'type':'post',
+					'dataType':'json',
+					'success':function(data)
+					{
+						closeloader();
+						show('Pesan',data.msg);
+						$('#dg-repttnt').edatagrid('reload');				
+					} ,
+					'cache':false
+				});
+			}
+		}
+	});
+		//alert('confirmed: '+r);			
+}
+
 function downpdfttnt() {
 	var ss = [];
 	var rows = $('#dg-repttnt').edatagrid('getSelections');
