@@ -9,7 +9,7 @@ class RepaccrecController extends Controller
   public function actionDownPDF()
 	{
 		parent::actionDownload();
-		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['product']) && isset($_GET['sales']) && isset($_GET['spv']) && isset($_GET['salesarea']) && isset($_GET['umurpiutang']) && isset($_GET['isdisplay']) && isset($_GET['isbaddebt']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
+		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['product']) && isset($_GET['sales']) && isset($_GET['spv']) && isset($_GET['salesarea']) && isset($_GET['groupcustomer']) && isset($_GET['umurpiutang']) && isset($_GET['isdisplay']) && isset($_GET['isbaddebt']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
 		{
 			$uri = $_SERVER['REQUEST_URI'];
 			$start = strpos($uri,'customer');
@@ -18,222 +18,222 @@ class RepaccrecController extends Controller
 			$customer = urldecode(substr($new,9));
 			if ($_GET['lro'] == 99)
 			{
-				$this->RincianFakturdanReturJualBelumLunasGabungan($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasGabungan($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 98)
 			{
-				$this->RincianFakturdanReturJualBelumLunasSpesial($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasSpesial($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 1)
 			{
-				$this->RincianPelunasanPiutangPerDokumen($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerDokumen($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 2)
 			{
-				$this->RekapPelunasanPiutangPerDivisi($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerDivisi($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 3)
 			{
-				$this->KartuPiutangDagang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->KartuPiutangDagang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 4)
 			{
-				$this->RekapPiutangDagangPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPiutangDagangPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 5)
 			{
-				$this->RincianFakturdanReturJualBelumLunas($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunas($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 6)
 			{
-				$this->RincianUmurPiutangDagangPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianUmurPiutangDagangPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 7)
 			{
-				$this->RekapUmurPiutangDagangPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 8)
 			{
-				$this->RincianFakturdanReturJualBelumLunasPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 9)
 			{
-				$this->RekapKontrolPiutangCustomervsPlafon($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKontrolPiutangCustomervsPlafon($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 10)
 			{
-				$this->RincianKontrolPiutangCustomervsPlafon($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKontrolPiutangCustomervsPlafon($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 11)
 			{
-				$this->KonfirmasiPiutangDagang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->KonfirmasiPiutangDagang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 12)
 			{
-				$this->RekapInvoiceARPerDokumenBelumStatusMax($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapInvoiceARPerDokumenBelumStatusMax($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 13)
 			{
-				$this->RekapNotaReturPenjualanPerDokumenBelumStatusMax($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapNotaReturPenjualanPerDokumenBelumStatusMax($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 14)
 			{
-				$this->RekapPelunasanPiutangPerDokumenBelumStatusMax($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerDokumenBelumStatusMax($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 15)
 			{
-				$this->RincianPelunasanPiutangPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 16)
 			{
-				$this->RekapPelunasanPiutangPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 17)
 			{
-				$this->RincianPelunasanPiutangPerSalesPerJenisBarang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSalesPerJenisBarang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 18)
 			{
-				$this->RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOB($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOB($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 19)
 			{
-				$this->RekapPelunasanPiutangPerSalesPerJenisBarang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerSalesPerJenisBarang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 20)
 			{
-				$this->RekapPenjualanVSPelunasanPerBulanPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPenjualanVSPelunasanPerBulanPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 21)
 			{
-				$this->RekapPiutangVSPelunasanPerBulanPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPiutangVSPelunasanPerBulanPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 22)
 			{
-				$this->RincianPelunasanPiutangPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 23)
 			{
-				$this->RekapPelunasanPiutangPerCustomer($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerCustomer($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 24)
 			{
-				$this->RincianPelunasanPiutangPerCustomerPerJenisBarang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerCustomerPerJenisBarang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 25)
 			{
-				$this->RekapPelunasanPiutangPerCustomerPerJenisBarang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerCustomerPerJenisBarang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 26)
 			{
-				$this->RekapUmurPiutangDagang($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagang($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 27)
 			{
-				$this->RekapUmurPiutangDagangPerBulanPerTahun($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerBulanPerTahun($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 28)
 			{
-				$this->RincianFakturdanReturJualBelumLunasFilterJTT($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasFilterJTT($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 29)
 			{
-				$this->RincianPelunasanPiutangFilterTanggalInvoice($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangFilterTanggalInvoice($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 30)
 			{
-				$this->RincianPelunasanPiutangFilterTanggalPelunasan($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangFilterTanggalPelunasan($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 31)
 			{
-				$this->RekapTargetVSTagihan($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapTargetVSTagihan($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 32)
 			{
-				$this->RincianKomisiKasta($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKomisiKasta($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 33)
 			{
-				$this->RekapTargetTagihanPerDokumenBelumStatusMax($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapTargetTagihanPerDokumenBelumStatusMax($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 34)
 			{
-				$this->RekapSkalaKomisiTagihanPerDokumenBelumStatusMax($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapSkalaKomisiTagihanPerDokumenBelumStatusMax($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 35)
 			{
-				$this->RekapUmurPiutangDagangPerCustomerVsTop($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCustomerVsTop($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 36)
 			{
-				$this->RekapMonitoringPiutangPerCustomerPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapMonitoringPiutangPerCustomerPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 37)
 			{
-				$this->RekapKomisiTagihanPerSPVPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKomisiTagihanPerSPVPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 38)
 			{
-				$this->RekapUmurPiutangDagangPerCompany($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCompany($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 39)
 			{
-				$this->RekapKomisiKasta($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKomisiKasta($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 40)
 			{
-				$this->RincianKomisiTagihanPerSPVPerSales($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKomisiTagihanPerSPVPerSales($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 41)
 			{
-				$this->RincianFakturdanReturJualBelumLunasPerBagian($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasPerBagian($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 		}
 	}
 	//99
-	public function RincianFakturdanReturJualBelumLunasGabungan($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasGabungan($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
     $nilaitot1 = 0;$dibayar1 = 0;$sisa1 = 0;
@@ -403,7 +403,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
   }
 	//98
-	public function RincianFakturdanReturJualBelumLunasSpesial($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasSpesial($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
     $nilaitot1 = 0;$dibayar1 = 0;$sisa1 = 0;
@@ -589,15 +589,23 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//1
-	public function RincianPelunasanPiutangPerDokumen($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerDokumen($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
+		$baddebt = '';
 		$arbaddebt = " AND (e.isbaddebt = 0 or e.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (e.isbaddebt = 1 and e.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = g.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+		} 
 		$totalall = 0;$totalall1 = 0;$totalall2 = 0;$totalall3 = 0;$totalall4 = 0;$totalall5 = 0;$totalall6 = 0;$totalall7 = 0;
 		$sql = "select distinct a.cutarid,a.cutarno,a.docdate as cutardate,c.docno as ttntno,c.docdate as ttntdate,b.companyid
 						from cutar a
@@ -610,12 +618,12 @@ class RepaccrecController extends Controller
 						join ttnt m on m.ttntid=a.ttntid					
 						left join employee h on h.employeeid = m.employeeid
 						join addressbook i on i.addressbookid = g.addressbookid
-						-- where e.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where i.fullname like '%".$customer."%' and h.fullname like '%".$sales."%' and a.cutarno is not null 
-						and a.companyid = ".$companyid." and a.recordstatus=3
+						and a.companyid = ".$companyid." and a.recordstatus=3 
 						and	a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
 						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						{$arbaddebt} ";
+						{$arbaddebt} {$plant}";
 		if ($product !== '') 
 		{
 			$sql = $sql . " and	f.giheaderid in (select distinct a0.giheaderid from gidetail a0 join product a1 on a1.productid=a0.productid where a1.productname like '%".$product."%') ";
@@ -653,12 +661,12 @@ class RepaccrecController extends Controller
 						join cutar b on b.cutarid=a.cutarid
 						join invoice e on e.invoiceid = a.invoiceid
 						join giheader d on d.giheaderid = e.giheaderid
-						join soheader c on c.soheaderid= d.soheaderid
-						join addressbook f on f.addressbookid = c.addressbookid	
+						join soheader g on g.soheaderid= d.soheaderid
+						join addressbook f on f.addressbookid = g.addressbookid	
 						join ttnt h on h.ttntid=b.ttntid
-						left join employee g on g.employeeid = h.employeeid
-						-- where c.isbaddebt = ".$isbaddebt." and 
-						where f.fullname like '%".$customer."%' and g.fullname like '%".$sales."%' and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'	and a.cutarid = ".$row['cutarid']." {$whereproduct} {$arbaddebt}
+						left join employee i on i.employeeid = h.employeeid
+						{$joinplant}
+						where f.fullname like '%".$customer."%' and i.fullname like '%".$sales."%' and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'	and a.cutarid = ".$row['cutarid']." {$whereproduct} {$arbaddebt} {$plant}
 						group by invoiceno)z
 						";
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
@@ -741,14 +749,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//2
-	public function RekapPelunasanPiutangPerDivisi($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerDivisi($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
+		$baddebt = '';
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$sql ="select distinct a.cutarid, sum(cashamount) as tunai,sum(a.bankamount) as bank,sum(a.discamount) as diskon,sum(a.returnamount) as retur,sum(a.obamount) as ob,
 				sum(cashamount)+sum(a.bankamount)+sum(a.discamount)+sum(a.returnamount)+sum(a.obamount) as jumlah,
@@ -765,9 +781,9 @@ class RepaccrecController extends Controller
 				join ttnt h on h.ttntid=b.ttntid
 				join employee f on f.employeeid = h.employeeid
 				join addressbook g on g.addressbookid = e.addressbookid
-				-- where c.isbaddebt = ".$isbaddebt." and 
+				{$joinplant}
 				where b.companyid = ".$companyid." and g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-				and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}
+				and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}
 				group by materialgroupname";
 
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
@@ -823,17 +839,25 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//3
-	public function KartuPiutangDagang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function KartuPiutangDagang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
     $penambahan1=0;$tunai1=0;$bank1=0;$diskon1=0;$retur1=0;$ob1=0;$saldo1=0;
     $arbaddebt = " AND (c1.isbaddebt = 0 or c1.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
     $arbaddebt1 = " AND (b1.isbaddebt = 0 or b1.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c1.isbaddebt = 1 and c1.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 			$arbaddebt1 = " AND (b1.isbaddebt = 1 and b1.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = f1.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
     $sql = "select *
 						from (select a.fullname,a.addressbookid,
@@ -844,23 +868,23 @@ class RepaccrecController extends Controller
 						and d.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'),0))
 						from invoice c1
 						join giheader e on e.giheaderid=c1.giheaderid
-						join soheader f on f.soheaderid=e.soheaderid
-						join employee g on g.employeeid = f.employeeid
-						join addressbook h on h.addressbookid = f.addressbookid
-						-- where b.isbaddebt = ".$isbaddebt." and 
+						join soheader f1 on f1.soheaderid=e.soheaderid
+						join employee g on g.employeeid = f1.employeeid
+						join addressbook h on h.addressbookid = f1.addressbookid
+						{$joinplant} 
 						where h.fullname like '".$customer."' and g.fullname like '%".$sales."%' and c1.recordstatus=3
-						and f.companyid=".$companyid."	and c1.invoicedate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and f.addressbookid=a.addressbookid {$arbaddebt} ),0) as saldo,
+						and f1.companyid=".$companyid."	and c1.invoicedate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+						and f1.addressbookid=a.addressbookid {$arbaddebt} {$plant} ),0) as saldo,
 						ifnull((select sum(ifnull(c1.amount,0))
 						from invoice c1
 						join giheader i on i.giheaderid=c1.giheaderid
-						join soheader j on j.soheaderid=i.soheaderid
-						join employee k on k.employeeid = j.employeeid
-						join addressbook l on l.addressbookid = j.addressbookid
-						-- where h.isbaddebt = ".$isbaddebt." and 
+						join soheader f1 on f1.soheaderid=i.soheaderid
+						join employee k on k.employeeid = f1.employeeid
+						join addressbook l on l.addressbookid = f1.addressbookid
+						{$joinplant}
 						where l.fullname like '%".$customer."%' and k.fullname like '%".$sales."%' and c1.recordstatus=3
-						and j.companyid=".$companyid." and j.addressbookid=a.addressbookid
-						and c1.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ),0) as piutang,
+						and f1.companyid=".$companyid." and f1.addressbookid=a.addressbookid
+						and c1.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ),0) as piutang,
 						ifnull((select sum(ifnull((select sum((ifnull(c.cashamount,0)+ifnull(c.bankamount,0)+ifnull(c.discamount,0)+ifnull(c.returnamount,0)+ifnull(c.obamount,0))*ifnull(c.currencyrate,0))
 						from cutarinv c
 						join cutar d on d.cutarid=c.cutarid
@@ -870,13 +894,13 @@ class RepaccrecController extends Controller
 						and d.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ),0))
 						from invoice b1
 						join giheader e on e.giheaderid=b1.giheaderid
-						join soheader f on f.soheaderid=e.soheaderid
-						join employee g on g.employeeid = f.employeeid
-						join addressbook h on h.addressbookid = f.addressbookid
-						-- where b.isbaddebt = ".$isbaddebt." and 
+						join soheader f1 on f1.soheaderid=e.soheaderid
+						join employee g on g.employeeid = f1.employeeid
+						join addressbook h on h.addressbookid = f1.addressbookid
+						{$joinplant} 
 						where h.fullname like '%".$customer."%' and g.fullname like '%".$sales."%' and b1.recordstatus=3
-						and f.companyid=".$companyid." {$arbaddebt1}
-						and b1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and f.addressbookid=a.addressbookid),0) as dibayar
+						and f1.companyid=".$companyid." {$arbaddebt1} {$plant} 
+						and b1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and f1.addressbookid=a.addressbookid),0) as dibayar
 						from addressbook a
 						where a.fullname like '%".$customer."%') z
 						where z.saldo<>0 or z.piutang<>0 or z.dibayar<>0
@@ -916,15 +940,15 @@ class RepaccrecController extends Controller
 				(select distinct c1.invoiceno as dokumen,c1.invoicedate as tanggal,'-' as ref,c1.amount as penambahan,'0' as tunai,'0' as bank,'0' as diskon,'0' as retur,'0' as ob
 				from invoice c1
 				left join giheader b on b.giheaderid = c1.giheaderid
-				left join soheader c on c.soheaderid = b.soheaderid
+				left join soheader f1 on f1.soheaderid = b.soheaderid
 				left join cbarinv d on d.invoiceid = c1.invoiceid
-				join employee e on e.employeeid = c.employeeid
-				join addressbook f on f.addressbookid = c.addressbookid
-				-- where a.isbaddebt = ".$isbaddebt." and 
-				where f.fullname like '%".$customer."%' and c.companyid = ".$companyid." and c1.recordstatus = 3 and c1.invoiceno is not null and
-				c.addressbookid = ".$row['addressbookid']." and
+				join employee e on e.employeeid = f1.employeeid
+				join addressbook f on f.addressbookid = f1.addressbookid
+				{$joinplant}
+				where f.fullname like '%".$customer."%' and f1.companyid = ".$companyid." and c1.recordstatus = 3 and c1.invoiceno is not null and
+				f1.addressbookid = ".$row['addressbookid']." and
 				c1.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-				and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}
+				and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}
 				union
 				select d.cutarno as dokumen,d.docdate as tanggal,b1.invoiceno as ref,'0' as penambahan,ifnull(c.cashamount,0) as tunai,ifnull(c.bankamount,0) as bank,ifnull(c.discamount,0) as diskon,
 				ifnull(c.returnamount,0) as retur,ifnull(c.obamount,0) as ob
@@ -932,22 +956,22 @@ class RepaccrecController extends Controller
 				join cutar d on d.cutarid=c.cutarid
 				join invoice b1 on b1.invoiceid=c.invoiceid
 				left join giheader h on h.giheaderid = b1.giheaderid
-				left join soheader i on i.soheaderid = h.soheaderid
-				join addressbook j on j.addressbookid = i.addressbookid
-				join employee k on k.employeeid = i.employeeid
-				-- where g.isbaddebt = ".$isbaddebt." and 
-				where d.recordstatus=3 {$arbaddebt1}
+				left join soheader f1 on f1.soheaderid = h.soheaderid
+				join addressbook j on j.addressbookid = f1.addressbookid
+				join employee k on k.employeeid = f1.employeeid
+				{$joinplant}
+				where d.recordstatus=3 {$arbaddebt1} {$plant} 
 				and d.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
 				and c.invoiceid in (select c1.invoiceid
 				from invoice c1
 				join giheader e on e.giheaderid=c1.giheaderid
-				join soheader f on f.soheaderid=e.soheaderid
-				join employee g on g.employeeid = f.employeeid
-				join addressbook h on h.addressbookid = f.addressbookid
-				-- where b.isbaddebt = ".$isbaddebt." and 
+				join soheader f1 on f1.soheaderid=e.soheaderid
+				join employee g on g.employeeid = f1.employeeid
+				join addressbook h on h.addressbookid = f1.addressbookid
+				{$joinplant}
 				where h.fullname like '".$customer."' and g.fullname like '%".$sales."%' and c1.recordstatus=3
-				and f.companyid=".$companyid." and f.addressbookid = ".$row['addressbookid']."
-				and c1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )
+				and f1.companyid=".$companyid." and f1.addressbookid = ".$row['addressbookid']."
+				and c1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} )
 				) z
 				order by tanggal,dokumen";
 			$dataReader2=Yii::app()->db->createCommand($sql2)->queryAll();
@@ -1030,9 +1054,10 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//4
-	public function RekapPiutangDagangPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPiutangDagangPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
+		$baddebt = '';
 		$arbaddebt = " AND (c1.isbaddebt = 0 or c1.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		$arbaddebt1 = " AND (b1.isbaddebt = 0 or b1.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt > 0)
@@ -1041,6 +1066,13 @@ class RepaccrecController extends Controller
 			$arbaddebt = " AND (c1.isbaddebt = 1 and c1.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 			$arbaddebt1 = " AND (b1.isbaddebt = 1 and b1.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = g1.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+		}
 		$sql = 	"select *
 						from (select a.fullname,
 						ifnull((select sum(ifnull(b1.amount,0)-ifnull((select sum((ifnull(c.cashamount,0)+ifnull(c.bankamount,0)+ifnull(c.discamount,0)+ifnull(c.returnamount,0)+ifnull(c.obamount,0))*ifnull(c.currencyrate,0))
@@ -1048,30 +1080,31 @@ class RepaccrecController extends Controller
 						join cutar d on d.cutarid=c.cutarid
 						join invoice c1 on c1.invoiceid = c.invoiceid
 						join giheader f on f.giheaderid = c1.giheaderid
-						join soheader g on g.soheaderid = f.soheaderid
-						join employee h on h.employeeid = g.employeeid
-						join addressbook i on i.addressbookid = g.addressbookid
-						where i.fullname like '%".$customer."%' and h.fullname like '%".$sales."%' and d.recordstatus=3 and c.invoiceid=b1.invoiceid and d.companyid=".$companyid."
+						join soheader g1 on g1.soheaderid = f.soheaderid
+						join employee h on h.employeeid = g1.employeeid
+						join addressbook i on i.addressbookid = g1.addressbookid
+						{$joinplant}
+						where i.fullname like '%".$customer."%' and h.fullname like '%".$sales."%' and d.recordstatus=3 and c.invoiceid=b1.invoiceid and d.companyid=".$companyid." {$plant}
 						and d.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'),0))
 						from invoice b1
 						join giheader e on e.giheaderid=b1.giheaderid
-						join soheader f on f.soheaderid=e.soheaderid
-						join employee g on g.employeeid = f.employeeid
-						join addressbook h on h.addressbookid = f.addressbookid
-						-- where b.isbaddebt = ".$isbaddebt." and 
+						join soheader g1 on g1.soheaderid=e.soheaderid
+						join employee g on g.employeeid = g1.employeeid
+						join addressbook h on h.addressbookid = g1.addressbookid
+						{$joinplant}
 						where h.fullname like '%".$customer."%' and g.fullname like '%".$sales."%' and b1.recordstatus=3
-						and f.companyid=".$companyid."	and b1.invoicedate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and f.addressbookid=a.addressbookid {$arbaddebt1} ),0) as saldoawal,
+						and g1.companyid=".$companyid."	and b1.invoicedate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+						and g1.addressbookid=a.addressbookid {$arbaddebt1} {$plant} ),0) as saldoawal,
 						ifnull((select sum(ifnull(c1.amount,0))
 						from invoice c1
 						join giheader i on i.giheaderid=c1.giheaderid
-						join soheader j on j.soheaderid=i.soheaderid
-						join employee k on k.employeeid = j.employeeid
-						join addressbook l on l.addressbookid = j.addressbookid					
-						-- where h.isbaddebt = ".$isbaddebt." and 
+						join soheader g1 on g1.soheaderid=i.soheaderid
+						join employee k on k.employeeid = g1.employeeid
+						join addressbook l on l.addressbookid = g1.addressbookid					
+						{$joinplant} 
 						where l.fullname like '%".$customer."%' and k.fullname like '%".$sales."%' and c1.recordstatus=3
-						and j.companyid=".$companyid." and j.addressbookid=a.addressbookid
-						and c1.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ),0) as piutang,
+						and g1.companyid=".$companyid." and g1.addressbookid=a.addressbookid
+						and c1.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ),0) as piutang,
 						ifnull((select sum(ifnull((select sum((ifnull(c.cashamount,0)+ifnull(c.bankamount,0)+ifnull(c.discamount,0)+ifnull(c.returnamount,0)+ifnull(c.obamount,0))*ifnull(c.currencyrate,0))
 						from cutarinv c
 						join cutar d on d.cutarid=c.cutarid
@@ -1079,13 +1112,13 @@ class RepaccrecController extends Controller
 						and d.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0))
 						from invoice b1
 						join giheader e on e.giheaderid=b1.giheaderid
-						join soheader f on f.soheaderid=e.soheaderid
-						join employee g on g.employeeid = f.employeeid
-						join addressbook h on h.addressbookid = f.addressbookid
-						-- where b.isbaddebt = ".$isbaddebt." and 
+						join soheader g1 on g1.soheaderid=e.soheaderid
+						join employee g on g.employeeid = g1.employeeid
+						join addressbook h on h.addressbookid = g1.addressbookid
+						{$joinplant}
 						where h.fullname like '%".$customer."%' and g.fullname like '%".$sales."%' and b1.recordstatus=3
-						and f.companyid=".$companyid."
-						and b1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and f.addressbookid=a.addressbookid {$arbaddebt1} ),0) as dibayar
+						and g1.companyid=".$companyid."
+						and b1.invoicedate<='".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and g1.addressbookid=a.addressbookid {$arbaddebt1} {$plant} ),0) as dibayar
 						from addressbook a
 						where a.fullname like '%".$customer."%') z
 						where z.saldoawal<>0 or z.piutang<>0 or z.dibayar<>0
@@ -1137,7 +1170,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//5
-	public function RincianFakturdanReturJualBelumLunas($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunas($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$nilaitot1 = 0;$dibayar1 = 0;$sisa1 = 0;
@@ -1149,6 +1182,14 @@ class RepaccrecController extends Controller
 		if($isbaddebt == 1) $arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		
 		//$arbaddebt = "";
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
+		
     $sql = "select distinct addressbookid,fullname,lat,lng,wanumber
 					from (select b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
 					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
@@ -1156,20 +1197,20 @@ class RepaccrecController extends Controller
 					join cutar g on g.cutarid=f.cutarid
 					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
 					(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
+					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber,a.invoiceid,c.soheaderid
 					from invoice a
 					join giheader b on b.giheaderid = a.giheaderid
 					join soheader c on c.soheaderid = b.soheaderid
 					join addressbook d on d.addressbookid = c.addressbookid
 					join employee e on e.employeeid = c.employeeid
 					left join salesarea f on f.salesareaid = d.salesareaid
+					left join groupcustomer g on g.groupcustomerid = d.groupcustomerid
 					where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
-					-- and a.isbaddebt = {$isbaddebt}
-					-- and d.groupcustomerid=4
+					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and g.groupname like '%".$groupcustomer."%' ".$isdisplay1."
 					and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					{$arbaddebt}) z
-					where amount > payamount
+					{$arbaddebt} ) z
+					{$joinplant}
+					where amount > payamount {$plant}
 		";
 		if ($sloc !== '') 
 		{
@@ -1221,7 +1262,7 @@ class RepaccrecController extends Controller
 			$this->pdf->text(145,$this->pdf->gety()+5,'Koordinat:');
 			$this->pdf->text(168,$this->pdf->gety()+5,$row['lat'].',');
 			$this->pdf->text(185,$this->pdf->gety()+5,$row['lng']);
-			$sql1 = " select *, (amount-payamount) as sisa,(amount) as nilai
+			$sql1 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 							from (select b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
 							date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 							datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -1229,20 +1270,20 @@ class RepaccrecController extends Controller
 							ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 							from cutarinv f
 							join cutar g on g.cutarid=f.cutarid
-							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
 							from invoice a
 							inner join giheader b on b.giheaderid = a.giheaderid
 							inner join soheader c on c.soheaderid = b.soheaderid
 							inner join addressbook d on d.addressbookid = c.addressbookid
 							inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
 							inner join employee ff on ff.employeeid = c.employeeid
-
 							where (d.fullname like '%".$customer."%' and ff.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 							and d.addressbookid = '".$row['addressbookid']."' ".$isdisplay1."
-							-- and a.isbaddebt = {$isbaddebt}
 							and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-							{$arbaddebt})z
-							where amount > payamount
+							{$arbaddebt} ) z
+							{$joinplant}
+							where amount > payamount {$plant}
+
 			";
 			if ($sloc !== '') 
 			{
@@ -1323,14 +1364,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//6
-	public function RincianUmurPiutangDagangPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianUmurPiutangDagangPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = c.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
     $total2sd0 = 0;
     $total20sd30 = 0;
@@ -1352,10 +1401,10 @@ class RepaccrecController extends Controller
         join soheader c on c.soheaderid = b.soheaderid
         join addressbook d on d.addressbookid = c.addressbookid
         join employee e on e.employeeid = c.employeeid
-        -- where a.isbaddebt = ".$isbaddebt." and 
+        {$joinplant}
 				where e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
         and d.fullname like '%".$customer."%' 
-        and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ) z
+        and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ) z
         where amount > payamount order by fullname";
               
     $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
@@ -1392,9 +1441,9 @@ class RepaccrecController extends Controller
               join soheader c on c.soheaderid = b.soheaderid
               join paymentmethod d on d.paymentmethodid = c.paymentmethodid
               join employee e on e.employeeid = c.employeeid
-              -- where a.isbaddebt = ".$isbaddebt." and 
+              {$joinplant}
 							where e.fullname like '%".$sales."%' and c.companyid = ".$companyid." and a.recordstatus = 3 and c.addressbookid = '".$row['addressbookid']."' 
-              and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
+              and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} )z
               where totamount > 0
               order by invoicedate";
       $dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
@@ -1483,14 +1532,22 @@ class RepaccrecController extends Controller
     $this->pdf->Output();
   }
 	//7
-	public function RekapUmurPiutangDagangPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = c.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$sql = "select *,sum(sd0) as belumjatuhtempo, sum(0sd30) as sum0sd30,sum(31sd60) as sum31sd60, sum(61sd90) as sum61sd90, sum(sd90) as sumsd90
 				from (select *,
@@ -1577,14 +1634,24 @@ class RepaccrecController extends Controller
     $this->pdf->Output();
 	}
 	//8
-	public function RincianFakturdanReturJualBelumLunasPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
 		}
     $nilaitot2 = 0;$dibayar2 = 0;$sisa2 = 0;
     $sql = "select distinct employeeid,fullname
@@ -1592,17 +1659,18 @@ class RepaccrecController extends Controller
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
           inner join employee f on f.employeeid=c.employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
-					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
+          left join groupcustomer g on g.groupcustomerid=d.groupcustomerid
+					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and g.groupname like '%".$groupcustomer."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-          where amount > payamount order by fullname";
+					{$joinplant} 
+          where amount > payamount {$plant} order by fullname";
     $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     
       $this->pdf->companyid = $companyid;
@@ -1625,18 +1693,18 @@ class RepaccrecController extends Controller
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
-          inner join employee f on f.employeeid = c. employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
-					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
+          inner join employee f on f.employeeid = c.employeeid
+          left join groupcustomer g on g.groupcustomerid = d.groupcustomerid
+					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and g.groupname like '%".$groupcustomer."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and c.employeeid = '".$row['employeeid']."'
-          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-          where amount > payamount ";
+          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z {$joinplant}
+          where amount > payamount {$plant} ";
       if ($_GET['umurpiutang'] !== '') 
       {
               $sql1 = $sql1 . "and  umur > ".$_GET['umurpiutang']." order by fullname";
@@ -1653,7 +1721,7 @@ class RepaccrecController extends Controller
         $this->pdf->text(10,$this->pdf->gety()+5,'Customer ');$this->pdf->text(30,$this->pdf->gety()+5,': '.$row1['fullname']);
         $this->pdf->sety($this->pdf->gety()+5);
         
-        $sql2 = "select *
+        $sql2 = "select distinct z.*
           from (select if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
           date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
           datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -1661,18 +1729,18 @@ class RepaccrecController extends Controller
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
           inner join employee f on f.employeeid = c.employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
 					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and d.addressbookid = '".$row1['addressbookid']."' and c.employeeid = '".$row['employeeid']."'
-          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt})z
-          where amount > payamount ";
+          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
+					{$joinplant} 
+          where amount > payamount {$plant} ";
         if ($_GET['umurpiutang'] !== '') 
         {
                 $sql2 = $sql2 . "and  umur > ".$_GET['umurpiutang']." order by umurtempo desc";
@@ -1753,7 +1821,7 @@ class RepaccrecController extends Controller
     $this->pdf->Output();
   }
 	//9
-	public function RekapKontrolPiutangCustomervsPlafon($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKontrolPiutangCustomervsPlafon($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -1835,7 +1903,7 @@ class RepaccrecController extends Controller
 
 		$this->pdf->Output();
 	}
-	/*public function RekapKontrolPiutangCustomervsPlafon($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	/*public function RekapKontrolPiutangCustomervsPlafon($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$totalbelum=0;$totalsudah=0;$totalnilai=0;$totalplafon=0;
@@ -1924,7 +1992,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}*/
 	//10
-	public function RincianKontrolPiutangCustomervsPlafon($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianKontrolPiutangCustomervsPlafon($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -2056,7 +2124,7 @@ class RepaccrecController extends Controller
     $this->pdf->Output();
   }
 	//11
-	public function KonfirmasiPiutangDagang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function KonfirmasiPiutangDagang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -2220,7 +2288,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
    }
 	//12
-	public function RekapInvoiceARPerDokumenBelumStatusMax($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapInvoiceARPerDokumenBelumStatusMax($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$sql ="select distinct a.invoiceid, a.invoiceno, a.invoicedate, b.gino, a.headernote, c.companyid, a.recordstatus, a.statusname
@@ -2266,7 +2334,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//13
-	public function RekapNotaReturPenjualanPerDokumenBelumStatusMax($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapNotaReturPenjualanPerDokumenBelumStatusMax($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 			$sql ="select distinct a.notagirid, a.notagirno, a.docdate, b.gireturno, a.headernote, a.recordstatus, a.companyid, a.statusname
@@ -2311,7 +2379,7 @@ class RepaccrecController extends Controller
 			$this->pdf->Output();
 	}
 	//14
-	public function RekapPelunasanPiutangPerDokumenBelumStatusMax($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerDokumenBelumStatusMax($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 			$sql ="select distinct a.cutarid,a.cutarno,a.docdate, b.docno,a.headernote,a.recordstatus,a.statusname
@@ -2356,14 +2424,22 @@ class RepaccrecController extends Controller
 			$this->pdf->Output();
 	}	
 	//15
-	public function RincianPelunasanPiutangPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;$wheresalesarea='';$whereproduct ='';
 		$sql = "select distinct f.employeeid,f.fullname,e.companyid
@@ -2376,11 +2452,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -2430,10 +2506,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+						and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 						order by docdate,fullname,invoicedate
 						";
 			if($salesarea !=='') 
@@ -2541,14 +2617,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//16
-	public function RekapPelunasanPiutangPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$i=0;$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;$wheresalesarea='';$whereproduct ='';
 		$sql = "select distinct f.employeeid,f.fullname,e.companyid
@@ -2557,15 +2641,14 @@ class RepaccrecController extends Controller
 						join invoice c on c.invoiceid=a.invoiceid
 						join giheader d on d.giheaderid=c.giheaderid
 						join soheader e on e.soheaderid=d.soheaderid
-				        join ttnt h on h.ttntid=b.ttntid
+						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-                        {$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$wheresalesarea} {$whereproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
         
 		if($salesarea!=='')
     {
@@ -2620,10 +2703,9 @@ class RepaccrecController extends Controller
 						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$wheresalesarea} {$whereproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 						order by docdate,fullname
 						";
       if($salesarea!=='')
@@ -2694,14 +2776,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//17
-	public function RincianPelunasanPiutangPerSalesPerJenisBarang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSalesPerJenisBarang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0; $joinsalesarea = ''; $joinproduct=''; $wheresalesarea = ''; $whereproduct='';
 		if($salesarea!=='')
@@ -2724,11 +2814,10 @@ class RepaccrecController extends Controller
 						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-						{$joinsalesarea} {$joinproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinsalesarea} {$joinproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." {$wheresalesarea} {$whereproduct}
 						and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -2772,12 +2861,11 @@ class RepaccrecController extends Controller
 							join ttnt i on i.ttntid=b.ttntid
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
-              {$joinsalesarea} {$joinproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+              {$joinsalesarea} {$joinproduct} {$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							order by description
 							";
 			if($salesarea!=='')
@@ -2817,10 +2905,10 @@ class RepaccrecController extends Controller
 							join ttnt i on i.ttntid=b.ttntid
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
-							{$wheresalesarea} {$whereproduct}
+							{$wheresalesarea} {$whereproduct} {$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							where z.materialgroupid = ".$row1['materialgroupid']."
 							order by docdate,fullname,invoicedate
 							";
@@ -2945,14 +3033,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//18 
-	public function RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOB($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOB($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0; $joinsalesarea = ''; $joinproduct=''; $wheresalesarea = ''; $whereproduct='';
 		if($salesarea!=='')
@@ -2976,10 +3072,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$joinsalesarea} {$joinproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." {$wheresalesarea} {$whereproduct}
 						and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     
 			$this->pdf->companyid = $companyid;
@@ -3011,11 +3107,11 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
               {$joinsalesarea} {$joinproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant} ) z
 							order by description";
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
 			foreach($dataReader1 as $row1)
@@ -3043,11 +3139,11 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
               {$joinsalesarea} {$joinproduct}
-							-- where a.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant} ) z
 							where z.materialgroupid = ".$row1['materialgroupid']."
 							order by docdate,fullname,invoicedate
 							";
@@ -3161,14 +3257,24 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//19
-	public function RekapPelunasanPiutangPerSalesPerJenisBarang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerSalesPerJenisBarang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$plant1 = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+			$plant1 = ' and i.plantid ='.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0; $wheresalesarea=''; $whereproduct='';
 		$sql = "select distinct f.employeeid,f.fullname,e.companyid
@@ -3181,11 +3287,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -3226,9 +3332,8 @@ class RepaccrecController extends Controller
 							join gidetail h on h.giheaderid=d.giheaderid
 							join sloc i on i.slocid=h.slocid
 							{$wheresalesarea} {$whereproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
-							b.recordstatus=3 and f.employeeid = ".$row['employeeid']." and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+							b.recordstatus=3 and f.employeeid = ".$row['employeeid']." and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant1} ";
 			if($salesarea!=='')
       {
           $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -3273,10 +3378,10 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
 							{$wheresalesarea} {$whereproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -3370,7 +3475,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//20
-	public function RekapPenjualanVSPelunasanPerBulanPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPenjualanVSPelunasanPerBulanPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$sql = "select * from
@@ -3844,7 +3949,7 @@ class RepaccrecController extends Controller
       
 	}  
 	//21
-	public function RekapPiutangVSPelunasanPerBulanPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPiutangVSPelunasanPerBulanPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -4228,14 +4333,22 @@ class RepaccrecController extends Controller
     $this->pdf->Output();
 	}
 	//22
-	public function RincianPelunasanPiutangPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -4248,11 +4361,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
-						-- where c.isbaddebt = ".$isbaddebt." and
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if ($product !== '') 
 		{
 			$sql = $sql . " and	d.giheaderid in (select distinct a0.giheaderid from gidetail a0 join product a1 on a1.productid=a0.productid where a1.productname like '%".$product."%') ";
@@ -4301,10 +4414,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$whereproduct} {$arbaddebt} ) z
+						and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$whereproduct} {$arbaddebt} {$plant} ) z
 						";
 			if ($umurpiutang !== '') 
 			{
@@ -4405,14 +4518,19 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//23
-	public function RekapPelunasanPiutangPerCustomer($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerCustomer($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		if($plantid!=='') {
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$i=0;$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -4427,11 +4545,11 @@ class RepaccrecController extends Controller
 						left join salesarea j on j.salesareaid=g.salesareaid
 						left join gidetail k on k.giheaderid=d.giheaderid
 						left join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and ifnull(j.areaname,'') like '%".$salesarea."%' and ifnull(l.productname,'') like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     
@@ -4476,11 +4594,11 @@ class RepaccrecController extends Controller
 						left join salesarea j on j.salesareaid=g.salesareaid
 						left join gidetail k on k.giheaderid=d.giheaderid
 						left join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 						and ifnull(l.productname,'') like '%".$product."%' 
-						and ifnull(j.areaname,'') like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt}) z
+						and ifnull(j.areaname,'') like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 						order by docdate,fullname
 						";
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
@@ -4540,14 +4658,19 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//24
-	public function RincianPelunasanPiutangPerCustomerPerJenisBarang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerCustomerPerJenisBarang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant='';
+		if($plantid!=='') {
+			$plant=' and s.plantid = '.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -4561,12 +4684,12 @@ class RepaccrecController extends Controller
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
 						join gidetail k on k.giheaderid=d.giheaderid
-						join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						join product l on l.productid=k.productid 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and l.productname like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     
@@ -4583,7 +4706,7 @@ class RepaccrecController extends Controller
 		foreach($dataReader as $row)
 		{
 			$this->pdf->setFont('Arial','B',9);
-			$this->pdf->text(10,$this->pdf->gety()+2,'CUSTOMER ');$this->pdf->text(25,$this->pdf->gety()+2,': '.$row['fullname']);
+			$this->pdf->text(10,$this->pdf->gety()+2,'CUSTOMER ');$this->pdf->text(35,$this->pdf->gety()+2,': '.$row['fullname']);
 			$this->pdf->sety($this->pdf->gety()+5);
 			$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 			$sql1 = "select distinct i.slocid,i.description
@@ -4600,11 +4723,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
 							join gidetail k on k.giheaderid=d.giheaderid
 							join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 							b.recordstatus=3 and g.addressbookid = ".$row['addressbookid']." and j.areaname like '%".$salesarea."%' and
 							l.productname like '%".$product."%' and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 			
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
 									
@@ -4635,11 +4758,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 							and l.productname like '%".$product."%' 
-							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} ) z
+							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -4749,14 +4872,19 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//25
-	public function RekapPelunasanPiutangPerCustomerPerJenisBarang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerCustomerPerJenisBarang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 	  parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt='';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant='';
+		if($plantid!=='') {
+			$plant = ' and s.plantid = '.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -4771,11 +4899,11 @@ class RepaccrecController extends Controller
 						join salesarea j on j.salesareaid=g.salesareaid
 						join gidetail k on k.giheaderid=d.giheaderid
 						join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and l.productname like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
     
@@ -4792,7 +4920,7 @@ class RepaccrecController extends Controller
 		foreach($dataReader as $row)
 		{
 			$this->pdf->setFont('Arial','B',9);
-			$this->pdf->text(10,$this->pdf->gety()+2,'CUSTOMER ');$this->pdf->text(25,$this->pdf->gety()+2,': '.$row['fullname']);
+			$this->pdf->text(10,$this->pdf->gety()+2,'CUSTOMER ');$this->pdf->text(35,$this->pdf->gety()+2,': '.$row['fullname']);
 			$i=0;$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 			$sql1 = "select distinct i.slocid,i.description
 							from cutarinv a
@@ -4808,11 +4936,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 							b.recordstatus=3 and j.areaname like '%".$salesarea."%' and g.addressbookid = ".$row['addressbookid']." and
 							l.productname like '%".$product."%' and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}";
+							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 			
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
 			
@@ -4849,11 +4977,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 							and l.productname like '%".$product."%' 
-							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt}) z
+							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -4936,7 +5064,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//26
-	public function RekapUmurPiutangDagang($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagang($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -5034,7 +5162,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//27
-	public function RekapUmurPiutangDagangPerBulanPerTahun($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerBulanPerTahun($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -5508,14 +5636,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//28
-	public function RincianFakturdanReturJualBelumLunasFilterJTT($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasFilterJTT($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
 		}
 		$nilaitot1 = 0;$dibayar1 = 0;$sisa1 = 0;
 		$sql = "select distinct addressbookid,fullname
@@ -5523,7 +5659,7 @@ class RepaccrecController extends Controller
 					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 					from cutarinv f
 					join cutar g on g.cutarid=f.cutarid
-					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount
+					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount, a.invoiceid, c.soheaderid
 					from invoice a
 					join giheader b on b.giheaderid = a.giheaderid
 					join soheader c on c.soheaderid = b.soheaderid
@@ -5531,11 +5667,11 @@ class RepaccrecController extends Controller
 					join employee e on e.employeeid = c.employeeid
 					join paymentmethod g on g.paymentmethodid = c.paymentmethodid
 					left join salesarea f on f.salesareaid = d.salesareaid
-					-- where a.isbaddebt = ".$isbaddebt." and
 					where e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%'
 					and date_add(a.invoicedate,interval g.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}) z
-					where amount > payamount
+					{$joinplant}
+					where amount > payamount {$plant} 
 					";
 		if ($_GET['umurpiutang'] !== '') 
 		{
@@ -5560,7 +5696,7 @@ class RepaccrecController extends Controller
 		{
 			$this->pdf->SetFont('Arial','',10);
 			$this->pdf->text(10,$this->pdf->gety()+5,$row['fullname']);
-			$sql1 = " select *, (amount-payamount) as sisa,(amount) as nilai
+			$sql1 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 								from (select a.invoiceno,a.invoicedate,e.paydays,
 								date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -5568,18 +5704,18 @@ class RepaccrecController extends Controller
 								ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 								from cutarinv f
 								join cutar g on g.cutarid=f.cutarid
-								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount
+								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount, a.invoiceid, c.soheaderid
 								from invoice a
 								inner join giheader b on b.giheaderid = a.giheaderid
 								inner join soheader c on c.soheaderid = b.soheaderid
 								inner join addressbook d on d.addressbookid = c.addressbookid
 								inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
 								inner join employee ff on ff.employeeid = c.employeeid
-								-- where a.isbaddebt = ".$isbaddebt." and 
 								where d.fullname like '%".$customer."%' and ff.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 								and d.addressbookid = '".$row['addressbookid']."'						
-								and date_add(a.invoicedate,interval e.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-								where amount > payamount
+								and date_add(a.invoicedate,interval e.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z 
+								{$joinplant}
+								where amount > payamount {$plant} 
 								";
 			if ($_GET['umurpiutang'] !== '') 
 			{
@@ -5653,14 +5789,22 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//29
-	public function RincianPelunasanPiutangFilterTanggalInvoice($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangFilterTanggalInvoice($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$plant = ' left join sodetail ss on ss.soheaderid = z.soheaderid 
+			left join sloc s on s.slocid = ss.slocid
+			where s.plantid = '.$plantid;
 		}
 		$this->pdf->companyid = $companyid;
 				
@@ -5669,8 +5813,8 @@ class RepaccrecController extends Controller
 		$this->pdf->AddPage('L');
 		$i=0;
 		$sub_nominal=0;$sub_paidamount=0;$sub_ob=0;$sub_disc=0;$sub_return=0;$sub_paidvalue=0;
-		$sql = "select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
-                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname
+		$sql = "select distinct z.* from (select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
+                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname,a.cutarinvid,e.soheaderid
                 from cutarinv a
                 join cutar b on a.cutarid = b.cutarid
                 join invoice c on c.invoiceid = a.invoiceid
@@ -5679,10 +5823,10 @@ class RepaccrecController extends Controller
                 join addressbook f on f.addressbookid = e.addressbookid
 						    join ttnt h on h.ttntid=b.ttntid
                 join employee g on g.employeeid = h.employeeid
-                -- where c.isbaddebt = ".$isbaddebt." and 
 								where c.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
                 and c.recordstatus = 3 and b.recordstatus = 3 and e.companyid = {$companyid} and g.fullname like '%{$sales}%' {$arbaddebt}
-                order by invoicedate asc";
+                order by invoicedate asc) z 
+								{$plant} ";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		$this->pdf->sety($this->pdf->gety()+7);
 		$this->pdf->setFont('Arial','B',8);
@@ -5729,14 +5873,21 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//30
-	public function RincianPelunasanPiutangFilterTanggalPelunasan($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangFilterTanggalPelunasan($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		$baddebt = '';
 		if($isbaddebt > 0)
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		if($plantid !== '') {
+			$plant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid
+			where s.plantid = '.$plantid;
 		}
 		$this->pdf->companyid = $companyid;
 				
@@ -5746,8 +5897,8 @@ class RepaccrecController extends Controller
 		$i=0;
 		$sub_nominal=0;$sub_paidamount=0;$sub_ob=0;$sub_disc=0;$sub_return=0;$sub_paidvalue=0;
 		
-		$sql = "select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
-                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname
+		$sql = "select distinct z.* from (select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
+                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname, a.cutarinvid, e.soheaderid
                 from cutarinv a
                 join cutar b on a.cutarid = b.cutarid
                 join invoice c on c.invoiceid = a.invoiceid
@@ -5756,10 +5907,10 @@ class RepaccrecController extends Controller
                 join addressbook f on f.addressbookid = e.addressbookid
 								join ttnt h on h.ttntid=b.ttntid
                 join employee g on g.employeeid = h.employeeid
-                -- where c.isbaddebt = ".$isbaddebt." and 
 								where b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
                 and c.recordstatus = 3 and b.recordstatus = 3 and e.companyid = {$companyid} and g.fullname like '%{$sales}%' {$arbaddebt}
-                order by b.docdate asc";
+                order by b.docdate asc) z 
+								{$plant} ";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		$this->pdf->sety($this->pdf->gety()+7);
 		$this->pdf->setFont('Arial','B',8);
@@ -5808,7 +5959,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//31
-	public function RekapTargetVSTagihan($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapTargetVSTagihan($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 			parent::actionDownload();
 			//$this->no_result();
@@ -6074,392 +6225,392 @@ class RepaccrecController extends Controller
 			$this->pdf->Output();
 	}
 	//32
-    public function RincianKomisiKasta($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
-    {
-        parent::actionDownload();
-        $c_employeeid = getEmployeeid();
-        $issales = getSalesEmployee();
-        $issales == 1 ? $emp =  getStructure($c_employeeid,$c_employeeid,$companyid) : $emp = getUserObjectValues('employee');
+	public function RincianKomisiKasta($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	{
+			parent::actionDownload();
+			$c_employeeid = getEmployeeid();
+			$issales = getSalesEmployee();
+			$issales == 1 ? $emp =  getStructure($c_employeeid,$c_employeeid,$companyid) : $emp = getUserObjectValues('employee');
 
-        $arr_emp = explode(',',$c_employeeid);
-        $arr = explode(',',$emp);
-        if($sales!='') {
-          //$exp = array_intersect($arr_emp,$arr);
-          $employeeid = implode(',',$arr);
-        }
-        else {
-          $employeeid = $emp;
-        }
-        $connection = Yii::app()->db;
-        $this->pdf->title='RINCIAN UPAH TAMBAHAN SALES';
-	      $this->pdf->companyid=$companyid;
-        $datetime = new DateTime(date(Yii::app()->params['datetodb'], strtotime($enddate)));
+			$arr_emp = explode(',',$c_employeeid);
+			$arr = explode(',',$emp);
+			if($sales!='') {
+				//$exp = array_intersect($arr_emp,$arr);
+				$employeeid = implode(',',$arr);
+			}
+			else {
+				$employeeid = $emp;
+			}
+			$connection = Yii::app()->db;
+			$this->pdf->title='RINCIAN UPAH TAMBAHAN SALES';
+			$this->pdf->companyid=$companyid;
+			$datetime = new DateTime(date(Yii::app()->params['datetodb'], strtotime($enddate)));
 
-        $this->pdf->subtitle='PERIODE : '.$datetime->format('F').' '.$datetime->format('Y');
+			$this->pdf->subtitle='PERIODE : '.$datetime->format('F').' '.$datetime->format('Y');
 
-        $month = date('m',strtotime($enddate));
-        $year = date('Y',strtotime($enddate));
+			$month = date('m',strtotime($enddate));
+			$year = date('Y',strtotime($enddate));
 
-        $prev_month_ts =  strtotime($year.'-'.$month.'-01');
-        $month1 = date('Y-m-d', $prev_month_ts);
+			$prev_month_ts =  strtotime($year.'-'.$month.'-01');
+			$month1 = date('Y-m-d', $prev_month_ts);
 
-        $this->pdf->AddPage('L','F4');
+			$this->pdf->AddPage('L','F4');
 
-        $this->pdf->sety($this->pdf->gety()+5);
+			$this->pdf->sety($this->pdf->gety()+5);
 
-        $this->pdf->text(300,15,'Per : '.$per);
-        //$this->pdf->text(270,15,'X = T.O.P');
-        $wheresalesarea = $whereproduct = '';
-        $sqldata = "select distinct f.employeeid,f.fullname,e.companyid
-        from cutarinv a
-        join cutar b on b.cutarid=a.cutarid
-        join invoice c on c.invoiceid=a.invoiceid
-        join giheader d on d.giheaderid=c.giheaderid
-        join soheader e on e.soheaderid=d.soheaderid
-        join ttnt h on h.ttntid=b.ttntid
-        join employee f on f.employeeid=h.employeeid
-        join addressbook g on g.addressbookid=e.addressbookid
-		    join employeeorgstruc i on i.employeeid=f.employeeid
-		    join orgstructure j on j.orgstructureid=i.orgstructureid and j.companyid=e.companyid
-        {$wheresalesarea} {$whereproduct}
-        where j.structurename LIKE '%salesman%' and i.recordstatus=1 and g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
-        b.recordstatus=3 and f.employeeid in({$employeeid})
-		    and month(b.docdate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-		    and year(b.docdate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-        and e.isdisplay=0
-        order by f.fullname asc";
-        
-      $sqlidscale = "select scaleid
-                    from scale
-                    where recordstatus = getwfmaxstatbywfname('appss') 
-                    -- and companyid = {$companyid} 
-                    order by docdate desc limit 1";
-      $idscale = Yii::app()->db->createCommand($sqlidscale)->queryScalar();
-
-        $data = Yii::app()->db->createCommand($sqldata)->queryAll();
-        foreach($data as $row)
-		  {
-            $totbayar0sd50 = 0;
-            $totscale0sd50 = 0;
-            $totbayar50sd90 = 0;
-            $totscale50sd90 = 0;
-            $totbayar90sd110 = 0;
-            $totscale90sd110 = 0;
-            $totbayar110sd150 = 0;
-            $totscale110sd150 = 0;
-            $totbayarsd150 = 0;
-            $totscalesd150 = 0;
-            $totjumlahbayar = 0;
-            $totscalejumlah = 0;
+			$this->pdf->text(300,15,'Per : '.$per);
+			//$this->pdf->text(270,15,'X = T.O.P');
+			$wheresalesarea = $whereproduct = '';
+			$sqldata = "select distinct f.employeeid,f.fullname,e.companyid
+			from cutarinv a
+			join cutar b on b.cutarid=a.cutarid
+			join invoice c on c.invoiceid=a.invoiceid
+			join giheader d on d.giheaderid=c.giheaderid
+			join soheader e on e.soheaderid=d.soheaderid
+			join ttnt h on h.ttntid=b.ttntid
+			join employee f on f.employeeid=h.employeeid
+			join addressbook g on g.addressbookid=e.addressbookid
+			join employeeorgstruc i on i.employeeid=f.employeeid
+			join orgstructure j on j.orgstructureid=i.orgstructureid and j.companyid=e.companyid
+			{$wheresalesarea} {$whereproduct}
+			where j.structurename LIKE '%salesman%' and i.recordstatus=1 and g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
+			b.recordstatus=3 and f.employeeid in({$employeeid})
+			and month(b.docdate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+			and year(b.docdate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+			and e.isdisplay=0
+			order by f.fullname asc";
 			
-			$sqlsaldoup120 = "select sum(a5) as up120
-				from (select case when umur > 120 then amount-payamount else 0 end as a5
-					from (select a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
-						ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
-							from cutarinv f
-							join cutar g on g.cutarid=f.cutarid
-							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
-						from invoice a
-						inner join giheader b on b.giheaderid = a.giheaderid
-						inner join soheader c on c.soheaderid = b.soheaderid
-						inner join addressbook d on d.addressbookid = c.addressbookid
-						inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
-						inner join employee ff on ff.employeeid = c.employeeid
-						where c.isdisplay=0 and a.recordstatus=3 and a.invoiceno is not null and c.companyid = {$companyid} and d.fullname like '%".$customer."%' 
-						and ff.fullname like '%".$sales."%'  and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and c.employeeid = {$row['employeeid']}
-						-- and d.custcategoryid = {cust['custcategoryid']}
-						) z
-					where amount > payamount) zz";
-			$saldo120 = Yii::app()->db->createCommand($sqlsaldoup120)->queryScalar();
-          
-            $sqlcustcategory = "select i.custcategoryid,i.custcategoryname,
-            (select ifnull(`value`,0) from scalecat s where s.custcategoryid = g.custcategoryid and s.scaleid = {$idscale}) skala
-            from cutarinv a
-            join cutar b on b.cutarid=a.cutarid
-            join invoice c on c.invoiceid=a.invoiceid
-            join giheader d on d.giheaderid=c.giheaderid
-            join soheader e on e.soheaderid=d.soheaderid
-            join ttnt h on h.ttntid=b.ttntid
-            join employee f on f.employeeid=h.employeeid
-            join addressbook g on g.addressbookid=e.addressbookid
-            join custcategory i on i.custcategoryid = g.custcategoryid
-            {$wheresalesarea} {$whereproduct}
-            where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
+		$sqlidscale = "select scaleid
+									from scale
+									where recordstatus = getwfmaxstatbywfname('appss') 
+									-- and companyid = {$companyid} 
+									order by docdate desc limit 1";
+		$idscale = Yii::app()->db->createCommand($sqlidscale)->queryScalar();
+
+			$data = Yii::app()->db->createCommand($sqldata)->queryAll();
+			foreach($data as $row)
+		{
+					$totbayar0sd50 = 0;
+					$totscale0sd50 = 0;
+					$totbayar50sd90 = 0;
+					$totscale50sd90 = 0;
+					$totbayar90sd110 = 0;
+					$totscale90sd110 = 0;
+					$totbayar110sd150 = 0;
+					$totscale110sd150 = 0;
+					$totbayarsd150 = 0;
+					$totscalesd150 = 0;
+					$totjumlahbayar = 0;
+					$totscalejumlah = 0;
+		
+		$sqlsaldoup120 = "select sum(a5) as up120
+			from (select case when umur > 120 then amount-payamount else 0 end as a5
+				from (select a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
+					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+						from cutarinv f
+						join cutar g on g.cutarid=f.cutarid
+						where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+					from invoice a
+					inner join giheader b on b.giheaderid = a.giheaderid
+					inner join soheader c on c.soheaderid = b.soheaderid
+					inner join addressbook d on d.addressbookid = c.addressbookid
+					inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
+					inner join employee ff on ff.employeeid = c.employeeid
+					where c.isdisplay=0 and a.recordstatus=3 and a.invoiceno is not null and c.companyid = {$companyid} and d.fullname like '%".$customer."%' 
+					and ff.fullname like '%".$sales."%'  and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+					and c.employeeid = {$row['employeeid']}
+					-- and d.custcategoryid = {cust['custcategoryid']}
+					) z
+				where amount > payamount) zz";
+		$saldo120 = Yii::app()->db->createCommand($sqlsaldoup120)->queryScalar();
+				
+					$sqlcustcategory = "select i.custcategoryid,i.custcategoryname,
+					(select ifnull(`value`,0) from scalecat s where s.custcategoryid = g.custcategoryid and s.scaleid = {$idscale}) skala
+					from cutarinv a
+					join cutar b on b.cutarid=a.cutarid
+					join invoice c on c.invoiceid=a.invoiceid
+					join giheader d on d.giheaderid=c.giheaderid
+					join soheader e on e.soheaderid=d.soheaderid
+					join ttnt h on h.ttntid=b.ttntid
+					join employee f on f.employeeid=h.employeeid
+					join addressbook g on g.addressbookid=e.addressbookid
+					join custcategory i on i.custcategoryid = g.custcategoryid
+					{$wheresalesarea} {$whereproduct}
+					where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
+		and month(b.docdate) = month('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+		and year(b.docdate) = year('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+					and e.companyid = {$companyid} and f.employeeid = {$row['employeeid']}
+					and e.isdisplay=0
+					group by g.custcategoryid
+					order by g.custcategoryid asc";
+					$this->pdf->SetFont('Arial','B',9);
+					$this->pdf->text(10,$this->pdf->getY(),'NAMA SALES : '.$row['fullname']);
+					$custcategory = Yii::app()->db->createCommand($sqlcustcategory)->queryAll();
+					foreach($custcategory as $cust)
+		{
+			$subbayar0sd50 = 0;
+			$subscale0sd50 = 0;
+			$subbayar50sd90 = 0;
+			$subscale50sd90 = 0;
+			$subbayar90sd110 = 0;
+			$subscale90sd110 = 0;
+			$subbayar110sd150 = 0;
+			$subscale110sd150 = 0;
+			$subbayarsd150 = 0;
+			$subscalesd150 = 0;
+			$subjumlahbayar = 0;
+			$subscalejumlah = 0;
+												
+							$this->pdf->setFont('Arial','B',10);
+							$this->pdf->text(10,$this->pdf->getY()+5,getCatalog('custcategory'). ' = '. $cust['custcategoryname'].' ('.number_format($cust['skala'],0,',','.').'%)');
+							$subjumlahut = 0;
+							$this->pdf->SetFont('Arial','B',9);
+
+							$sqlperiod = "select period, invoicedate from (select c.invoiceno,c.invoicedate,b.docdate,setdateformat(c.invoicedate) as period, a.cashamount+a.bankamount as nilai
+							from cutarinv a
+							join cutar b on b.cutarid=a.cutarid
+							join invoice c on c.invoiceid=a.invoiceid
+							join giheader d on d.giheaderid=c.giheaderid
+							join soheader e on e.soheaderid=d.soheaderid
+							join ttnt h on h.ttntid=b.ttntid
+							join employee f on f.employeeid=h.employeeid
+							join addressbook g on g.addressbookid=e.addressbookid
+							{$wheresalesarea} {$whereproduct}
+							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 			and month(b.docdate) = month('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
 			and year(b.docdate) = year('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-            and e.companyid = {$companyid} and f.employeeid = {$row['employeeid']}
-            and e.isdisplay=0
-            group by g.custcategoryid
-            order by g.custcategoryid asc";
-            $this->pdf->SetFont('Arial','B',9);
-            $this->pdf->text(10,$this->pdf->getY(),'NAMA SALES : '.$row['fullname']);
-            $custcategory = Yii::app()->db->createCommand($sqlcustcategory)->queryAll();
-            foreach($custcategory as $cust)
+							and e.companyid = {$companyid} and f.employeeid = {$row['employeeid']}
+							and e.isdisplay=0 and g.custcategoryid = {$cust['custcategoryid']}
+							order by invoicedate asc ) z
+							where nilai <> 0
+							group by month(invoicedate),year(invoicedate)
+			order by invoicedate asc";
+							$this->pdf->setY($this->pdf->getY()+10);
+							$period = Yii::app()->db->createCommand($sqlperiod)->queryAll();
+							foreach($period as $row1) 
 			{
-				$subbayar0sd50 = 0;
-				$subscale0sd50 = 0;
-				$subbayar50sd90 = 0;
-				$subscale50sd90 = 0;
-				$subbayar90sd110 = 0;
-				$subscale90sd110 = 0;
-				$subbayar110sd150 = 0;
-				$subscale110sd150 = 0;
-				$subbayarsd150 = 0;
-				$subscalesd150 = 0;
-				$subjumlahbayar = 0;
-				$subscalejumlah = 0;
-                          
-                $this->pdf->setFont('Arial','B',10);
-                $this->pdf->text(10,$this->pdf->getY()+5,getCatalog('custcategory'). ' = '. $cust['custcategoryname'].' ('.number_format($cust['skala'],0,',','.').'%)');
-                $subjumlahut = 0;
-                $this->pdf->SetFont('Arial','B',9);
+				$custbayar0sd50 = 0;
+				$custscale0sd50 = 0;
+				$custbayar50sd90 = 0;
+				$custscale50sd90 = 0;
+				$custbayar90sd110 = 0;
+				$custscale90sd110 = 0;
+				$custbayar110sd150 = 0;
+				$custscale110sd150 = 0;
+				$custbayarsd150 = 0;
+				$custscalesd150 = 0;
+				$custjumlahbayar = 0;
+				$custscalejumlah = 0;
+				
+									$sqlawalbulan = "select date_add(date_add(last_day('{$row1['invoicedate']}'),interval 1 day), interval -1 month) as awalbulan";
+									$tglawal = Yii::app()->db->createCommand($sqlawalbulan)->queryScalar();
+									$percentperiod = Yii::app()->db->createCommand("select ifnull(scalevalue,0) from scalevalue where companyid = {$companyid} and recordstatus=5 and custcategoryid = {$cust['custcategoryid']} and employeeid = {$row['employeeid']} and perioddate = '{$tglawal}'")->queryScalar();
+									/*
+									$percentperiod = Yii::app()->db->createCommand("
+									select case when '2020-12-01' > '{$tglawal}' then
+										(select ifnull(scalevalue,0) from scalevalue s 
+										where s.custcategoryid = {$cust['custcategoryid']} and s.perioddate='{$tglawal}' and employeeid = {$row['employeeid']} and recordstatus=5 and companyid={$companyid})
+									else 
+										(select ifnull(scalevalue,0) from scalevalue where recordstatus=5 and employeeid = {$row['employeeid']}
+										and perioddate = '{$tglawal}' and companyid={$companyid} order by scalevalueid desc limit 1)
+									end as scale")->queryScalar();
+									*/
 
-                $sqlperiod = "select period, invoicedate from (select c.invoiceno,c.invoicedate,b.docdate,setdateformat(c.invoicedate) as period, a.cashamount+a.bankamount as nilai
-                from cutarinv a
-                join cutar b on b.cutarid=a.cutarid
-                join invoice c on c.invoiceid=a.invoiceid
-                join giheader d on d.giheaderid=c.giheaderid
-                join soheader e on e.soheaderid=d.soheaderid
-                join ttnt h on h.ttntid=b.ttntid
-                join employee f on f.employeeid=h.employeeid
-                join addressbook g on g.addressbookid=e.addressbookid
-                {$wheresalesarea} {$whereproduct}
-                where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-				and month(b.docdate) = month('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-				and year(b.docdate) = year('". date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-                and e.companyid = {$companyid} and f.employeeid = {$row['employeeid']}
-                and e.isdisplay=0 and g.custcategoryid = {$cust['custcategoryid']}
-                order by invoicedate asc ) z
-                where nilai <> 0
-                group by month(invoicedate),year(invoicedate)
-				order by invoicedate asc";
-                $this->pdf->setY($this->pdf->getY()+10);
-                $period = Yii::app()->db->createCommand($sqlperiod)->queryAll();
-                foreach($period as $row1) 
+									$this->pdf->setFont('Arial','',9);
+									$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C','C','C','C');
+									$this->pdf->setwidths(array(30,47,47,47,47,47,48));
+									$this->pdf->colheader = array("          Period             (".Yii::app()->format->formatCurrency($percentperiod)."% ) ",'            <= 50%TOP             120%','   50%TOP < U <= 90%TOP    110%','90%TOP < U <= 110%TOP    100%','110%TOP < U <= 150%TOP    90%','              U > 150%TOP                0%','                  Jumlah                               ');
+									$this->pdf->RowHeader();
+
+									$this->pdf->coldetailalign = array('L','R','L','R','L','R','L','R','L','R','L','R','L');
+									$this->pdf->setwidths(array(30,25,22,25,22,25,22,25,22,25,22,26,22));
+									$this->pdf->SetFont('Arial','',9);
+									$this->pdf->row(array($row1['period'],'NIlai Bayar','UT','Nilai Bayar','UT','NIlai Bayar','UT','Nilai Bayar','UT','Nilai Bayar','UT','Nilai Bayar','UT'));
+
+									$sqldet = "select *,
+							case when umur >= 0 and umur <= (0.5 * paydays) then nilaibayar else 0 end as 0sd50,
+							case when umur > (0.5 * paydays) and umur <= (0.9 * paydays) then nilaibayar else 0 end AS 50sd90,
+							case when umur > (0.9 * paydays) and umur <= (1.1 * paydays) then nilaibayar else 0 end AS 90sd110,
+							case when umur > (1.1 * paydays) and umur <= (1.5 * paydays) then nilaibayar else 0 end AS 110sd150,
+							case when umur > (1.5 * paydays) then nilaibayar else 0 end as sd150
+							,(0.5 * paydays),(0.9 * paydays),(paydays),(1.5 * paydays)
+							from (select distinct g.fullname,c.invoiceno,c.invoicedate,b.docdate AS cutardate,datediff(b.docdate,c.invoicedate) as umur,p.paydays,c.amount,
+							a.discamount+a.returnamount as disc,a.cashamount+a.bankamount as nilaibayar,
+							(select i.materialgroupid from gidetail h join productplant i on i.slocid=h.slocid and i.productid=h.productid and i.unitofissue=h.unitofmeasureid where h.giheaderid=d.giheaderid Limit 1) as materialgroupid
+							from cutarinv a
+							join cutar b on b.cutarid=a.cutarid
+							join invoice c on c.invoiceid=a.invoiceid
+							join giheader d on d.giheaderid=c.giheaderid
+							join soheader e on e.soheaderid=d.soheaderid
+							join ttnt i on i.ttntid=b.ttntid
+							join employee f on f.employeeid=i.employeeid
+							join addressbook g on g.addressbookid=e.addressbookid
+							join paymentmethod p ON p.paymentmethodid=e.paymentmethodid
+							{$wheresalesarea} {$whereproduct}
+							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
+							and month(b.docdate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							and year(b.docdate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							and e.companyid = {$companyid}
+							and f.employeeid = ".$row['employeeid']."
+							and e.isdisplay=0 and g.custcategoryid = {$cust['custcategoryid']}
+							) z
+							-- where z.materialgroupid = ''
+							where month(invoicedate) = month('{$row1['invoicedate']}')
+							and year(invoicedate) = year('{$row1['invoicedate']}')
+							and nilaibayar <> 0 
+							order by cutardate,fullname,invoicedate";
+				$detail = Yii::app()->db->createCommand($sqldet)->queryAll();
+									$this->pdf->setFont('Arial','',8);
+									foreach($detail as $row2)
 				{
-					$custbayar0sd50 = 0;
-					$custscale0sd50 = 0;
-					$custbayar50sd90 = 0;
-					$custscale50sd90 = 0;
-					$custbayar90sd110 = 0;
-					$custscale90sd110 = 0;
-					$custbayar110sd150 = 0;
-					$custscale110sd150 = 0;
-					$custbayarsd150 = 0;
-					$custscalesd150 = 0;
-					$custjumlahbayar = 0;
-					$custscalejumlah = 0;
-					
-                    $sqlawalbulan = "select date_add(date_add(last_day('{$row1['invoicedate']}'),interval 1 day), interval -1 month) as awalbulan";
-                    $tglawal = Yii::app()->db->createCommand($sqlawalbulan)->queryScalar();
-					          $percentperiod = Yii::app()->db->createCommand("select ifnull(scalevalue,0) from scalevalue where companyid = {$companyid} and recordstatus=5 and custcategoryid = {$cust['custcategoryid']} and employeeid = {$row['employeeid']} and perioddate = '{$tglawal}'")->queryScalar();
-                    /*
-                    $percentperiod = Yii::app()->db->createCommand("
-                    select case when '2020-12-01' > '{$tglawal}' then
-                      (select ifnull(scalevalue,0) from scalevalue s 
-                      where s.custcategoryid = {$cust['custcategoryid']} and s.perioddate='{$tglawal}' and employeeid = {$row['employeeid']} and recordstatus=5 and companyid={$companyid})
-	                  else 
-                      (select ifnull(scalevalue,0) from scalevalue where recordstatus=5 and employeeid = {$row['employeeid']}
-                      and perioddate = '{$tglawal}' and companyid={$companyid} order by scalevalueid desc limit 1)
-                    end as scale")->queryScalar();
-                    */
-
-                    $this->pdf->setFont('Arial','',9);
-                    $this->pdf->colalign = array('C','C','C','C','C','C','C','C','C','C','C','C');
-                    $this->pdf->setwidths(array(30,47,47,47,47,47,48));
-                    $this->pdf->colheader = array("          Period             (".Yii::app()->format->formatCurrency($percentperiod)."% ) ",'            <= 50%TOP             120%','   50%TOP < U <= 90%TOP    110%','90%TOP < U <= 110%TOP    100%','110%TOP < U <= 150%TOP    90%','              U > 150%TOP                0%','                  Jumlah                               ');
-                    $this->pdf->RowHeader();
-
-                    $this->pdf->coldetailalign = array('L','R','L','R','L','R','L','R','L','R','L','R','L');
-                    $this->pdf->setwidths(array(30,25,22,25,22,25,22,25,22,25,22,26,22));
-                    $this->pdf->SetFont('Arial','',9);
-                    $this->pdf->row(array($row1['period'],'NIlai Bayar','UT','Nilai Bayar','UT','NIlai Bayar','UT','Nilai Bayar','UT','Nilai Bayar','UT','Nilai Bayar','UT'));
-
-                    $sqldet = "select *,
-								case when umur >= 0 and umur <= (0.5 * paydays) then nilaibayar else 0 end as 0sd50,
-								case when umur > (0.5 * paydays) and umur <= (0.9 * paydays) then nilaibayar else 0 end AS 50sd90,
-								case when umur > (0.9 * paydays) and umur <= (1.1 * paydays) then nilaibayar else 0 end AS 90sd110,
-								case when umur > (1.1 * paydays) and umur <= (1.5 * paydays) then nilaibayar else 0 end AS 110sd150,
-								case when umur > (1.5 * paydays) then nilaibayar else 0 end as sd150
-								,(0.5 * paydays),(0.9 * paydays),(paydays),(1.5 * paydays)
-								from (select distinct g.fullname,c.invoiceno,c.invoicedate,b.docdate AS cutardate,datediff(b.docdate,c.invoicedate) as umur,p.paydays,c.amount,
-								a.discamount+a.returnamount as disc,a.cashamount+a.bankamount as nilaibayar,
-								(select i.materialgroupid from gidetail h join productplant i on i.slocid=h.slocid and i.productid=h.productid and i.unitofissue=h.unitofmeasureid where h.giheaderid=d.giheaderid Limit 1) as materialgroupid
-								from cutarinv a
-								join cutar b on b.cutarid=a.cutarid
-								join invoice c on c.invoiceid=a.invoiceid
-								join giheader d on d.giheaderid=c.giheaderid
-								join soheader e on e.soheaderid=d.soheaderid
-								join ttnt i on i.ttntid=b.ttntid
-								join employee f on f.employeeid=i.employeeid
-								join addressbook g on g.addressbookid=e.addressbookid
-								join paymentmethod p ON p.paymentmethodid=e.paymentmethodid
-								{$wheresalesarea} {$whereproduct}
-								where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-								and month(b.docdate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-								and year(b.docdate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-								and e.companyid = {$companyid}
-								and f.employeeid = ".$row['employeeid']."
-								and e.isdisplay=0 and g.custcategoryid = {$cust['custcategoryid']}
-								) z
-								-- where z.materialgroupid = ''
-								where month(invoicedate) = month('{$row1['invoicedate']}')
-								and year(invoicedate) = year('{$row1['invoicedate']}')
-								and nilaibayar <> 0 
-								order by cutardate,fullname,invoicedate";
-					$detail = Yii::app()->db->createCommand($sqldet)->queryAll();
-                    $this->pdf->setFont('Arial','',8);
-                    foreach($detail as $row2)
-					{
-                        //$this->pdf->row(array('','NIlai INV','UT','Nilai INV','UT','NIlai INV','UT','Nilai INV','UT','Nilai INV','UT',''));
-                        $jumlahbayar = ($row2['0sd50'] + $row2['50sd90'] + $row2['90sd110'] + $row2['110sd150'] + $row2['sd150'])/$per;
-                        $jumlahut = (($row2['0sd50']*$percentperiod*1.2)+($row2['50sd90']*$percentperiod*1.1)+($row2['90sd110']*$percentperiod*1)+
-                                    ($row2['110sd150']*$percentperiod*0.9))/100/$per;
-                        $this->pdf->row(array(
-                          $row2['invoiceno'],
-                          Yii::app()->format->formatCurrency($row2['0sd50']/$per),
-                          Yii::app()->format->formatCurrency(($row2['0sd50']*$percentperiod*1.2)/100/$per),
-                          Yii::app()->format->formatCurrency($row2['50sd90']/$per),
-                          Yii::app()->format->formatCurrency(($row2['50sd90']*$percentperiod*1.1)/100/$per),
-                          Yii::app()->format->formatCurrency($row2['90sd110']/$per),
-                          Yii::app()->format->formatCurrency(($row2['90sd110']*$percentperiod*1)/100/$per),
-                          Yii::app()->format->formatCurrency($row2['110sd150']/$per),
-                          Yii::app()->format->formatCurrency(($row2['110sd150']*$percentperiod*0.9)/100/$per),
-                          Yii::app()->format->formatCurrency($row2['sd150']/$per),
-                          Yii::app()->format->formatCurrency(0),
-                          Yii::app()->format->formatCurrency($jumlahbayar),
-                          Yii::app()->format->formatCurrency($jumlahut)
-                        ));
-                        $custbayar0sd50 += $row2['0sd50']/$per;
-                        $custscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
-                        $custbayar50sd90 += $row2['50sd90']/$per;
-                        $custscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
-                        $custbayar90sd110 += $row2['90sd110']/$per;
-                        $custscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
-                        $custbayar110sd150 += $row2['110sd150']/$per;
-                        $custscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
-                        $custbayarsd150 += $row2['sd150']/$per;
-                        $custscalesd150 = 0;
-                        $custjumlahbayar += $jumlahbayar;
-                        $custscalejumlah += $jumlahut;
-                      
-                        $subbayar0sd50 += $row2['0sd50']/$per;
-                        $subscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
-                        $subbayar50sd90 += $row2['50sd90']/$per;
-                        $subscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
-                        $subbayar90sd110 += $row2['90sd110']/$per;
-                        $subscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
-                        $subbayar110sd150 += $row2['110sd150']/$per;
-                        $subscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
-                        $subbayarsd150 += $row2['sd150']/$per;
-                        $subscalesd150 = 0;
-                        $subjumlahbayar += $jumlahbayar;
-                        $subscalejumlah += $jumlahut;
-                      
-                        $totbayar0sd50 += $row2['0sd50']/$per;
-                        $totscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
-                        $totbayar50sd90 += $row2['50sd90']/$per;
-                        $totscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
-                        $totbayar90sd110 += $row2['90sd110']/$per;
-                        $totscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
-                        $totbayar110sd150 += $row2['110sd150']/$per;
-                        $totscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
-                        $totbayarsd150 += $row2['sd150']/$per;
-                        $totscalesd150 = 0;
-                        $totjumlahbayar += $jumlahbayar;
-                        $totscalejumlah += $jumlahut;
-                      
-                        //$totjumlahut = $totjumlahut + $jumlahut;
-                    }
-					$this->pdf->setFont('Arial','B',8);
-					$this->pdf->row(array(
-						'Jumlah '.$row1['period'],
-						Yii::app()->format->formatCurrency($custbayar0sd50),
-						Yii::app()->format->formatCurrency($custscale0sd50),
-						Yii::app()->format->formatCurrency($custbayar50sd90),
-						Yii::app()->format->formatCurrency($custscale50sd90),
-						Yii::app()->format->formatCurrency($custbayar90sd110),
-						Yii::app()->format->formatCurrency($custscale90sd110),
-						Yii::app()->format->formatCurrency($custbayar110sd150),
-						Yii::app()->format->formatCurrency($custscale110sd150),
-						Yii::app()->format->formatCurrency($custbayarsd150),
-						Yii::app()->format->formatCurrency($custscalesd150),
-						Yii::app()->format->formatCurrency($custjumlahbayar),
-						Yii::app()->format->formatCurrency($custscalejumlah)
-					));
-                    $this->pdf->setY($this->pdf->getY()+5);
-                    //$this->pdf->coldetailalign = array('L','R','R','R','R','R','R','R','R','R','R','R');
-                }
-				$this->pdf->coldetailalign = array('L','R','L','R','L','R','L','R','L','R','L','R','L');
-				$this->pdf->setwidths(array(30,25,22,25,22,25,22,25,22,25,22,26,22));
+											//$this->pdf->row(array('','NIlai INV','UT','Nilai INV','UT','NIlai INV','UT','Nilai INV','UT','Nilai INV','UT',''));
+											$jumlahbayar = ($row2['0sd50'] + $row2['50sd90'] + $row2['90sd110'] + $row2['110sd150'] + $row2['sd150'])/$per;
+											$jumlahut = (($row2['0sd50']*$percentperiod*1.2)+($row2['50sd90']*$percentperiod*1.1)+($row2['90sd110']*$percentperiod*1)+
+																	($row2['110sd150']*$percentperiod*0.9))/100/$per;
+											$this->pdf->row(array(
+												$row2['invoiceno'],
+												Yii::app()->format->formatCurrency($row2['0sd50']/$per),
+												Yii::app()->format->formatCurrency(($row2['0sd50']*$percentperiod*1.2)/100/$per),
+												Yii::app()->format->formatCurrency($row2['50sd90']/$per),
+												Yii::app()->format->formatCurrency(($row2['50sd90']*$percentperiod*1.1)/100/$per),
+												Yii::app()->format->formatCurrency($row2['90sd110']/$per),
+												Yii::app()->format->formatCurrency(($row2['90sd110']*$percentperiod*1)/100/$per),
+												Yii::app()->format->formatCurrency($row2['110sd150']/$per),
+												Yii::app()->format->formatCurrency(($row2['110sd150']*$percentperiod*0.9)/100/$per),
+												Yii::app()->format->formatCurrency($row2['sd150']/$per),
+												Yii::app()->format->formatCurrency(0),
+												Yii::app()->format->formatCurrency($jumlahbayar),
+												Yii::app()->format->formatCurrency($jumlahut)
+											));
+											$custbayar0sd50 += $row2['0sd50']/$per;
+											$custscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
+											$custbayar50sd90 += $row2['50sd90']/$per;
+											$custscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
+											$custbayar90sd110 += $row2['90sd110']/$per;
+											$custscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
+											$custbayar110sd150 += $row2['110sd150']/$per;
+											$custscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
+											$custbayarsd150 += $row2['sd150']/$per;
+											$custscalesd150 = 0;
+											$custjumlahbayar += $jumlahbayar;
+											$custscalejumlah += $jumlahut;
+										
+											$subbayar0sd50 += $row2['0sd50']/$per;
+											$subscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
+											$subbayar50sd90 += $row2['50sd90']/$per;
+											$subscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
+											$subbayar90sd110 += $row2['90sd110']/$per;
+											$subscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
+											$subbayar110sd150 += $row2['110sd150']/$per;
+											$subscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
+											$subbayarsd150 += $row2['sd150']/$per;
+											$subscalesd150 = 0;
+											$subjumlahbayar += $jumlahbayar;
+											$subscalejumlah += $jumlahut;
+										
+											$totbayar0sd50 += $row2['0sd50']/$per;
+											$totscale0sd50 += ($row2['0sd50']*$percentperiod*1.2)/100/$per;
+											$totbayar50sd90 += $row2['50sd90']/$per;
+											$totscale50sd90 += ($row2['50sd90']*$percentperiod*1.1)/100/$per;
+											$totbayar90sd110 += $row2['90sd110']/$per;
+											$totscale90sd110 += ($row2['90sd110']*$percentperiod*1)/100/$per;
+											$totbayar110sd150 += $row2['110sd150']/$per;
+											$totscale110sd150 += ($row2['110sd150']*$percentperiod*0.9)/100/$per;
+											$totbayarsd150 += $row2['sd150']/$per;
+											$totscalesd150 = 0;
+											$totjumlahbayar += $jumlahbayar;
+											$totscalejumlah += $jumlahut;
+										
+											//$totjumlahut = $totjumlahut + $jumlahut;
+									}
 				$this->pdf->setFont('Arial','B',8);
-				//$this->pdf->coldetailalign = array('L','R','R');
-				//$this->pdf->setwidths(array(80,165,35));
-				$this->pdf->row(array('TOTAL '.strtoupper($cust['custcategoryname']),
-					Yii::app()->format->formatCurrency($subbayar0sd50),
-					Yii::app()->format->formatCurrency($subscale0sd50),
-					Yii::app()->format->formatCurrency($subbayar50sd90),
-					Yii::app()->format->formatCurrency($subscale50sd90),
-					Yii::app()->format->formatCurrency($subbayar90sd110),
-					Yii::app()->format->formatCurrency($subscale90sd110),
-					Yii::app()->format->formatCurrency($subbayar110sd150),
-					Yii::app()->format->formatCurrency($subscale110sd150),
-					Yii::app()->format->formatCurrency($subbayarsd150),
-					Yii::app()->format->formatCurrency($subscalesd150),
-					Yii::app()->format->formatCurrency($subjumlahbayar),
-					Yii::app()->format->formatCurrency($subscalejumlah)
+				$this->pdf->row(array(
+					'Jumlah '.$row1['period'],
+					Yii::app()->format->formatCurrency($custbayar0sd50),
+					Yii::app()->format->formatCurrency($custscale0sd50),
+					Yii::app()->format->formatCurrency($custbayar50sd90),
+					Yii::app()->format->formatCurrency($custscale50sd90),
+					Yii::app()->format->formatCurrency($custbayar90sd110),
+					Yii::app()->format->formatCurrency($custscale90sd110),
+					Yii::app()->format->formatCurrency($custbayar110sd150),
+					Yii::app()->format->formatCurrency($custscale110sd150),
+					Yii::app()->format->formatCurrency($custbayarsd150),
+					Yii::app()->format->formatCurrency($custscalesd150),
+					Yii::app()->format->formatCurrency($custjumlahbayar),
+					Yii::app()->format->formatCurrency($custscalejumlah)
 				));
-				$this->pdf->setY($this->pdf->getY()+5);
-            }
-			$this->pdf->checkNewPage(55);
-            $this->pdf->setFont('Arial','B',8);
-            $this->pdf->row(array('TOTAL SALES '.strtoupper($row['fullname']),
-				Yii::app()->format->formatCurrency($totbayar0sd50),
-				Yii::app()->format->formatCurrency($totscale0sd50),
-				Yii::app()->format->formatCurrency($totbayar50sd90),
-				Yii::app()->format->formatCurrency($totscale50sd90),
-				Yii::app()->format->formatCurrency($totbayar90sd110),
-				Yii::app()->format->formatCurrency($totscale90sd110),
-				Yii::app()->format->formatCurrency($totbayar110sd150),
-				Yii::app()->format->formatCurrency($totscale110sd150),
-				Yii::app()->format->formatCurrency($totbayarsd150),
-				Yii::app()->format->formatCurrency($totscalesd150),
-				Yii::app()->format->formatCurrency($totjumlahbayar),
-				Yii::app()->format->formatCurrency($totscalejumlah)
+									$this->pdf->setY($this->pdf->getY()+5);
+									//$this->pdf->coldetailalign = array('L','R','R','R','R','R','R','R','R','R','R','R');
+							}
+			$this->pdf->coldetailalign = array('L','R','L','R','L','R','L','R','L','R','L','R','L');
+			$this->pdf->setwidths(array(30,25,22,25,22,25,22,25,22,25,22,26,22));
+			$this->pdf->setFont('Arial','B',8);
+			//$this->pdf->coldetailalign = array('L','R','R');
+			//$this->pdf->setwidths(array(80,165,35));
+			$this->pdf->row(array('TOTAL '.strtoupper($cust['custcategoryname']),
+				Yii::app()->format->formatCurrency($subbayar0sd50),
+				Yii::app()->format->formatCurrency($subscale0sd50),
+				Yii::app()->format->formatCurrency($subbayar50sd90),
+				Yii::app()->format->formatCurrency($subscale50sd90),
+				Yii::app()->format->formatCurrency($subbayar90sd110),
+				Yii::app()->format->formatCurrency($subscale90sd110),
+				Yii::app()->format->formatCurrency($subbayar110sd150),
+				Yii::app()->format->formatCurrency($subscale110sd150),
+				Yii::app()->format->formatCurrency($subbayarsd150),
+				Yii::app()->format->formatCurrency($subscalesd150),
+				Yii::app()->format->formatCurrency($subjumlahbayar),
+				Yii::app()->format->formatCurrency($subscalejumlah)
 			));
-            $this->pdf->setY($this->pdf->getY()+5);
-            $this->pdf->setFont('Arial','B',9);
-            $this->pdf->coldetailalign = array('L','R','R');
-            $this->pdf->setwidths(array(165,100,35));
-			$saldo120per = $saldo120/$per;
-            $this->pdf->row(array('TOTAL UPAH TAMBAHAN ','',Yii::app()->format->formatCurrency($totscalejumlah)));
-            
-            $this->pdf->row(array('DEPOSIT 10%','',Yii::app()->format->formatCurrency($totscalejumlah*-0.1)));
+			$this->pdf->setY($this->pdf->getY()+5);
+					}
+		$this->pdf->checkNewPage(55);
+					$this->pdf->setFont('Arial','B',8);
+					$this->pdf->row(array('TOTAL SALES '.strtoupper($row['fullname']),
+			Yii::app()->format->formatCurrency($totbayar0sd50),
+			Yii::app()->format->formatCurrency($totscale0sd50),
+			Yii::app()->format->formatCurrency($totbayar50sd90),
+			Yii::app()->format->formatCurrency($totscale50sd90),
+			Yii::app()->format->formatCurrency($totbayar90sd110),
+			Yii::app()->format->formatCurrency($totscale90sd110),
+			Yii::app()->format->formatCurrency($totbayar110sd150),
+			Yii::app()->format->formatCurrency($totscale110sd150),
+			Yii::app()->format->formatCurrency($totbayarsd150),
+			Yii::app()->format->formatCurrency($totscalesd150),
+			Yii::app()->format->formatCurrency($totjumlahbayar),
+			Yii::app()->format->formatCurrency($totscalejumlah)
+		));
+					$this->pdf->setY($this->pdf->getY()+5);
+					$this->pdf->setFont('Arial','B',9);
+					$this->pdf->coldetailalign = array('L','R','R');
+					$this->pdf->setwidths(array(165,100,35));
+		$saldo120per = $saldo120/$per;
+					$this->pdf->row(array('TOTAL UPAH TAMBAHAN ','',Yii::app()->format->formatCurrency($totscalejumlah)));
+					
+					$this->pdf->row(array('DEPOSIT 10%','',Yii::app()->format->formatCurrency($totscalejumlah*-0.1)));
 
-            $this->pdf->row(array('SALDO UMUR PIUTANG > 120 HARI (-0.25%)',Yii::app()->format->formatCurrency($saldo120per),
-                                  Yii::app()->format->formatCurrency(($saldo120per*-0.25)/100)));
-            
-            
-            //$upah = ($totscalejumlah+(($saldo120per*-0.25)/100))*0.9;
-            $upah = $totscalejumlah+($totscalejumlah*-0.1)+($saldo120per*-0.25/100);
-            $this->pdf->row(array('UPAH TAMBAHAN YANG DITERIMA SALES '.strtoupper($row['fullname']),'',Yii::app()->format->formatCurrency($upah)));
-            //$this->pdf->text(10,$this->pdf->getY(),'SALDO UMUR PIUTANG > 120 HARI');
-            $this->pdf->setY($this->pdf->getY()+5);
-			
-            $this->pdf->setFont('Arial','',9);
-			$this->pdf->setwidths(array(63,63,63,63,63));
-			$this->pdf->coldetailalign = array('C','C','C','C','C');
-			$this->pdf->row(array('Diperiksa Oleh,', 'Disetujui Oleh,', 'Diketahui Oleh,', 'Dibayar Oleh,', 'Diterima Oleh,'));
-			$this->pdf->setY($this->pdf->getY()+20);
-			$this->pdf->row(array('ACC & HEAD FINANCE','HEAD MARKETING', 'BRANCH MANAGER', 'KASIR', strtoupper($row['fullname'])));
-			$this->pdf->checkNewPage(120);
-            
-        }
-        $this->pdf->Output();
-    }
-	public function RincianKomisiKasta_lama3($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
-    {
+					$this->pdf->row(array('SALDO UMUR PIUTANG > 120 HARI (-0.25%)',Yii::app()->format->formatCurrency($saldo120per),
+																Yii::app()->format->formatCurrency(($saldo120per*-0.25)/100)));
+					
+					
+					//$upah = ($totscalejumlah+(($saldo120per*-0.25)/100))*0.9;
+					$upah = $totscalejumlah+($totscalejumlah*-0.1)+($saldo120per*-0.25/100);
+					$this->pdf->row(array('UPAH TAMBAHAN YANG DITERIMA SALES '.strtoupper($row['fullname']),'',Yii::app()->format->formatCurrency($upah)));
+					//$this->pdf->text(10,$this->pdf->getY(),'SALDO UMUR PIUTANG > 120 HARI');
+					$this->pdf->setY($this->pdf->getY()+5);
+		
+					$this->pdf->setFont('Arial','',9);
+		$this->pdf->setwidths(array(63,63,63,63,63));
+		$this->pdf->coldetailalign = array('C','C','C','C','C');
+		$this->pdf->row(array('Diperiksa Oleh,', 'Disetujui Oleh,', 'Diketahui Oleh,', 'Dibayar Oleh,', 'Diterima Oleh,'));
+		$this->pdf->setY($this->pdf->getY()+20);
+		$this->pdf->row(array('ACC & HEAD FINANCE','HEAD MARKETING', 'BRANCH MANAGER', 'KASIR', strtoupper($row['fullname'])));
+		$this->pdf->checkNewPage(120);
+					
+			}
+			$this->pdf->Output();
+	}
+	public function RincianKomisiKasta_lama3($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	{
         parent::actionDownload();
         $connection = Yii::app()->db;
         $this->pdf->title='RINCIAN UPAH TAMBAHAN SALES';
@@ -6807,7 +6958,7 @@ class RepaccrecController extends Controller
         }
         $this->pdf->Output();
     }
-	public function RekapKomisiTagihanPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKomisiTagihanPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 			parent::actionDownload();
 			//$this->no_result();
@@ -7430,7 +7581,7 @@ class RepaccrecController extends Controller
 			
 	}
 
-	/*public function RekapKomisiTagihanPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	/*public function RekapKomisiTagihanPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 			parent::actionDownload();
 			//$this->no_result();
@@ -7730,7 +7881,7 @@ class RepaccrecController extends Controller
 			
 	}*/
 	//33
-	public function RekapTargetTagihanPerDokumenBelumStatusMax($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapTargetTagihanPerDokumenBelumStatusMax($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$sql = "select distinct a.paymenttargetid,c.companyname,a.docdate,a.perioddate,b.fullname, a.statusname
@@ -7776,7 +7927,7 @@ class RepaccrecController extends Controller
 			$this->pdf->Output();
 	}
 	//34
-	public function RekapSkalaKomisiTagihanPerDokumenBelumStatusMax($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapSkalaKomisiTagihanPerDokumenBelumStatusMax($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$sql = "select distinct a.paymentscaleid,c.companyname,a.docdate,a.perioddate,a.paramspv, a.statusname
@@ -7821,7 +7972,7 @@ class RepaccrecController extends Controller
 			$this->pdf->Output();
 	}
 	//35
-	public function RekapUmurPiutangDagangPerCustomerVsTop($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCustomerVsTop($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		if(isset($isdisplay) && ($isdisplay != ''))
@@ -8003,7 +8154,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//36
-	public function RekapMonitoringPiutangPerCustomerPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapMonitoringPiutangPerCustomerPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		$baddebt='';
@@ -8573,7 +8724,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}*/
 	//37
-	public function RekapKomisiTagihanPerSPVPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKomisiTagihanPerSPVPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
       parent::actionDownload();
       $c_employeeid = getEmployeeid();
@@ -9007,7 +9158,7 @@ class RepaccrecController extends Controller
       }
       $this->pdf->Output();
   }
-  public function RekapKomisiTagihanPerSPVPerSales_lama3($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+  public function RekapKomisiTagihanPerSPVPerSales_lama3($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
       parent::actionDownload();
       $connection = Yii::app()->db;
@@ -9364,7 +9515,7 @@ class RepaccrecController extends Controller
       }
       $this->pdf->Output();
   }
-	public function RekapKomisiTagihanPerSPVPerSales_lama($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKomisiTagihanPerSPVPerSales_lama($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
     parent::actionDownload();
     //$this->no_result();
@@ -10006,7 +10157,7 @@ class RepaccrecController extends Controller
       $this->pdf->Output();
   }
   //38
-	public function RekapUmurPiutangDagangPerCompany($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCompany($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		if ($companyid > 0){$comp=" and companyid = ".$companyid." ";}else{$comp="";}
@@ -10136,7 +10287,7 @@ class RepaccrecController extends Controller
 		 $this->pdf->checkPageBreak(0);
 		$this->pdf->Output();
 	}
-	public function RekapUmurPiutangDagangPerCompany_variance($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCompany_variance($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
 		if ($companyid > 0){$comp=" and companyid = ".$companyid." ";}else{$comp="";}
@@ -10283,7 +10434,7 @@ class RepaccrecController extends Controller
 		$this->pdf->Output();
 	}
 	//39
-    public function RekapKomisiKasta($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+    public function RekapKomisiKasta($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
     {
         parent::actionDownload();
         $c_employeeid = getEmployeeid();
@@ -10711,8 +10862,8 @@ class RepaccrecController extends Controller
         }
         $this->pdf->Output();
     }
-	public function RekapKomisiKasta_lama3($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
-    {
+	public function RekapKomisiKasta_lama3($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	{
         parent::actionDownload();
         $connection = Yii::app()->db;
         $this->pdf->title='REKAP UPAH TAMBAHAN SALES';
@@ -11064,7 +11215,7 @@ class RepaccrecController extends Controller
         $this->pdf->Output();
     }
 	//40
-	public function RincianKomisiTagihanPerSPVPerSales($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianKomisiTagihanPerSPVPerSales($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
     parent::actionDownload();
     $connection = Yii::app()->db;
@@ -11422,7 +11573,7 @@ class RepaccrecController extends Controller
       $this->pdf->Output();
   }
 	//41
-	public function RincianFakturdanReturJualBelumLunasPerBagian($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasPerBagian($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     parent::actionDownload();
 		$nilaitot2 = 0;$dibayar2 = 0;$sisa2 = 0;
@@ -11433,7 +11584,14 @@ class RepaccrecController extends Controller
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt == 1) $arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		
-		//$arbaddebt = "";
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
+
 		$sql = "select distinct accountname, accountid 
 		from (select h.accountname, h.accountid, b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
 		ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
@@ -11441,7 +11599,7 @@ class RepaccrecController extends Controller
 		join cutar g on g.cutarid=f.cutarid
 		where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
 		(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-		ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
+		ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber, a.invoiceid, c.soheaderid
 		from invoice a
 		join giheader b on b.giheaderid = a.giheaderid
 		join soheader c on c.soheaderid = b.soheaderid
@@ -11450,11 +11608,13 @@ class RepaccrecController extends Controller
 		left join salesarea f on f.salesareaid = d.salesareaid
 		join addressaccount g on g.addressbookid = d.addressbookid and g.companyid = c.companyid
 		join account h on h.accountid = g.accpiutangid
+		left join groupcustomer i on i.groupcustomerid = d.groupcustomerid
 		where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-		and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
+		and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and i.groupname like '%".$groupcustomer."%' ".$isdisplay1."
 		and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and h.accountcode between '11020201' and '11020206')
 		{$arbaddebt}) z
-		where amount > payamount ";
+		{$joinplant}
+		where amount > payamount {$plant} ";
 
 		if ($sloc !== '') 
 		{
@@ -11513,19 +11673,21 @@ class RepaccrecController extends Controller
 					join cutar g on g.cutarid=f.cutarid
 					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
 					(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
+					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber, a.invoiceid, c.soheaderid
 					from invoice a
 					join giheader b on b.giheaderid = a.giheaderid
 					join soheader c on c.soheaderid = b.soheaderid
 					join addressbook d on d.addressbookid = c.addressbookid
 					join employee e on e.employeeid = c.employeeid
 					left join salesarea f on f.salesareaid = d.salesareaid
+					left join groupcustomer h on h.groupcustomerid = d.groupcustomerid
 					join addressaccount g on g.addressbookid = c.addressbookid and g.companyid = c.companyid
 					where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
+					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and h.groupname like '%".$groupcustomer."%' ".$isdisplay1."
 					and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and g.accpiutangid = {$rows['accountid']})
 					{$arbaddebt}) z
-					where amount > payamount
+					{$joinplant}
+					where amount > payamount {$plant}
 					";
 			if ($sloc !== '') 
 			{
@@ -11554,7 +11716,7 @@ class RepaccrecController extends Controller
 				$this->pdf->text(145,$this->pdf->gety()+5,'Koordinat:');
 				$this->pdf->text(168,$this->pdf->gety()+5,$row['lat'].',');
 				$this->pdf->text(185,$this->pdf->gety()+5,$row['lng']);
-				$sql2 = " select *, (amount-payamount) as sisa,(amount) as nilai
+				$sql2 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 								from (select b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
 								date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -11562,7 +11724,7 @@ class RepaccrecController extends Controller
 								ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 								from cutarinv f
 								join cutar g on g.cutarid=f.cutarid
-								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
 								from invoice a
 								inner join giheader b on b.giheaderid = a.giheaderid
 								inner join soheader c on c.soheaderid = b.soheaderid
@@ -11576,7 +11738,8 @@ class RepaccrecController extends Controller
 								and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
 								and gg.accpiutangid = {$rows['accountid']})
 								{$arbaddebt})z
-								where amount > payamount
+								{$joinplant} 
+								where amount > payamount {$plant}
 				";
 				if ($sloc !== '') 
 				{
@@ -11674,7 +11837,7 @@ class RepaccrecController extends Controller
 	public function actionDownXLS()
 	{
 		parent::actionDownxls();
-		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['product']) && isset($_GET['sales']) && isset($_GET['spv']) && isset($_GET['salesarea']) && isset($_GET['umurpiutang']) && isset($_GET['isdisplay']) && isset($_GET['isbaddebt']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
+		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['product']) && isset($_GET['sales']) && isset($_GET['spv']) && isset($_GET['salesarea']) && isset($_GET['groupcustomer']) && isset($_GET['umurpiutang']) && isset($_GET['isdisplay']) && isset($_GET['isbaddebt']) && isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
 		{
 			$uri = $_SERVER['REQUEST_URI'];
 			$start = strpos($uri,'customer');
@@ -11683,216 +11846,216 @@ class RepaccrecController extends Controller
 			$customer = urldecode(substr($new,9));
 			if ($_GET['lro'] == 99)
 			{
-				$this->RincianFakturdanReturJualBelumLunasGabunganXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasGabunganXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 1)
 			{
-				$this->RincianPelunasanPiutangPerDokumenXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerDokumenXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 2)
 			{
-				$this->RekapPelunasanPiutangPerDivisiXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerDivisiXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 3)
 			{
-				$this->KartuPiutangDagangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->KartuPiutangDagangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 4)
 			{
-				$this->RekapPiutangDagangPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPiutangDagangPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 5)
 			{
-				$this->RincianFakturdanReturJualBelumLunasXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 6)
 			{
-				$this->RincianUmurPiutangDagangPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianUmurPiutangDagangPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 7)
 			{
-				$this->RekapUmurPiutangDagangPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 8)
 			{
-				$this->RincianFakturdanReturJualBelumLunasPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 9)
 			{
-				$this->RekapKontrolPiutangCustomervsPlafonXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKontrolPiutangCustomervsPlafonXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 10)
 			{
-				$this->RincianKontrolPiutangCustomervsPlafonXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKontrolPiutangCustomervsPlafonXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 11)
 			{
-				$this->KonfirmasiPiutangDagangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->KonfirmasiPiutangDagangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 12)
 			{
-				$this->RekapInvoiceARPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapInvoiceARPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 13)
 			{
-				$this->RekapNotaReturPenjualanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapNotaReturPenjualanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 14)
 			{
-				$this->RekapPelunasanPiutangPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 15)
 			{
-				$this->RincianPelunasanPiutangPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 16)
 			{
-				$this->RekapPelunasanPiutangPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 17)
 			{
-				$this->RincianPelunasanPiutangPerSalesPerJenisBarangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSalesPerJenisBarangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 18)
 			{
-				$this->RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOBXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOBXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 19)
 			{
-				$this->RekapPelunasanPiutangPerSalesPerJenisBarangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerSalesPerJenisBarangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 20)
 			{
-				$this->RekapPenjualanVSPelunasanPerBulanPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPenjualanVSPelunasanPerBulanPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 21)
 			{
-				$this->RekapPiutangVSPelunasanPerBulanPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPiutangVSPelunasanPerBulanPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 22)
 			{
-				$this->RincianPelunasanPiutangPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 23)
 			{
-				$this->RekapPelunasanPiutangPerCustomerXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerCustomerXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 24)
 			{
-				$this->RincianPelunasanPiutangPerCustomerPerJenisBarangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangPerCustomerPerJenisBarangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 25)
 			{
-				$this->RekapPelunasanPiutangPerCustomerPerJenisBarangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapPelunasanPiutangPerCustomerPerJenisBarangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			if ($_GET['lro'] == 26)
 			{
-				$this->RekapUmurPiutangDagangXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 27)
 			{
-				$this->RekapUmurPiutangDagangPerBulanPerTahunXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerBulanPerTahunXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 28)
 			{
-				$this->RincianFakturdanReturJualBelumLunasFilterJTTXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasFilterJTTXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 29)
 			{
-				$this->RincianPelunasanPiutangFilterTanggalInvoiceXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangFilterTanggalInvoiceXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 30)
 			{
-				$this->RincianPelunasanPiutangFilterTanggalPelunasanXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianPelunasanPiutangFilterTanggalPelunasanXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 31)
 			{
-				$this->RekapTargetVSTagihanXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapTargetVSTagihanXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 32)
 			{
-				$this->RincianKomisiKastaXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKomisiKastaXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 33)
 			{
-				$this->RekapTargetTagihanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapTargetTagihanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 34)
 			{
-				$this->RekapSkalaKomisiTagihanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapSkalaKomisiTagihanPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 35)
 			{
-				$this->RekapUmurPiutangDagangPerCustomerVsTopXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCustomerVsTopXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 36)
 			{
-				$this->RekapMonitoringPiutangPerCustomerPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapMonitoringPiutangPerCustomerPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 37)
 			{
-				$this->RekapKomisiTagihanPerSPVPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKomisiTagihanPerSPVPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 38)
 			{
-				$this->RekapUmurPiutangDagangPerCompanyXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapUmurPiutangDagangPerCompanyXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 39)
 			{
-				$this->RekapKomisiKastaXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RekapKomisiKastaXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 40)
 			{
-				$this->RincianKomisiTagihanPerSPVPerSalesXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianKomisiTagihanPerSPVPerSalesXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 			else
 			if ($_GET['lro'] == 41)
 			{
-				$this->RincianFakturdanReturJualBelumLunasPerBagianXLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				$this->RincianFakturdanReturJualBelumLunasPerBagianXLS($_GET['company'],$_GET['plantid'],$_GET['sloc'],$_GET['materialgroup'],$customer,$_GET['product'],$_GET['sales'],$_GET['spv'],$_GET['salesarea'],$_GET['groupcustomer'],$_GET['umurpiutang'],$_GET['isdisplay'],$_GET['isbaddebt'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
 		}
 	}
 	//99
-	public function RincianFakturdanReturJualBelumLunasGabunganXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)			
+	public function RincianFakturdanReturJualBelumLunasGabunganXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)			
 	{
 		$this->menuname='rincianfakturdanreturjualbelumlunasgabungan';
 		parent::actionDownxls();
@@ -12055,7 +12218,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}	
 	//1
-	public function RincianPelunasanPiutangPerDokumenXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerDokumenXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangperdokumen';
 		parent::actionDownxls();
@@ -12065,24 +12228,31 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (e.isbaddebt = 1 and e.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = g.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+		}
 		$totalsaldo2=0;$totaltunai2=0;$totalbank2=0;$totaldiskon2=0;$totalretur2=0;$totalob2=0;$totaljumlah2=0;$totalsisa2=0;
 		$sql = "select distinct a.cutarid,a.cutarno,a.docdate as cutardate,c.docno as ttntno,c.docdate as ttntdate,b.companyid
-						from cutar a
-						join company b on b.companyid = a.companyid
-						join ttnt c on c.ttntid = a.ttntid
-						join cutarinv d on d.cutarid = a.cutarid
-						join invoice e on e.invoiceid = d.invoiceid
-						join giheader f on f.giheaderid = e.giheaderid
-						join soheader g on g.soheaderid = f.soheaderid	
-						join ttnt m on m.ttntid=a.ttntid					
-						left join employee h on h.employeeid = m.employeeid
-						join addressbook i on i.addressbookid = g.addressbookid
-						-- where e.isbaddebt = ".$isbaddebt." and 
-						where i.fullname like '%".$customer."%' and h.fullname like '%".$sales."%' and a.cutarno is not null 
-						and a.companyid = ".$companyid." and a.recordstatus=3
-						and	a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						{$arbaddebt} ";
+		from cutar a
+		join company b on b.companyid = a.companyid
+		join ttnt c on c.ttntid = a.ttntid
+		join cutarinv d on d.cutarid = a.cutarid
+		join invoice e on e.invoiceid = d.invoiceid
+		join giheader f on f.giheaderid = e.giheaderid
+		join soheader g on g.soheaderid = f.soheaderid	
+		join ttnt m on m.ttntid=a.ttntid					
+		left join employee h on h.employeeid = m.employeeid
+		join addressbook i on i.addressbookid = g.addressbookid
+		{$joinplant}
+		where i.fullname like '%".$customer."%' and h.fullname like '%".$sales."%' and a.cutarno is not null 
+		and a.companyid = ".$companyid." and a.recordstatus=3 
+		and	a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+		and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
+		{$arbaddebt} {$plant}";
 		if ($product !== '') 
 		{
 			$sql = $sql . " and	f.giheaderid in (select distinct a0.giheaderid from gidetail a0 join product a1 on a1.productid=a0.productid where a1.productname like '%".$product."%') ";
@@ -12142,12 +12312,12 @@ class RepaccrecController extends Controller
 						join cutar b on b.cutarid=a.cutarid
 						join invoice e on e.invoiceid = a.invoiceid
 						join giheader d on d.giheaderid = e.giheaderid
-						join soheader c on c.soheaderid= d.soheaderid
-						join addressbook f on f.addressbookid = c.addressbookid	
+						join soheader g on g.soheaderid= d.soheaderid
+						join addressbook f on f.addressbookid = g.addressbookid	
 						join ttnt h on h.ttntid=b.ttntid
-						left join employee g on g.employeeid = h.employeeid
-						-- where c.isbaddebt = ".$isbaddebt." and 
-						where f.fullname like '%".$customer."%' and g.fullname like '%".$sales."%' and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'	and a.cutarid = ".$row['cutarid']." {$whereproduct} {$arbaddebt}
+						left join employee i on i.employeeid = h.employeeid
+						{$joinplant}
+						where f.fullname like '%".$customer."%' and i.fullname like '%".$sales."%' and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'	and a.cutarid = ".$row['cutarid']." {$whereproduct} {$arbaddebt} {$plant}
 						group by invoiceno)z
 						";
 			
@@ -12222,7 +12392,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//2
-	public function RekapPelunasanPiutangPerDivisiXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerDivisiXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappelunasanpiutangperdivisi';
 		parent::actionDownxls();
@@ -12231,6 +12401,13 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$sql ="select distinct a.cutarid, sum(cashamount) as tunai,sum(a.bankamount) as bank,sum(a.discamount) as diskon,sum(a.returnamount) as retur,sum(a.obamount) as ob,
 				sum(cashamount)+sum(a.bankamount)+sum(a.discamount)+sum(a.returnamount)+sum(a.obamount) as jumlah,
@@ -12247,9 +12424,9 @@ class RepaccrecController extends Controller
 				join ttnt h on h.ttntid=b.ttntid
 				join employee f on f.employeeid = h.employeeid
 				join addressbook g on g.addressbookid = e.addressbookid
-				-- where c.isbaddebt = ".$isbaddebt." and 
+				{$joinplant}
 				where b.companyid = ".$companyid." and g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-				and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}
+				and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}
 				group by materialgroupname";
 
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
@@ -12305,7 +12482,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//3
-	public function KartuPiutangDagangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function KartuPiutangDagangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='kartupiutangdagang';
 		parent::actionDownxls();
@@ -12495,7 +12672,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}	
 	//4
-	public function RekapPiutangDagangPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPiutangDagangPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappiutangdagangpercustomer';
 		parent::actionDownxls();
@@ -12607,7 +12784,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}	
 	//5
-	public function RincianFakturdanReturJualBelumLunasXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		//$_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['product'],$_GET['startdate'],$_GET['enddate'],$_GET['per']
 		$this->menuname='rincianfakturdanreturjualbelumlunas';
@@ -12623,28 +12800,34 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
-		$sql = "select distinct addressbookid,fullname,lat,lng,wanumber
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
+    $sql = "select distinct addressbookid,fullname,lat,lng,wanumber
 					from (select b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
 					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 					from cutarinv f
 					join cutar g on g.cutarid=f.cutarid
 					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
 					(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
+					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber,a.invoiceid,c.soheaderid
 					from invoice a
 					join giheader b on b.giheaderid = a.giheaderid
 					join soheader c on c.soheaderid = b.soheaderid
 					join addressbook d on d.addressbookid = c.addressbookid
 					join employee e on e.employeeid = c.employeeid
 					left join salesarea f on f.salesareaid = d.salesareaid
-
+					left join groupcustomer g on g.groupcustomerid = d.groupcustomerid
 					where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
-					-- and a.isbaddebt = {$isbaddebt}
-					-- and d.groupcustomerid=4
+					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and g.groupname like '%".$groupcustomer."%' ".$isdisplay1."
 					and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					{$arbaddebt}) z
-					where amount > payamount
+					{$arbaddebt} ) z
+					{$joinplant}
+					where amount > payamount {$plant}
 		";
 		if ($sloc !== '') 
 		{
@@ -12709,7 +12892,7 @@ class RepaccrecController extends Controller
 				->setCellValueByColumnAndRow(9,$line,'Sales');
 			$line++;
 			
-			$sql1 = " select *, (amount-payamount) as sisa,(amount) as nilai
+			$sql1 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 							from (select b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
 							date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 							datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -12717,20 +12900,19 @@ class RepaccrecController extends Controller
 							ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 							from cutarinv f
 							join cutar g on g.cutarid=f.cutarid
-							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+							where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
 							from invoice a
 							inner join giheader b on b.giheaderid = a.giheaderid
 							inner join soheader c on c.soheaderid = b.soheaderid
 							inner join addressbook d on d.addressbookid = c.addressbookid
 							inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
 							inner join employee ff on ff.employeeid = c.employeeid
-
 							where (d.fullname like '%".$customer."%' and ff.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 							and d.addressbookid = '".$row['addressbookid']."' ".$isdisplay1."
-							-- and a.isbaddebt = {$isbaddebt}
 							and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-							{$arbaddebt})z
-							where amount > payamount
+							{$arbaddebt} ) z
+							{$joinplant}
+							where amount > payamount {$plant}
 			";
 			if ($sloc !== '') 
 			{
@@ -12793,7 +12975,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//6
-	public function RincianUmurPiutangDagangPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianUmurPiutangDagangPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianumurpiutangdagangpercustomer';
 		parent::actionDownxls();
@@ -12924,6 +13106,7 @@ class RepaccrecController extends Controller
 			}
 			$this->phpExcel->setActiveSheetIndex(0)
 					->setCellValueByColumnAndRow(1,$line,'Total')
+					->setCellValueByColumnAndRow(2,$line,$row['fullname'])
 					->setCellValueByColumnAndRow(4,$line,($totalsd0))
 					->setCellValueByColumnAndRow(5,$line,($total0sd30))
 					->setCellValueByColumnAndRow(6,$line,($total31sd60))
@@ -12958,7 +13141,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//7
-	public function RekapUmurPiutangDagangPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapumurpiutangdagangpercustomer';
 		parent::actionDownxls();
@@ -13055,7 +13238,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//8
-	public function RincianFakturdanReturJualBelumLunasPerSalesXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasPerSalesXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianfakturdanreturjualbelumlunaspersales';
 		parent::actionDownxls();
@@ -13065,23 +13248,33 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
 		$nilaitot2=0;$dibayar2=0;$sisa2=0;
-		$sql = "select distinct employeeid,fullname
+    $sql = "select distinct employeeid,fullname
           from (select f.employeeid,f.fullname,a.amount,
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
           inner join employee f on f.employeeid=c.employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
-					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
+          left join groupcustomer g on g.groupcustomerid=d.groupcustomerid
+					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and g.groupname like '%".$groupcustomer."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-          where amount > payamount order by fullname";
+					{$joinplant} 
+          where amount > payamount {$plant} order by fullname";
     $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 			
     //foreach($dataReader as $row)
@@ -13103,18 +13296,18 @@ class RepaccrecController extends Controller
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
-          inner join employee f on f.employeeid = c. employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
-					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
+          inner join employee f on f.employeeid = c.employeeid
+          left join groupcustomer g on g.groupcustomerid = d.groupcustomerid
+					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and g.groupname like '%".$groupcustomer."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and c.employeeid = '".$row['employeeid']."'
-          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-          where amount > payamount ";
+          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z {$joinplant}
+          where amount > payamount {$plant} ";
       if ($_GET['umurpiutang'] !== '') 
       {
               $sql1 = $sql1 . "and  umur > ".$_GET['umurpiutang']." order by fullname";
@@ -13145,7 +13338,7 @@ class RepaccrecController extends Controller
           ->setCellValueByColumnAndRow(8,$line,'Sisa');
         $line++;
           
-        $sql2 = "select *
+        $sql2 = "select distinct z.*
           from (select if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
           date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
           datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -13153,18 +13346,18 @@ class RepaccrecController extends Controller
           ifnull((select sum((ifnull(o.cashamount,0)+ifnull(o.bankamount,0)+ifnull(o.discamount,0)+ifnull(o.returnamount,0)+ifnull(o.obamount,0))*ifnull(o.currencyrate,0))
             from cutarinv o
             join cutar p on p.cutarid=o.cutarid
-            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+            where p.recordstatus=3 and o.invoiceid=a.invoiceid and p.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
           from invoice a
           inner join giheader b on b.giheaderid = a.giheaderid
           inner join soheader c on c.soheaderid = b.soheaderid
           inner join addressbook d on d.addressbookid = c.addressbookid
           inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
           inner join employee f on f.employeeid = c.employeeid
-          -- where a.isbaddebt = ".$isbaddebt." and 
 					where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."
           and d.addressbookid = '".$row1['addressbookid']."' and c.employeeid = '".$row['employeeid']."'
-          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt})z
-          where amount > payamount ";
+          and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
+					{$joinplant} 
+          where amount > payamount {$plant} ";
         if ($_GET['umurpiutang'] !== '') 
         {
                 $sql2 = $sql2 . "and  umur > ".$_GET['umurpiutang']." order by umurtempo desc";
@@ -13227,7 +13420,7 @@ class RepaccrecController extends Controller
 
 	}
 	//9
-	public function RekapKontrolPiutangCustomervsPlafonXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKontrolPiutangCustomervsPlafonXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapkontrolpiutangcustomervsplafon';
 		parent::actionDownxls();
@@ -13309,7 +13502,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//10
-	public function RincianKontrolPiutangCustomervsPlafonXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianKontrolPiutangCustomervsPlafonXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rinciankontrolpiutangcustomervsplafon';
 		parent::actionDownxls();
@@ -13438,7 +13631,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
   //11
-	public function KonfirmasiPiutangDagangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function KonfirmasiPiutangDagangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='konfirmasipiutangdagang';
 		parent::actionDownxls();
@@ -13620,7 +13813,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}	
 	//12
-	public function RekapInvoiceARPerDokumenBelumStatusMaxXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapInvoiceARPerDokumenBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapinvoicearperdokumenbelumstatusmax';
 		parent::actionDownxls();
@@ -13671,7 +13864,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//13
-	public function RekapNotaReturPenjualanPerDokumenBelumStatusMaxXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapNotaReturPenjualanPerDokumenBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapnotareturpenjualanperdokumenbelumstatusmax';
 		parent::actionDownxls();
@@ -13719,7 +13912,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//14
-	public function RekapPelunasanPiutangPerDokumenBelumStatusMaxXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerDokumenBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
     $this->menuname='rekappelunasanpiutangperdokumenbelumstatusmax';
     parent::actionDownxls();	
@@ -13769,7 +13962,7 @@ class RepaccrecController extends Controller
     $this->getFooterXLS($this->phpExcel);
 	}	
 	//15
-	public function RincianPelunasanPiutangPerSalesXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSalesXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangpersales';
 		parent::actionDownxls();
@@ -13778,6 +13971,13 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;$wheresalesarea='';$whereproduct ='';
 		$sql = "select distinct f.employeeid,f.fullname,e.companyid
@@ -13790,11 +13990,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -13862,10 +14062,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+						and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 						order by docdate,fullname,invoicedate
 						";
             if($salesarea !=='') 
@@ -13975,7 +14175,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//16
-	public function RekapPelunasanPiutangPerSalesXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerSalesXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappelunasanpiutangpersales';
 		parent::actionDownxls();
@@ -13985,6 +14185,13 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+		}
 		$i=0;$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;$wheresalesarea='';$whereproduct ='';
 		$sql = "select distinct f.employeeid,f.fullname,e.companyid
 						from cutarinv a
@@ -13992,15 +14199,14 @@ class RepaccrecController extends Controller
 						join invoice c on c.invoiceid=a.invoiceid
 						join giheader d on d.giheaderid=c.giheaderid
 						join soheader e on e.soheaderid=d.soheaderid
-				        join ttnt h on h.ttntid=b.ttntid
+						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-                        {$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$wheresalesarea} {$whereproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
         
 		if($salesarea!=='')
     {
@@ -14058,10 +14264,9 @@ class RepaccrecController extends Controller
 						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$wheresalesarea} {$whereproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
-						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 						order by docdate,fullname
 						";
       if($salesarea!=='')
@@ -14131,7 +14336,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//17
-	public function RincianPelunasanPiutangPerSalesPerJenisBarangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSalesPerJenisBarangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangpersalesperjenisbarang';
 		parent::actionDownxls();
@@ -14140,6 +14345,13 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0; $joinsalesarea = ''; $joinproduct=''; $wheresalesarea = ''; $whereproduct='';
 		if($salesarea!=='')
@@ -14162,11 +14374,10 @@ class RepaccrecController extends Controller
 						join ttnt h on h.ttntid=b.ttntid
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
-						{$joinsalesarea} {$joinproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinsalesarea} {$joinproduct} {$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." {$wheresalesarea} {$whereproduct}
 						and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -14209,12 +14420,11 @@ class RepaccrecController extends Controller
 							join ttnt i on i.ttntid=b.ttntid
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
-              {$joinsalesarea} {$joinproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+              {$joinsalesarea} {$joinproduct} {$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							order by description
 							";
 			if($salesarea!=='')
@@ -14258,10 +14468,10 @@ class RepaccrecController extends Controller
 							join ttnt i on i.ttntid=b.ttntid
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
-							{$wheresalesarea} {$whereproduct}
+							{$wheresalesarea} {$whereproduct} {$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							where z.materialgroupid = ".$row1['materialgroupid']."
 							order by docdate,fullname,invoicedate
 							";
@@ -14391,7 +14601,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//18
-	public function RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOBXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerSalesPerJenisBarangWithoutOBXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangpersalesperjenisbarangwithoutob';
 		parent::actionDownxls();
@@ -14400,6 +14610,13 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0;  $joinsalesarea = ''; $joinproduct=''; $wheresalesarea = ''; $whereproduct='';
 		if($salesarea!=='')
@@ -14423,10 +14640,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$joinsalesarea} {$joinproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." {$wheresalesarea} {$whereproduct}
 						and b.recordstatus=3 and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
                 
 		foreach($dataReader as $row)		
@@ -14456,11 +14673,11 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
               {$joinsalesarea} {$joinproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant} ) z
 							order by description";
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();	
 			$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
@@ -14490,11 +14707,11 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
               {$joinsalesarea} {$joinproduct}
-							-- where a.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							{$wheresalesarea} {$whereproduct}
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant} ) z
 							where z.materialgroupid = ".$row1['materialgroupid']."
 							order by docdate,fullname,invoicedate
 							";
@@ -14613,7 +14830,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//19
-	public function RekapPelunasanPiutangPerSalesPerJenisBarangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerSalesPerJenisBarangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappelunasanpiutangpersalesperjenisbarang';
     $arbaddebt = " AND (c.isbaddebt = 0 or c.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
@@ -14621,6 +14838,15 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$plant1 = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
+			$plant1 = ' and i.plantid ='.$plantid;
 		}
 		parent::actionDownxls();
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0; $wheresalesarea=''; $whereproduct='';
@@ -14634,11 +14860,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						{$wheresalesarea} {$whereproduct}
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if($salesarea!=='')
     {
         $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -14695,9 +14921,8 @@ class RepaccrecController extends Controller
 							join gidetail h on h.giheaderid=d.giheaderid
 							join sloc i on i.slocid=h.slocid
 							{$wheresalesarea} {$whereproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
-							b.recordstatus=3 and f.employeeid = ".$row['employeeid']." and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+							b.recordstatus=3 and f.employeeid = ".$row['employeeid']." and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant1} ";
 			if($salesarea!=='')
       {
           $wheresalesarea = " join salesarea j on j.salesareaid=g.salesareaid";
@@ -14735,10 +14960,10 @@ class RepaccrecController extends Controller
 							join employee f on f.employeeid=i.employeeid
 							join addressbook g on g.addressbookid=e.addressbookid
 							{$wheresalesarea} {$whereproduct}
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							{$joinplant}
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} ) z
+							and e.companyid = ".$companyid." and f.employeeid = ".$row['employeeid']." {$arbaddebt} {$plant}) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -14833,7 +15058,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//20
-	public function RekapPenjualanVSPelunasanPerBulanPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPenjualanVSPelunasanPerBulanPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappenjualanvspelunasanpercustomer';
 		parent::actionDownxls();
@@ -15222,7 +15447,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
   //21
-	public function RekapPiutangVSPelunasanPerBulanPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPiutangVSPelunasanPerBulanPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappiutangvspelunasanperbulanpercustomer';
 		parent::actionDownxls();
@@ -15601,7 +15826,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}	
 	//22
-	public function RincianPelunasanPiutangPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangpercustomer';
 		parent::actionDownxls();
@@ -15610,6 +15835,13 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = e.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -15622,11 +15854,11 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
-						-- where c.isbaddebt = ".$isbaddebt." and
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		if ($product !== '') 
 		{
 			$sql = $sql . " and	d.giheaderid in (select distinct a0.giheaderid from gidetail a0 join product a1 on a1.productid=a0.productid where a1.productname like '%".$product."%') ";
@@ -15694,10 +15926,10 @@ class RepaccrecController extends Controller
 						join employee f on f.employeeid=h.employeeid
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						{$joinplant}
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$whereproduct} {$arbaddebt} ) z
+						and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$whereproduct} {$arbaddebt} {$plant} ) z
 						";
 			if ($umurpiutang !== '') 
 			{
@@ -15790,7 +16022,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//23
-	public function RekapPelunasanPiutangPerCustomerXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerCustomerXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappelunasanpiutangpercustomer';
 		parent::actionDownxls();
@@ -15799,6 +16031,10 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant = '';
+		if($plantid!=='') {
+			$plant = ' and s.plantid ='.$plantid;
 		}
 		$i=0;$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -15813,11 +16049,11 @@ class RepaccrecController extends Controller
 						left join salesarea j on j.salesareaid=g.salesareaid
 						left join gidetail k on k.giheaderid=d.giheaderid
 						left join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and ifnull(j.areaname,'') like '%".$salesarea."%' and ifnull(l.productname,'') like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		
@@ -15865,11 +16101,11 @@ class RepaccrecController extends Controller
 						left join salesarea j on j.salesareaid=g.salesareaid
 						left join gidetail k on k.giheaderid=d.giheaderid
 						left join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 						and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 						and ifnull(l.productname,'') like '%".$product."%' 
-						and ifnull(j.areaname,'') like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt}) z
+						and ifnull(j.areaname,'') like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 						order by docdate,fullname
 						";
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
@@ -15928,7 +16164,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//24
-	public function RincianPelunasanPiutangPerCustomerPerJenisBarangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangPerCustomerPerJenisBarangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangpercustomerperjenisbarang';
 		parent::actionDownxls();
@@ -15937,6 +16173,10 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant='';
+		if($plantid!=='') {
+			$plant=' and s.plantid = '.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -15950,12 +16190,12 @@ class RepaccrecController extends Controller
 						join addressbook g on g.addressbookid=e.addressbookid
 						join salesarea j on j.salesareaid=g.salesareaid
 						join gidetail k on k.giheaderid=d.giheaderid
-						join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						join product l on l.productid=k.productid 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and l.productname like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
                 
@@ -15987,11 +16227,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
 							join gidetail k on k.giheaderid=d.giheaderid
 							join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 							b.recordstatus=3 and g.addressbookid = ".$row['addressbookid']." and j.areaname like '%".$salesarea."%' and
 							l.productname like '%".$product."%' and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant}";
 			
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();	
 			$totaldisc1 = 0;$totalnilaibayar1 = 0;$total0sd301 = 0;$total31sd451 = 0;$total46sd601 = 0;$total61sd631 = 0;$total64sd701 = 0;$total71sd901 = 0;$totalsd911 = 0;
@@ -16024,11 +16264,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 							and l.productname like '%".$product."%' 
-							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} ) z
+							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -16148,7 +16388,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//25
-	public function RekapPelunasanPiutangPerCustomerPerJenisBarangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapPelunasanPiutangPerCustomerPerJenisBarangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekappelunasanpiutangpercustomerperjenisbarang';
 		parent::actionDownxls();
@@ -16157,6 +16397,10 @@ class RepaccrecController extends Controller
 		{
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
+		}
+		$plant='';
+		if($plantid!=='') {
+			$plant = ' and s.plantid = '.$plantid;
 		}
 		$totaldisc2 = 0;$totalnilaibayar2 = 0;$total0sd302 = 0;$total31sd452 = 0;$total46sd602 = 0;$total61sd632 = 0;$total64sd702 = 0;$total71sd902 = 0;$totalsd912 = 0;
 		$sql = "select distinct g.addressbookid,g.fullname,e.companyid
@@ -16171,11 +16415,11 @@ class RepaccrecController extends Controller
 						join salesarea j on j.salesareaid=g.salesareaid
 						join gidetail k on k.giheaderid=d.giheaderid
 						join product l on l.productid=k.productid
-						-- where c.isbaddebt = ".$isbaddebt." and 
+						left join sloc s on s.slocid = k.slocid
 						where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 						b.recordstatus=3 and j.areaname like '%".$salesarea."%' and l.productname like '%".$product."%' and
 						b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ";
+						and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 		
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		
@@ -16222,11 +16466,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.cutarno is not null and e.companyid = ".$companyid." and 
 							b.recordstatus=3 and j.areaname like '%".$salesarea."%' and g.addressbookid = ".$row['addressbookid']." and
 							l.productname like '%".$product."%' and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}";
+							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} {$plant} ";
 			
 			$dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
 			
@@ -16255,11 +16499,11 @@ class RepaccrecController extends Controller
 							join salesarea j on j.salesareaid=g.salesareaid
               join gidetail k on k.giheaderid=d.giheaderid
               join product l on l.productid=k.productid
-							-- where c.isbaddebt = ".$isbaddebt." and 
+							left join sloc s on s.slocid = k.slocid 
 							where g.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and b.recordstatus=3 
 							and b.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
 							and l.productname like '%".$product."%' 
-							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt}) z
+							and j.areaname like '%".$salesarea."%' and e.companyid = ".$companyid." and g.addressbookid = ".$row['addressbookid']." {$arbaddebt} {$plant} ) z
 							where z.slocid = ".$row1['slocid']."
 							order by docdate,fullname
 							";
@@ -16343,7 +16587,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//26
-	public function RekapUmurPiutangDagangXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
     $this->menuname='rekapumurpiutangdagang';
 		parent::actionDownxls();
@@ -16457,7 +16701,7 @@ class RepaccrecController extends Controller
 	//27
 
 	//28
-	public function RincianFakturdanReturJualBelumLunasFilterJTTXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasFilterJTTXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
     $this->menuname='rincianfakturdanreturjualbelumlunasfilterjtt';
 		parent::actionDownxls();
@@ -16467,13 +16711,20 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
     $nilaitot1 = 0;$dibayar1 = 0;$sisa1 = 0;
     $sql = "select distinct addressbookid,fullname
 					from (select d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
 					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 					from cutarinv f
 					join cutar g on g.cutarid=f.cutarid
-					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount
+					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount, a.invoiceid, c.soheaderid
 					from invoice a
 					join giheader b on b.giheaderid = a.giheaderid
 					join soheader c on c.soheaderid = b.soheaderid
@@ -16481,10 +16732,12 @@ class RepaccrecController extends Controller
 					join employee e on e.employeeid = c.employeeid
 					join paymentmethod g on g.paymentmethodid = c.paymentmethodid
 					left join salesarea f on f.salesareaid = d.salesareaid
-					where a.isbaddebt = ".$isbaddebt." and e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
+					where e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%'
-					and date_add(a.invoicedate,interval g.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') z
-					where amount > payamount";
+					and date_add(a.invoicedate,interval g.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt}) z
+					{$joinplant}
+					where amount > payamount {$plant} 
+					";
     if ($_GET['umurpiutang'] !== '') 
 		{
 				$sql = $sql . "and  umur > ".$_GET['umurpiutang']." order by fullname";
@@ -16506,7 +16759,7 @@ class RepaccrecController extends Controller
         ->setCellValueByColumnAndRow(0,$line,$row['fullname']);
       $line++;
 
-      $sql1 = " select *, (amount-payamount) as sisa,(amount) as nilai
+      $sql1 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 								from (select a.invoiceno,a.invoicedate,e.paydays,
 								date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -16514,18 +16767,18 @@ class RepaccrecController extends Controller
 								ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 								from cutarinv f
 								join cutar g on g.cutarid=f.cutarid
-								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount
+								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= DATE_ADD(LAST_DAY('".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),INTERVAL - 1 MONTH)),0) as payamount, a.invoiceid, c.soheaderid
 								from invoice a
 								inner join giheader b on b.giheaderid = a.giheaderid
 								inner join soheader c on c.soheaderid = b.soheaderid
 								inner join addressbook d on d.addressbookid = c.addressbookid
 								inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
 								inner join employee ff on ff.employeeid = c.employeeid
-								-- where a.isbaddebt = ".$isbaddebt." and 
 								where d.fullname like '%".$customer."%' and ff.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 								and d.addressbookid = '".$row['addressbookid']."'						
-								and date_add(a.invoicedate,interval e.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
-								where amount > payamount
+								and date_add(a.invoicedate,interval e.paydays day) <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z 
+								{$joinplant}
+								where amount > payamount {$plant} 
 								";
 			if ($_GET['umurpiutang'] !== '') 
 			{
@@ -16596,7 +16849,7 @@ class RepaccrecController extends Controller
     $this->getFooterXLS($this->phpExcel);
   }
 	//29
-	public function RincianPelunasanPiutangFilterTanggalInvoiceXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangFilterTanggalInvoiceXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangfiltertanggalinovice';
 		parent::actionDownxls();
@@ -16606,10 +16859,17 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$plant = ' left join sodetail ss on ss.soheaderid = z.soheaderid 
+			left join sloc s on s.slocid = ss.slocid
+			where s.plantid = '.$plantid;
+		}
 		$i=0;
 		$sub_nominal=0;$sub_paidamount=0;$sub_ob=0;$sub_disc=0;$sub_return=0;$sub_paidvalue=0;
-		$sql = "select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
-                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname
+		$sql = "select distinct z.* from (select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
+                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname,a.cutarinvid,e.soheaderid
                 from cutarinv a
                 join cutar b on a.cutarid = b.cutarid
                 join invoice c on c.invoiceid = a.invoiceid
@@ -16618,10 +16878,10 @@ class RepaccrecController extends Controller
                 join addressbook f on f.addressbookid = e.addressbookid
 						    join ttnt h on h.ttntid=b.ttntid
                 join employee g on g.employeeid = h.employeeid
-                -- where c.isbaddebt = ".$isbaddebt." and 
 								where c.invoicedate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
                 and c.recordstatus = 3 and b.recordstatus = 3 and e.companyid = {$companyid} and g.fullname like '%{$sales}%' {$arbaddebt}
-                order by invoicedate asc";
+                order by invoicedate asc) z 
+								{$plant} ";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		
 		$this->phpExcel->setActiveSheetIndex(0)
@@ -16674,7 +16934,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//30
-	public function RincianPelunasanPiutangFilterTanggalPelunasanXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianPelunasanPiutangFilterTanggalPelunasanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianpelunasanpiutangfiltertanggalpelunasan';
 		parent::actionDownxls();
@@ -16684,10 +16944,16 @@ class RepaccrecController extends Controller
 			$baddebt = " Bad Debt";
 			$arbaddebt = " AND (c.isbaddebt = 1 and c.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		}
+		$plant = '';
+		if($plantid !== '') {
+			$plant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid
+			where s.plantid = '.$plantid;
+		}
 		$i=0;
 		$sub_nominal=0;$sub_paidamount=0;$sub_ob=0;$sub_disc=0;$sub_return=0;$sub_paidvalue=0;
-		$sql = "select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
-                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname
+		$sql = "select distinct z.* from (select c.invoicedate, c.invoiceno, c.amount, f.fullname as customername, b.docdate,b.cutarno,(a.cashamount+a.bankamount) as paidamount, a.obamount, a.discamount, a.returnamount,
+                (cashamount+bankamount+discamount+returnamount+obamount) as paidvalue, g.fullname as salesname, a.cutarinvid, e.soheaderid
                 from cutarinv a
                 join cutar b on a.cutarid = b.cutarid
                 join invoice c on c.invoiceid = a.invoiceid
@@ -16696,10 +16962,10 @@ class RepaccrecController extends Controller
                 join addressbook f on f.addressbookid = e.addressbookid
 								join ttnt h on h.ttntid=b.ttntid
                 join employee g on g.employeeid = h.employeeid
-                -- where c.isbaddebt = ".$isbaddebt." and 
 								where b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
                 and c.recordstatus = 3 and b.recordstatus = 3 and e.companyid = {$companyid} and g.fullname like '%{$sales}%' {$arbaddebt}
-                order by b.docdate asc";
+                order by b.docdate asc) z 
+								{$plant} ";
 		$dataReader=Yii::app()->db->createCommand($sql)->queryAll();
 		
 		$this->phpExcel->setActiveSheetIndex(0)
@@ -16754,7 +17020,7 @@ class RepaccrecController extends Controller
 	//31
 	
 	//32
-	public function RekapKomisiTagihanPerSalesXLS_1($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapKomisiTagihanPerSalesXLS_1($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapkomisitagihansales';
 		parent::actionDownxls();
@@ -17229,7 +17495,7 @@ class RepaccrecController extends Controller
 	//34
 	
 	//35
-	public function RekapUmurPiutangDagangPerCustomerVsTopXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RekapUmurPiutangDagangPerCustomerVsTopXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapumurpiutangdagangpercustomervstop';
 		parent::actionDownxls();
@@ -17416,7 +17682,7 @@ class RepaccrecController extends Controller
 		$this->getFooterXLS($this->phpExcel);
 	}
 	//36
-  public function RekapMonitoringPiutangPerCustomerPerSalesXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+  public function RekapMonitoringPiutangPerCustomerPerSalesXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
   {
     $this->menuname='rekapmonitoringpiutangpercustomerpersales';
 		parent::actionDownxls();
@@ -17717,7 +17983,7 @@ class RepaccrecController extends Controller
 	
 	//38
 	public function
-	RekapUmurPiutangDagangPerCompanyXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	RekapUmurPiutangDagangPerCompanyXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rekapumurpiutangdagangpercompany';
 		parent::actionDownxls();
@@ -17858,7 +18124,7 @@ class RepaccrecController extends Controller
 	//40
 	
 	//41
-	public function RincianFakturdanReturJualBelumLunasPerBagianXLS($companyid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
+	public function RincianFakturdanReturJualBelumLunasPerBagianXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		$this->menuname='rincianfakturdanreturjualbelumlunas';
 		parent::actionDownxls();
@@ -17871,27 +18137,37 @@ class RepaccrecController extends Controller
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt == 1) $arbaddebt = " AND (a.isbaddebt = 1 and a.baddebtdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 
+		$plant = '';
+		$joinplant = '';
+		if($plantid!=='') {
+			$joinplant = ' left join sodetail ss on ss.soheaderid = z.soheaderid
+			left join sloc s on s.slocid = ss.slocid ';
+			$plant = ' and s.plantid = '.$plantid;
+		}
+
 		$sql = "select distinct accountname, accountid 
-			from (select h.accountname, h.accountid, b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
-			ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
-			from cutarinv f
-			join cutar g on g.cutarid=f.cutarid
-			where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
-			(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-			ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
-			from invoice a
-			join giheader b on b.giheaderid = a.giheaderid
-			join soheader c on c.soheaderid = b.soheaderid
-			join addressbook d on d.addressbookid = c.addressbookid
-			join employee e on e.employeeid = c.employeeid
-			left join salesarea f on f.salesareaid = d.salesareaid
-			join addressaccount g on g.addressbookid = d.addressbookid and g.companyid = c.companyid
-			join account h on h.accountid = g.accpiutangid
-			where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-			and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
-			and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and h.accountcode between '11020201' and '11020206')
-			{$arbaddebt}) z
-			where amount > payamount ";
+		from (select h.accountname, h.accountid, b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
+		ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+		from cutarinv f
+		join cutar g on g.cutarid=f.cutarid
+		where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
+		(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
+		ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber, a.invoiceid, c.soheaderid
+		from invoice a
+		join giheader b on b.giheaderid = a.giheaderid
+		join soheader c on c.soheaderid = b.soheaderid
+		join addressbook d on d.addressbookid = c.addressbookid
+		join employee e on e.employeeid = c.employeeid
+		left join salesarea f on f.salesareaid = d.salesareaid
+		join addressaccount g on g.addressbookid = d.addressbookid and g.companyid = c.companyid
+		join account h on h.accountid = g.accpiutangid
+		left join groupcustomer i on i.groupcustomerid = d.groupcustomerid
+		where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
+		and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and i.groupname like '%".$groupcustomer."%' ".$isdisplay1."
+		and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and h.accountcode between '11020201' and '11020206')
+		{$arbaddebt}) z
+		{$joinplant}
+		where amount > payamount {$plant} ";
 
 		if ($sloc !== '') 
 		{
@@ -17944,28 +18220,28 @@ class RepaccrecController extends Controller
 			$line++;
 
 			$sql1 = "select distinct addressbookid,fullname,lat,lng,wanumber
-						from (select b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
-						ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
-						from cutarinv f
-						join cutar g on g.cutarid=f.cutarid
-						where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
-						(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
-						ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber
-						from invoice a
-						join giheader b on b.giheaderid = a.giheaderid
-						join soheader c on c.soheaderid = b.soheaderid
-						join addressbook d on d.addressbookid = c.addressbookid
-						join employee e on e.employeeid = c.employeeid
-						left join salesarea f on f.salesareaid = d.salesareaid
-						join addressaccount g on g.addressbookid = c.addressbookid and g.companyid = c.companyid
-						where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
-						and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' ".$isdisplay1."
-						-- and a.isbaddebt = {$isbaddebt}
-						-- and d.groupcustomerid=4
-						and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and g.accpiutangid = {$rows['accountid']})
-						{$arbaddebt}) z
-						where amount > payamount
-			";
+					from (select b.giheaderid,d.addressbookid,d.fullname,a.amount,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
+					ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+					from cutarinv f
+					join cutar g on g.cutarid=f.cutarid
+					where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
+					(select round(h.lat,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lat,(select round(h.lng,6) from address h where h.addressbookid=d.addressbookid Limit 1) as lng,
+					ifnull((select h.wanumber from addresscontact h where h.addressbookid=d.addressbookid Limit 1),'') as wanumber, a.invoiceid, c.soheaderid
+					from invoice a
+					join giheader b on b.giheaderid = a.giheaderid
+					join soheader c on c.soheaderid = b.soheaderid
+					join addressbook d on d.addressbookid = c.addressbookid
+					join employee e on e.employeeid = c.employeeid
+					left join salesarea f on f.salesareaid = d.salesareaid
+					left join groupcustomer h on h.groupcustomerid = d.groupcustomerid
+					join addressaccount g on g.addressbookid = c.addressbookid and g.companyid = c.companyid
+					where (e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
+					and d.fullname like '%".$customer."%' and f.areaname like '%".$salesarea."%' and h.groupname like '%".$groupcustomer."%' ".$isdisplay1."
+					and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and g.accpiutangid = {$rows['accountid']})
+					{$arbaddebt}) z
+					{$joinplant}
+					where amount > payamount {$plant}
+					";
 			if ($sloc !== '') 
 			{
 					$sql1 = $sql1 . "and  giheaderid in (select k.giheaderid from gidetail k join sloc l on l.slocid=k.slocid where l.sloccode like '%".$sloc."%') ";
@@ -18006,7 +18282,7 @@ class RepaccrecController extends Controller
 					->setCellValueByColumnAndRow(9,$line,'Sales');
 				$line++;
 				
-				$sql2 = " select *, (amount-payamount) as sisa,(amount) as nilai
+				$sql2 = " select distinct z.*, (amount-payamount) as sisa,(amount) as nilai
 								from (select b.giheaderid,if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
 								date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
 								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,
@@ -18014,20 +18290,22 @@ class RepaccrecController extends Controller
 								ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
 								from cutarinv f
 								join cutar g on g.cutarid=f.cutarid
-								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount
+								where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount, a.invoiceid, c.soheaderid
 								from invoice a
 								inner join giheader b on b.giheaderid = a.giheaderid
 								inner join soheader c on c.soheaderid = b.soheaderid
 								inner join addressbook d on d.addressbookid = c.addressbookid
 								inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
 								inner join employee ff on ff.employeeid = c.employeeid
-								join addressaccount gg on gg.addressbookid = c.addressbookid and gg.companyid = c.companyid
+								join addressaccount gg on gg.addressbookid = d.addressbookid and gg.companyid = c.companyid
 								where (d.fullname like '%".$customer."%' and ff.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
 								and d.addressbookid = '".$row['addressbookid']."' ".$isdisplay1."
 								-- and a.isbaddebt = {$isbaddebt}
-								and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' and gg.accpiutangid = {$rows['accountid']})
+								and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and gg.accpiutangid = {$rows['accountid']})
 								{$arbaddebt})z
-								where amount > payamount
+								{$joinplant} 
+								where amount > payamount {$plant}
 				";
 				if ($sloc !== '') 
 				{

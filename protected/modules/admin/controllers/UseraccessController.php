@@ -14,6 +14,7 @@ class UseraccessController extends Controller {
 		$username = isset ($_POST['username']) ? $_POST['username'] : '';
 		$realname = isset ($_POST['realname']) ? $_POST['realname'] : '';
 		$password = isset ($_POST['password']) ? $_POST['password'] : '';
+		$employeeid = isset ($_POST['employeeid']) ? $_POST['employeeid'] : '';
 		$email = isset ($_POST['email']) ? $_POST['email'] : '';
 		$phoneno = isset ($_POST['phoneno']) ? $_POST['phoneno'] : '';
 		$languagename = isset ($_POST['languagename']) ? $_POST['languagename'] : '';
@@ -23,6 +24,7 @@ class UseraccessController extends Controller {
 		$username = isset ($_GET['q']) ? $_GET['q'] : $username;
 		$realname = isset ($_GET['q']) ? $_GET['q'] : $realname;
 		$password = isset ($_GET['q']) ? $_GET['q'] : $password;
+		$employeeid = isset ($_GET['q']) ? $_GET['q'] : $employeeid;
 		$email = isset ($_GET['q']) ? $_GET['q'] : $email;
 		$phoneno = isset ($_GET['q']) ? $_GET['q'] : $phoneno;
 		$languagename = isset ($_GET['q']) ? $_GET['q'] : $languagename;
@@ -92,6 +94,7 @@ class UseraccessController extends Controller {
 				'username'=>$data['username'],
 				'realname'=>$data['realname'],
 				'password'=>$data['password'],
+				'employeeid'=>$data['employeeid'],
 				'email'=>$data['email'],
 				'phoneno'=>$data['phoneno'],
 				'wanumber'=>$data['wanumber'],
@@ -112,11 +115,11 @@ class UseraccessController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql = 'call Insertuseraccess(:vusername,:vrealname,:vpassword,:vemail,:vphoneno,:vwanumber,:vtelegramid,:vlanguageid,:vthemeid,:vsignature,:vrecordstatus,:vcreatedby,:vipaddress,:vhostname)';
+			$sql = 'call Insertuseraccess(:vusername,:vrealname,:vpassword,:vemployeeid,:vemail,:vphoneno,:vwanumber,:vtelegramid,:vlanguageid,:vthemeid,:vsignature,:vrecordstatus,:vcreatedby,:vipaddress,:vhostname)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
-			$sql = 'call Updateuseraccess(:vid,:vusername,:vrealname,:vpassword,:vemail,:vphoneno,:vwanumber,:vtelegramid,:vlanguageid,:vthemeid,:vsignature,:vrecordstatus,:vcreatedby,:vipaddress,:vhostname)';
+			$sql = 'call Updateuseraccess(:vid,:vusername,:vrealname,:vpassword,:vemployeeid,:vemail,:vphoneno,:vwanumber,:vtelegramid,:vlanguageid,:vthemeid,:vsignature,:vrecordstatus,:vcreatedby,:vipaddress,:vhostname)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
@@ -136,14 +139,15 @@ class UseraccessController extends Controller {
 		{
 			$command->bindvalue(':vpassword',$password,PDO::PARAM_STR);
 		}
-		$command->bindvalue(':vemail',$arraydata[4],PDO::PARAM_STR);
-		$command->bindvalue(':vphoneno',$arraydata[5],PDO::PARAM_STR);
-		$command->bindvalue(':vwanumber',$arraydata[6],PDO::PARAM_STR);
-		$command->bindvalue(':vtelegramid',$arraydata[7],PDO::PARAM_STR);
-		$command->bindvalue(':vlanguageid',$arraydata[8],PDO::PARAM_STR);
-		$command->bindvalue(':vthemeid',$arraydata[9],PDO::PARAM_STR);
-		$command->bindvalue(':vsignature',$arraydata[10],PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus',$arraydata[11],PDO::PARAM_STR);
+		$command->bindvalue(':vemployeeid',$arraydata[4],PDO::PARAM_STR);
+		$command->bindvalue(':vemail',$arraydata[5],PDO::PARAM_STR);
+		$command->bindvalue(':vphoneno',$arraydata[6],PDO::PARAM_STR);
+		$command->bindvalue(':vwanumber',$arraydata[7],PDO::PARAM_STR);
+		$command->bindvalue(':vtelegramid',$arraydata[8],PDO::PARAM_STR);
+		$command->bindvalue(':vlanguageid',$arraydata[9],PDO::PARAM_STR);
+		$command->bindvalue(':vthemeid',$arraydata[10],PDO::PARAM_STR);
+		$command->bindvalue(':vsignature',$arraydata[11],PDO::PARAM_STR);
+		$command->bindvalue(':vrecordstatus',$arraydata[12],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -253,7 +257,7 @@ class UseraccessController extends Controller {
 		$connection=Yii::app()->db;
 		$transaction=$connection->beginTransaction();
 		try {
-			$this->ModifyData($connection,array((isset($_POST['useraccessid'])?$_POST['useraccessid']:''),$_POST['username'],$_POST['realname'],$_POST['password'],
+			$this->ModifyData($connection,array((isset($_POST['useraccessid'])?$_POST['useraccessid']:''),$_POST['username'],$_POST['realname'],$_POST['password'],$_POST['employeeid'],
 				$_POST['email'],$_POST['phoneno'],$_POST['wanumber'],$_POST['telegramid'],$_POST['languageid'],$_POST['themeid'],$_POST['signature'],$_POST['recordstatus']));
 			$transaction->commit();
 			GetMessage(false,'insertsuccess');

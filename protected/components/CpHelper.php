@@ -816,23 +816,37 @@ function getStructure($femployeeid,$lemployeeid,$companyid) {
   return $emp;
 }
 
-function sendwajapri($deviceid,$message,$phonenumber) {
+function sendwajapri($devicekey,$message,$phonenumber) {
 	$ch = curl_init();
+	
 	curl_setopt_array($ch, array(
-CURLOPT_URL => "https://wa.sinargemilangsolutions.tech/api/sendText?id_device={$deviceid}&message=".urlencode($message)."&tujuan={$phonenumber}@s.whatsapp.net",
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_ENCODING => "",
-		  CURLOPT_MAXREDIRS => 10,
-		  CURLOPT_TIMEOUT => 0,
-		  CURLOPT_FOLLOWLOCATION => true,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => "POST",
-		  CURLOPT_HTTPHEADER => array(
-			"apikey: t0k3nb4ruwh4ts4k4"
-		  ),
-	));
-	$res = curl_exec($ch);
-	echo $phonenumber." ".$res."\n";
+			CURLOPT_URL => 'https://chat.sinargemilang.com/api/messages/send-text',
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => '',
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_POSTFIELDS => array(
+				'to' => $phonenumber,
+				'message' => urldecode($message),
+				'reply_for' => 0
+			),
+			CURLOPT_HTTPHEADER => array(
+				'device-key: '.$devicekey,
+			),
+		)
+	);
+
+	$response = curl_exec($ch);
+	$err = curl_error($ch);
+	//echo $response."\n\n";
+	if ($err) {
+		echo "cURL Error #:" . $err;
+	}
 	
 	curl_close($ch);
 }
@@ -894,4 +908,8 @@ function getAmountCustomer($addressbookid,$startdate,$enddate) {
     ) z ";
   $h = Yii::app()->db->createCommand($sqlpencapaian)->queryScalar();
   return $h;
+}
+
+function getFieldName($field) {
+  Yii::app()->db->createCommand("select ");
 }

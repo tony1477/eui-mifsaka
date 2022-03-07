@@ -324,11 +324,23 @@ class ProductplantController extends Controller {
 	}
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
+		$olddata = null;
 		if ($id == '') {
+			$title='Add';
 			$sql = 'call Insertproductplant(:vproductid,:vslocid,:vunitofissue,:visautolot,:vsled,:vsnroid,:vmaterialgroupid,:vmgprocessid,:vrecordstatus,:vissource,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 		}
 		else {
+			$title='Ubah';
+			$olddata = Yii::app()->db->createCommand("select p1.productname,s.sloccode,u.uomcode,sn.description as penomoran, m.description as matgroup,mg.description as mgprocess,sled, issource,p.recordstatus
+					from productplant p
+					join product p1 on p1.productid = p.productid
+					join sloc s on s.slocid = p.slocid
+					join unitofmeasure u on u.unitofmeasureid = p.unitofissue
+					join snro sn on sn.snroid = p.snroid
+					join materialgroup m on m.materialgroupid = p.materialgroupid
+					join mgprocess mg on mg.mgprocessid = p.mgprocessid
+					where p.productplantid = ".$arraydata[0])->queryAll();
 			$sql = 'call Updateproductplant(:vid,:vproductid,:vslocid,:vunitofissue,:visautolot,:vsled,:vsnroid,:vmaterialgroupid,:vmgprocessid,:vrecordstatus,:vissource,:vcreatedby)';
 			$command=$connection->createCommand($sql);
 			$command->bindvalue(':vid',$arraydata[0],PDO::PARAM_STR);
@@ -346,6 +358,40 @@ class ProductplantController extends Controller {
 		$command->bindvalue(':vrecordstatus',$arraydata[9],PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name,PDO::PARAM_STR);
 		$command->execute();
+		$this->SendNotifWA($title,$olddata,$arraydata);
+	}
+	private function SendNotifWA($title,$olddata=null,$newdata) 
+	{
+		$oldtext = "Menu = ".$this->menuname."\n";
+		if($olddata!=null) {
+			foreach($olddata as $value) { 
+				 $oldtext .= "Data Lama ID : ".$newdata[0]."\nProductname = ".$value['productname']."\nGudang = ".$value['sloccode']."\nSatuan = ".$value['uomcode']."\nMasa Garansi/Expired = ".$value['sled']."\nSistem Penomoran = ".$value['penomoran']."\nGroup Material = ".$value['matgroup']."\nMaterial Group Process = ".$value['mgprocess']."\nSumber = ".$value['issource']."\nStatus = ".$value['recordstatus']."\n\n";
+			}
+		}
+		$judul = '';
+		$user = Yii::app()->db->createCommand("select realname from useraccess where username='".Yii::app()->user->name."'")->queryScalar();
+		$judul = ($title == 'Add' ? 'Data Baru ditambahkan oleh '.$user : 'Data Telah Diubah oleh : '.$user);
+		//$text = '';
+		
+		$productname = Yii::app()->db->createCommand('select productname from product where productid='.$newdata[1])->queryScalar();
+		$sloc = Yii::app()->db->createCommand('select sloccode from sloc where slocid='.$newdata[2])->queryScalar();
+		$uom = Yii::app()->db->createCommand('select uomcode from unitofmeasure where unitofmeasureid='.$newdata[3])->queryScalar();
+		$isautolot = $newdata[4];
+		$sled = $newdata[5];
+		$mgroup =  Yii::app()->db->createCommand('select description from materialgroup where materialgroupid='.$newdata[6])->queryScalar();
+		$snro =  Yii::app()->db->createCommand('select description from snro where snroid='.$newdata[7])->queryScalar();
+		$issource = $newdata[8];
+		$status = $newdata[9];
+		$mgprocess =  Yii::app()->db->createCommand('select description from mgprocess where mgprocessid='.$newdata[10])->queryScalar();
+		
+
+		 $text = $oldtext.$judul."\nProductname = ".$productname."\nGudang = ".$sloc."\nSatuan = ".$uom."\nLot? = ".$isautolot."\nGaransi/Expired = ".$sled."\nMaterial Group? = ".$mgroup."\nGroup Process? = ".$mgprocess."\nSistem Penomoran = ".$snro."\nIssource ? = ".$issource."\nSatus? = ".$status;
+
+		//$text=$oldtext.$judul;
+		$siaga = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf";
+		//$pesanwa = "$text;
+		$wano = '6285376361879';
+		sendwajapri($siaga,$text,$wano);
 	}
 	public function actionUpload() {
 		parent::actionUpload();

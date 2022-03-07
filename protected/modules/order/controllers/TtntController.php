@@ -246,22 +246,28 @@ class TtntController extends Controller {
     $offset        = ($page - 1) * $rows;
     $result        = array();
     $row           = array();
-      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('ttnt t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
+    $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
+      ->from('ttnt t')
+      ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+      ->leftjoin('company c', 'c.companyid = t.companyid')
+      ->where("
           ((coalesce(docno,'') like :docno) or 
           (coalesce(b.fullname,'') like :employeeid) or 
-          (coalesce(t.description,'') like :description)) and t.employeeid = ".$_REQUEST['employeeid']." and t.companyid = ".$_REQUEST['companyid']." 
-					and t.recordstatus in (".getUserRecordStatus('listttnt').") and
+          (coalesce(t.description,'') like :description)) and t.employeeid = ".$_REQUEST['employeeid']." and t.companyid = ".$_REQUEST['companyid']." and t.recordstatus in (".getUserRecordStatus('listttnt').") and
 						c.companyid in (".getUserObjectValues('company').") and t.iscutar is null and t.iscbin is null and t.ttntid in (select distinct j.ttntid from ttntdetail j where j.isttf=0) ", array(
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
         ':description' => '%' . $description . '%',
       ))->queryScalar();  
         $result['total'] = $cmd;
- $cmd = Yii::app()->db->createCommand()->select('t.*,c.companyname,t.docdate,t.docno,t.employeeid,b.fullname as employeename,t.description')->from('ttnt t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
+    $cmd = Yii::app()->db->createCommand()->select('t.*,c.companyname,t.docdate,t.docno,t.employeeid,b.fullname as employeename,t.description')
+      ->from('ttnt t')
+      ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+      ->leftjoin('company c', 'c.companyid = t.companyid')
+      ->where("
           ((coalesce(docno,'') like :docno) or 
           (coalesce(b.fullname,'') like :employeeid) or 
-          (coalesce(t.description,'') like :description)) and t.employeeid = ".$_REQUEST['employeeid']." and t.companyid = ".$_REQUEST['companyid']." 
-					and t.recordstatus in (".getUserRecordStatus('listttnt').") and
+          (coalesce(t.description,'') like :description)) and t.employeeid = ".$_REQUEST['employeeid']." and t.companyid = ".$_REQUEST['companyid']." and t.recordstatus in (".getUserRecordStatus('listttnt').") and
 						c.companyid in (".getUserObjectValues('company').") and t.iscutar is null and t.iscbin is null and t.ttntid in (select distinct j.ttntid from ttntdetail j where j.isttf=0) ", array(
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
@@ -565,6 +571,58 @@ class TtntController extends Controller {
       $transaction = $connection->beginTransaction();
       try {
         $sql     = 'call ApproveTTNT(:vid,:vcreatedby)';
+        $command = $connection->createCommand($sql);
+        foreach ($id as $ids) {
+          $command->bindvalue(':vid', $ids, PDO::PARAM_STR);
+          $command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
+          $command->execute();
+        }
+        $transaction->commit();
+        GetMessage(false, 'insertsuccess');
+      }
+      catch (Exception $e) {
+        $transaction->rollback();
+        GetMessage(true, $e->getMessage());
+      }
+    } else {
+      GetMessage(true, 'chooseone');
+    }
+  }
+  public function actionBackttnt()
+  {
+    parent::actionApprove();
+    if (isset($_POST['id'])) {
+      $id          = $_POST['id'];
+      $connection  = Yii::app()->db;
+      $transaction = $connection->beginTransaction();
+      try {
+        $sql     = 'call BackTTNT(:vid,:vcreatedby)';
+        $command = $connection->createCommand($sql);
+        foreach ($id as $ids) {
+          $command->bindvalue(':vid', $ids, PDO::PARAM_STR);
+          $command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
+          $command->execute();
+        }
+        $transaction->commit();
+        GetMessage(false, 'insertsuccess');
+      }
+      catch (Exception $e) {
+        $transaction->rollback();
+        GetMessage(true, $e->getMessage());
+      }
+    } else {
+      GetMessage(true, 'chooseone');
+    }
+  }
+  public function actionCancelttnt()
+  {
+    parent::actionApprove();
+    if (isset($_POST['id'])) {
+      $id          = $_POST['id'];
+      $connection  = Yii::app()->db;
+      $transaction = $connection->beginTransaction();
+      try {
+        $sql     = 'call CancelTTNT(:vid,:vcreatedby)';
         $command = $connection->createCommand($sql);
         foreach ($id as $ids) {
           $command->bindvalue(':vid', $ids, PDO::PARAM_STR);

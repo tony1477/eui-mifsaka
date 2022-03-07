@@ -72,6 +72,8 @@ class RepttntController extends Controller
         'description' => $data['description'],
         'iscbin' => $data['iscbin'],
         'iscutar' => $data['iscutar'],
+        'isreturn' => $data['isreturn'],
+        'isreject' => $data['isreject'],
         'recordstatus' => $data['recordstatus'],
         'recordstatusttnt' => $data['statusname']
       );

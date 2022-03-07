@@ -62,7 +62,7 @@
 		<table cellpadding="5">
                         <tr>
 				<td><?php echo GetCatalog('docdate')?></td>
-				<td><input class="easyui-datebox" type="text" id="docdate" name="docdate" data-options="formatter:dateformatter,required:true,parser:dateparser"></input></td>
+				<td><input class="easyui-datebox" type="text" id="docdate" name="docdate" data-options="formatter:dateformatter,required:true,readonly:true,parser:dateparser"></input></td>
 			</tr>
 			<tr>
 				<td><?php echo GetCatalog('company')?></td>
