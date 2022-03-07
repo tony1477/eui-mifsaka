@@ -75,6 +75,31 @@
 				</select>
  			</td>
  		</tr>
+		<tr id="accrec_plantid">
+			<td><?php echo GetCatalog('plant')?></td>
+			<td><select class="easyui-combogrid" id="repaccrec_plantid" name="repaccrec_plantid" style="width:500px" data-options="
+											panelWidth: 500,
+											idField: 'plantid',
+											textField: 'plantcode',
+											pagination:true,
+											mode:'remote',
+											url: '<?php echo Yii::app()->createUrl('common/plant/index',array('grid'=>true)) ?>',
+											queryParams:{
+												trxcom:true
+											},
+											onBeforeLoad: function(param) {
+													param.companyid = $('#repaccrec_companyid').combogrid('getValue');
+											},
+											method: 'get',
+											columns: [[
+													{field:'plantid',title:'<?php echo GetCatalog('slocid') ?>'},
+													{field:'plantcode',title:'<?php echo GetCatalog('plantcode') ?>'},
+											]],
+											fitColumns: true
+									">
+					</select>
+			</td>
+		</tr>
  		<tr>
  			<td id="accrec_slocid">
  				<?php echo GetCatalog('sloc')?>
@@ -234,6 +259,28 @@
 				</select>
  			</td>
  		</tr>
+ 		<tr>
+ 			<td id="accrec_groupcustomerid">
+ 				<?php echo GetCatalog('groupcustomer')?>
+ 			</td>
+ 			<td> 				
+				<select class="easyui-combogrid" id="repaccrec_groupcustomerid" name="repaccrec_groupcustomerid" style="width:500px" data-options="
+								panelWidth: 500,
+								idField: 'groupname',
+								textField: 'groupname',
+								pagination:true,
+								mode:'remote',
+								url: '<?php echo Yii::app()->createUrl('common/groupcustomer/index',array('grid'=>true,'combo'=>true)) ?>',
+								method: 'get',
+								columns: [[
+										{field:'groupcustomerid',title:'<?php echo GetCatalog('groupcustomerid') ?>'},
+										{field:'groupname',title:'<?php echo GetCatalog('groupname') ?>'},
+								]],
+								fitColumns: true
+						">
+				</select>
+ 			</td>
+ 		</tr>
 		<tr>
  			<td id="accrec_umurpiutang">
  				<?php echo GetCatalog('umurinvoice')?> 
@@ -290,12 +337,14 @@ hide: function(jq){
 }
 })
 
+var repaccplant = ["1","2","5","8","15","16","17","18","19","21","22","23","24","25","28","29","30","41"];
 var repaccrecsloc =  ["5","35","41"];
 var repaccrecmaterialgroup =  ["5","41"];
 var repaccreccustomer =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","20","21","22","23","24","25","26","27","28","35","36","38","41"];
 var repaccrecproduct =  ["1","5","15","16","17","18","19","22","23","24","25","41"];
 var repaccrecsales =  ["1","2","3","4","5","6","7","8","9","10","11","15","16","17","18","19","22","23","24","25","26","27","28","31","32","37","38","39","41"];
 var repaccrecspv =  ["37"];
+var repaccrecgroupcustomer =  ["5","8","41"];
 var repaccrecsalesarea =  ["5","15","16","17","18","19","22","23","24","25","26","27","28","35","38","41"];
 var repaccrecumur =  ["5","22","35","36","41"];
 var repaccrecdisplay =  ["5","35","41","98","99"];
@@ -372,6 +421,15 @@ $(document).ready(function(){
 							$('#repaccrec_salesareaid').combobox('hide');
 							$("#accrec_salesareaid").hide();
 						}
+					if(repaccrecgroupcustomer.includes(n)) {
+							$('#repaccrec_groupcustomerid').combobox('show');
+							$("#accrec_groupcustomerid").show();
+						}
+						else {
+							//alert('tidak ada');
+							$('#repaccrec_groupcustomerid').combobox('hide');
+							$("#accrec_groupcustomerid").hide();
+						}
 					if(repaccrecumur.includes(n)) {
 							$('#repaccrec_umurpiutang').textbox('show');
 							$("#accrec_umurpiutang").show();
@@ -413,6 +471,15 @@ $(document).ready(function(){
 							//alert('tidak ada');
 							$('#repaccrec_enddate').combobox('hide');
 						}
+					if(repaccplant.includes(n)) {
+							$('#repaccrec_plantid').combobox('show');
+							$("#accrec_plantid").show();
+						}
+						else {
+							//alert('tidak ada');
+							$('#repaccrec_plantid').combobox('hide');
+							$("#accrec_plantid").hide();
+						}
 				},0);
       }
     })
@@ -422,6 +489,7 @@ function downpdfrepaccrec   () {
 	window.open('<?php echo $this->createUrl('repaccrec/downpdf') ?>?lro='+
 		$('#listrepaccrec').combobox('getValue') +
 		'&company='+$('#repaccrec_companyid').combogrid('getValue')+
+		'&plantid='+$('#repaccrec_plantid').combogrid('getValue')+
 		'&sloc='+$('#repaccrec_slocid').combogrid('getValue')+
 		'&materialgroup='+$('#repaccrec_materialgroupid').combogrid('getValue')+
 		'&customer='+$('#repaccrec_addressbookid').combogrid('getValue')+
@@ -429,6 +497,7 @@ function downpdfrepaccrec   () {
 		'&sales='+$('#repaccrec_employeeid').combogrid('getValue')+
 		'&spv='+$('#repaccrec_spvid').combogrid('getValue')+
 		'&salesarea='+$('#repaccrec_salesareaid').combogrid('getValue')+
+		'&groupcustomer='+$('#repaccrec_groupcustomerid').combogrid('getValue')+
 		'&umurpiutang='+$('#repaccrec_umurpiutang').textbox('getValue')+
 		'&isdisplay='+$('#repaccrec_isdisplay').combobox('getValue')+
 		'&isbaddebt='+$('#repaccrec_isbaddebt').combobox('getValue')+
@@ -441,6 +510,7 @@ function downxlsrepaccrec   () {
 	window.open('<?php echo $this->createUrl('repaccrec/downxls') ?>?lro='+
 		$('#listrepaccrec').combobox('getValue') +
 		'&company='+$('#repaccrec_companyid').combogrid('getValue')+
+		'&plantid='+$('#repaccrec_plantid').combogrid('getValue')+
 		'&sloc='+$('#repaccrec_slocid').combogrid('getValue')+
 		'&materialgroup='+$('#repaccrec_materialgroupid').combogrid('getValue')+
 		'&customer='+$('#repaccrec_addressbookid').combogrid('getValue')+
@@ -448,6 +518,7 @@ function downxlsrepaccrec   () {
 		'&sales='+$('#repaccrec_employeeid').combogrid('getValue')+
 		'&spv='+$('#repaccrec_spvid').combogrid('getValue')+
 		'&salesarea='+$('#repaccrec_salesareaid').combogrid('getValue')+
+		'&groupcustomer='+$('#repaccrec_groupcustomerid').combogrid('getValue')+
 		'&umurpiutang='+$('#repaccrec_umurpiutang').textbox('getValue')+
 		'&isdisplay='+$('#repaccrec_isdisplay').combobox('getValue')+
 		'&isbaddebt='+$('#repaccrec_isbaddebt').combobox('getValue')+
