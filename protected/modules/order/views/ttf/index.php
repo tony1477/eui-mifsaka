@@ -26,8 +26,8 @@
 <td><input class="easyui-textbox" id="ttf_search_docno" style="width:150px"></td>
 </tr>
 <tr>
-<td><?php echo GetCatalog('docdate')?></td>
-<td><input class="easyui-textbox" id="ttf_search_docdate" style="width:150px"></td>
+<td><?php echo GetCatalog('No TTNT')?></td>
+<td><input class="easyui-textbox" id="ttf_search_ttntno" style="width:150px"></td>
 <td><?php echo GetCatalog('sales')?></td>
 <td><input class="easyui-textbox" id="ttf_search_sales" style="width:150px"></td>
 <td><?php echo GetCatalog('headernote')?></td>
@@ -111,16 +111,16 @@
 								panelWidth: 500,
 								required: true,
 								idField: 'ttntid',
-								textField: 'docno',
+								textField: 'ttntno',
 								pagination:true,
 								url: '<?php echo Yii::app()->createUrl('order/ttnt/indexttf',array('grid'=>true)) ?>',
 								method: 'get',
-                                onBeforeLoad: function(param) {
- //var row = $('#dg-ttf').datagrid('getSelected');
-    //param.employeeid=row.employeeid;
-param.employeeid=$('#employeeid').combogrid('getValue');
-param.companyid=$('#companyid').combogrid('getValue');
-						        },
+								onBeforeLoad: function(param) {
+									//var row = $('#dg-ttf').datagrid('getSelected');
+									//param.employeeid=row.employeeid;
+									param.employeeid=$('#employeeid').combogrid('getValue');
+									param.companyid=$('#companyid').combogrid('getValue');
+								},
 								mode: 'remote',
 								queryParams: {
 									combo:true
@@ -184,7 +184,7 @@ $('#ttf_search_docno').textbox({
 		}
 	})
 });
-$('#ttf_search_docdate').textbox({
+$('#ttf_search_ttntno').textbox({
 	inputEvents:$.extend({},$.fn.textbox.defaults.inputEvents,{
 		keyup:function(e){
 			if (e.keyCode == 13) {
@@ -230,7 +230,7 @@ $('#dg-ttf').edatagrid({
 		detailFormatter:function(index,row){
 				return '<div style="padding:2px"><table class="ddv-ttfdetail"></table></div>';
 		},
-                onExpandRow: function(index,row){
+			onExpandRow: function(index,row){
 			var ddvttfdetail = $(this).datagrid('getRowDetail',index).find('table.ddv-ttfdetail');
 			ddvttfdetail.datagrid({
 				url:'<?php echo $this->createUrl('ttf/indexdetail',array('grid'=>true)) ?>?id='+row.ttfid,
@@ -263,8 +263,8 @@ $('#dg-ttf').edatagrid({
 			});
 			$('#dg-ttf').datagrid('fixDetailRowHeight',index);
 		},
-                url: '<?php echo $this->createUrl('ttf/index',array('grid'=>true)) ?>',
-                onSuccess: function(index,row){
+			url: '<?php echo $this->createUrl('ttf/index',array('grid'=>true)) ?>',
+			onSuccess: function(index,row){
 			show('Message',row.msg);
 			$('#dg-ttf').edatagrid('reload');
 		},
@@ -308,6 +308,14 @@ formatter: function(value,row,index){
 						return value;
 					}},
 {
+field:'ttntno',
+title:'<?php echo GetCatalog('No TTNT') ?>',
+sortable: true,
+width:'100px',
+formatter: function(value,row,index){
+						return value;
+					}},
+{
 field:'employeeid',
 title:'<?php echo GetCatalog('sales') ?>',
 sortable: true,
@@ -337,11 +345,11 @@ formatter: function(value,row,index){
 function searchttf(value){
 	$('#dg-ttf').edatagrid('load',{
 	ttfid:$('#ttf_search_ttfid').val(),
-        docdate:$('#ttf_search_docdate').val(),
-        docno:$('#ttf_search_docno').val(),
-        employeeid:$('#ttf_search_sales').val(),
-        description:$('#ttf_search_description').val(),
-        companyid:$('#ttf_search_companyname').val()
+	ttntno:$('#ttf_search_ttntno').val(),
+	docno:$('#ttf_search_docno').val(),
+	employeeid:$('#ttf_search_sales').val(),
+	description:$('#ttf_search_description').val(),
+	companyid:$('#ttf_search_companyname').val()
 	});
 }
 function approvettf() {
@@ -405,6 +413,7 @@ function addTtf() {
 
 function editTtf($i) {
 	var row = $('#dg-ttf').datagrid('getSelected');
+	console.log(row)
 	var docmax = <?php echo CheckDoc('appttf') ?>;
 	var docstatus = row.recordstatus;
 	if(row) {

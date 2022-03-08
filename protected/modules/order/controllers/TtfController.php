@@ -21,13 +21,13 @@ class TtfController extends Controller
     header("Content-Type: application/json");
     $ttfid        = isset($_POST['ttfid']) ? $_POST['ttfid'] : '';
     $companyid     = isset($_POST['companyid']) ? $_POST['companyid'] : '';
-    $docdate       = isset($_POST['docdate']) ? $_POST['docdate'] : '';
+    $ttntno       = isset($_POST['ttntno']) ? $_POST['ttntno'] : '';
     $docno         = isset($_POST['docno']) ? $_POST['docno'] : '';
     $employeeid    = isset($_POST['employeeid']) ? $_POST['employeeid'] : '';
     $description   = isset($_POST['description']) ? $_POST['description'] : '';
     $ttfid        = isset($_GET['q']) ? $_GET['q'] : $ttfid;
     $companyid     = isset($_GET['q']) ? $_GET['q'] : $companyid;
-    $docdate       = isset($_GET['q']) ? $_GET['q'] : $docdate;
+    $ttntno       = isset($_GET['q']) ? $_GET['q'] : $ttntno;
     $docno         = isset($_GET['q']) ? $_GET['q'] : $docno;
     $employeeid    = isset($_GET['q']) ? $_GET['q'] : $employeeid;
     $description   = isset($_GET['q']) ? $_GET['q'] : $description;
@@ -45,30 +45,40 @@ class TtfController extends Controller
     $row           = array();
 		$maxstat = Yii::app()->db->createCommand("select getwfmaxstatbywfname('appttf')")->queryScalar();
     if  (!isset($_GET['list'])) {
-      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('ttf t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
-      	 (coalesce(docdate,'') like :docdate) and 
-          (coalesce(docno,'') like :docno) and 
+      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
+        ->from('ttf t')
+        ->leftjoin('ttnt a', 'a.ttntid = t.ttntid')
+        ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+        ->leftjoin('company c', 'c.companyid = t.companyid')
+        ->where("
+      	 (coalesce(a.docno,'') like :ttntno) and 
+          (coalesce(t.docno,'') like :docno) and 
           (coalesce(b.fullname,'') like :employeeid) and 
           (coalesce(t.description,'') like :description) and 
           (coalesce(c.companyname,'') like :companyid)
 					and t.recordstatus < {$maxstat}
 					and t.recordstatus in (".getUserRecordStatus('listttf').")
 					and	c.companyid in (".getUserObjectValues('company').")", array(
-        ':docdate' => '%' . $docdate . '%',
+        ':ttntno' => '%' . $ttntno . '%',
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
         ':description' => '%' . $description . '%',
         ':companyid' => '%' . $companyid . '%'
       ))->queryRow();
     } else {
-      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('ttf t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
-      (coalesce(docdate,'') like :docdate) and 
-          (coalesce(docno,'') like :docno) and 
+      $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
+        ->from('ttf t')
+        ->leftjoin('ttnt a', 'a.ttntid = t.ttntid')
+        ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+        ->leftjoin('company c', 'c.companyid = t.companyid')
+        ->where("
+      (coalesce(a.docno,'') like :ttntno) and 
+          (coalesce(t.docno,'') like :docno) and 
           (coalesce(b.fullname,'') like :employeeid) and 
           (coalesce(t.description,'') like :description) and 
           (coalesce(c.companyname,'') like :companyid) and t.recordstatus in (".getUserRecordStatus('listttf').") 
 				and c.companyid in (".getUserObjectValues('company').")", array(
-        ':docdate' => '%' . $docdate . '%',
+        ':ttntno' => '%' . $ttntno . '%',
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
         ':description' => '%' . $description . '%',
@@ -77,25 +87,34 @@ class TtfController extends Controller
     }
     $result['total'] = $cmd['total'];
     if  (!isset($_GET['list'])) {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,c.companyname,t.docdate,t.docno,t.employeeid,b.fullname as employeename,t.description')->from('ttf t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
-       (coalesce(docdate,'') like :docdate) and 
-          (coalesce(docno,'') like :docno) and 
+      $cmd = Yii::app()->db->createCommand()->select('t.*,c.companyname,b.fullname as employeename,a.docno as ttntno')
+        ->from('ttf t')
+        ->leftjoin('ttnt a', 'a.ttntid = t.ttntid')
+        ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+        ->leftjoin('company c', 'c.companyid = t.companyid')
+        ->where("
+       (coalesce(a.docno,'') like :ttntno) and 
+          (coalesce(t.docno,'') like :docno) and 
           (coalesce(b.fullname,'') like :employeeid) and 
           (coalesce(t.description,'') like :description) and 
           (coalesce(c.companyname,'') like :companyid)
 					and t.recordstatus < {$maxstat}
 					and t.recordstatus in (".getUserRecordStatus('listttf').")
 					and	c.companyid in (".getUserObjectValues('company').")", array(
-        ':docdate' => '%' . $docdate . '%',
+        ':ttntno' => '%' . $ttntno . '%',
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
         ':description' => '%' . $description . '%',
         ':companyid' => '%' . $companyid . '%'
       ))->offset($offset)->limit($rows)->order($sort . ' ' . $order)->queryAll();
     } else {
-      $cmd = Yii::app()->db->createCommand()->select('t.*,t.docdate,t.docno,c.companyname,t.employeeid,b.fullname as employeename,t.description')->from('ttf t')->leftjoin('employee b', 'b.employeeid = t.employeeid')->leftjoin('company c', 'c.companyid = t.companyid')->where("
-      (coalesce(docdate,'') like :docdate) and 
-          (coalesce(docno,'') like :docno) and 
+      $cmd = Yii::app()->db->createCommand()->select('t.*,b.fullname as employeename,a.docno as ttntno')
+        ->from('ttf t')
+        ->leftjoin('ttnt a', 'a.ttntid = t.ttntid')
+        ->leftjoin('employee b', 'b.employeeid = t.employeeid')
+        ->leftjoin('company c', 'c.companyid = t.companyid')->where("
+      (coalesce(a.docno,'') like :ttntno) and 
+          (coalesce(t.docno,'') like :docno) and 
           (coalesce(b.fullname,'') like :employeeid) and 
           (coalesce(t.description,'') like :description) and 
           (coalesce(c.companyname,'') like :companyid) and t.recordstatus in (select b.wfbefstat
@@ -114,7 +133,7 @@ class TtfController extends Controller
 						inner join menuauth g on g.menuauthid = f.menuauthid
 						where e.username = '" . Yii::app()->user->name . "' and
 						g.menuobject = 'company')", array(
-        ':docdate' => '%' . $docdate . '%',
+        ':ttntno' => '%' . $ttntno . '%',
         ':docno' => '%' . $docno . '%',
         ':employeeid' => '%' . $employeeid . '%',
         ':description' => '%' . $description . '%',
@@ -126,6 +145,8 @@ class TtfController extends Controller
         'ttfid' => $data['ttfid'],
         'docdate' => date(Yii::app()->params['dateviewfromdb'], strtotime($data['docdate'])),
         'docno' => $data['docno'],
+        'ttntno' => $data['ttntno'],
+        'ttntid' => $data['ttntid'],
         'companyid' => $data['companyid'],
         'companyname' => $data['companyname'],
         'employeeid' => $data['employeeid'],
