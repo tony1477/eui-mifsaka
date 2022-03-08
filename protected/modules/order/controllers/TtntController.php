@@ -312,17 +312,33 @@ class TtntController extends Controller {
     $offset        = ($page - 1) * $rows;
     $result        = array();
     $row           = array();    
-    $cmd = Yii::app()->db->createCommand()->select('count(1) as total')->from('ttntdetail t')->leftjoin('invoice a', 'a.invoiceid = t.invoiceid')->leftjoin('giheader b', 'b.giheaderid = a.giheaderid')->leftjoin('soheader c', 'c.soheaderid = b.soheaderid')->leftjoin('addressbook d', 'd.addressbookid = c.addressbookid')->where("
+    $cmd = Yii::app()->db->createCommand()
+      ->select('count(1) as total')
+      ->from('ttntdetail t')
+      ->leftjoin('invoice a', 'a.invoiceid = t.invoiceid')
+      ->leftjoin('giheader b', 'b.giheaderid = a.giheaderid')
+      ->leftjoin('soheader c', 'c.soheaderid = b.soheaderid')
+      ->leftjoin('addressbook d', 'd.addressbookid = c.addressbookid')
+      ->where("
           ((coalesce(a.invoiceno,'') like :invoiceno) or 
           (coalesce(d.fullname,'') like :customer))
+          and a.invoiceid not in(select x.invoiceid from ttfdetail x join ttf y on y.ttfid = x.ttfid where y.ttntid = t.ttntid)
 					and t.isttf = 0 and t.ttntid = ".$_GET['ttntid']." ", array(
         ':invoiceno' => '%' . $invoiceno . '%',
         ':customer' => '%' . $customer . '%',
       ))->queryScalar();  
 		$result['total'] = $cmd;
-		$cmd = Yii::app()->db->createCommand()->select('t.*,a.invoiceno,d.fullname as customer')->from('ttntdetail t')->leftjoin('invoice a', 'a.invoiceid = t.invoiceid')->leftjoin('giheader b', 'b.giheaderid = a.giheaderid')->leftjoin('soheader c', 'c.soheaderid = b.soheaderid')->leftjoin('addressbook d', 'd.addressbookid = c.addressbookid')->where("
+		$cmd = Yii::app()->db->createCommand()
+      ->select('t.*,a.invoiceno,d.fullname as customer')
+      ->from('ttntdetail t')
+      ->leftjoin('invoice a', 'a.invoiceid = t.invoiceid')
+      ->leftjoin('giheader b', 'b.giheaderid = a.giheaderid')
+      ->leftjoin('soheader c', 'c.soheaderid = b.soheaderid')
+      ->leftjoin('addressbook d', 'd.addressbookid = c.addressbookid')
+      ->where("
           ((coalesce(a.invoiceno,'') like :invoiceno) or 
           (coalesce(d.fullname,'') like :customer))
+          and a.invoiceid not in(select x.invoiceid from ttfdetail x join ttf y on y.ttfid = x.ttfid where y.ttntid = t.ttntid)
 					and t.isttf = 0 and t.ttntid = ".$_GET['ttntid']." ", array(
         ':invoiceno' => '%' . $invoiceno . '%',
         ':customer' => '%' . $customer . '%',
