@@ -512,10 +512,12 @@ function edit<?php echo $this->menuname?>($i) {
 			closeloader();
 			$('#dlg-<?php echo $this->menuname?>').dialog('open');
 			$('#ff-<?php echo $this->menuname?>-modif').form('load',row);
+			<?php echo $this->customjs?>
 		}	<?php } else {?>
 			closeloader();			
 			$('#dlg-<?php echo $this->menuname?>').dialog('open');
 			$('#ff-<?php echo $this->menuname?>-modif').form('load',row);
+			<?php echo $this->customjs?>
 		<?php }?>
 	} else {
 		closeloader();			

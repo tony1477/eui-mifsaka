@@ -207,6 +207,7 @@ $('#dg-cbin').edatagrid({
 				{field:'currencyrate',title:'<?php echo GetCatalog('rate') ?>',align:'right',width:'50px'},
 				{field:'chequeno',title:'<?php echo GetCatalog('chequeno') ?>',width:'150px'},
 				{field:'tglcair',title:'<?php echo GetCatalog('tglcair') ?>',width:'100px'},
+				{field:'fullname',title:'<?php echo GetCatalog('customer') ?>',width:'250px'},
 				{field:'description',title:'<?php echo GetCatalog('description') ?>',width:'300px'},
 				]],
 				onResize:function(){
@@ -536,7 +537,7 @@ $('#dg-cbinjournal').edatagrid({
 							return row.accountname;
 		}
 	},
-    {
+	{
 		field:'plantid',
 		title:'<?php echo GetCatalog('plantcode') ?>',
 		editor:{
@@ -571,7 +572,7 @@ $('#dg-cbinjournal').edatagrid({
 							return row.plantcode;
 		}
 	},
-        {
+	{
 		field:'amountold',
 		title:'<?php echo GetCatalog('amount') ?>',
 		sortable: true,
@@ -589,7 +590,7 @@ $('#dg-cbinjournal').edatagrid({
             return value;
 		}
 	},
-        {
+	{
 		field:'debit',
 		title:'<?php echo GetCatalog('debit') ?>',
 		sortable: true,
@@ -626,7 +627,7 @@ $('#dg-cbinjournal').edatagrid({
 							return value;
 		}
 	},        
-        {
+	{
 		field:'currencyid',
 		title:'<?php echo GetCatalog('currency') ?>',
 		editor:{
@@ -657,7 +658,7 @@ $('#dg-cbinjournal').edatagrid({
 							return row.currencyname;
 		}
 	},
-        {
+	{
 		field:'currencyrate',
 		title:'<?php echo GetCatalog('ratevalue') ?>',
 		editor:{
@@ -760,7 +761,40 @@ $('#dg-cbinjournal').edatagrid({
 						}
 		}
 	},
-        {
+	{
+		field:'customerid',
+		title:'<?php echo GetCatalog('customer') ?>',
+		editor:{
+				type:'combogrid',
+				options:{
+						panelWidth:450,
+						mode : 'remote',
+						method:'get',
+						idField:'addressbookid',
+						textField:'fullname',
+						url:'<?php echo Yii::app()->createUrl('common/addressbook/index',array('grid'=>true)) ?>',
+						fitColumns:true,
+						// required:true,
+						pagination:true,
+						queryParams:{
+							combo:true
+						},
+						loadMsg: '<?php echo GetCatalog('pleasewait')?>',
+						columns:[[
+							{field:'addressbookid',title:'<?php echo GetCatalog('addressbookid')?>'},
+							{field:'fullname',title:'<?php echo GetCatalog('fullname')?>'},
+							{field:'iscustomer',title:'<?php echo GetCatalog('iscustomer')?>'},
+							{field:'isvendor',title:'<?php echo GetCatalog('isvendor')?>'},
+						]]
+				}	
+			},
+		width:'200px',
+		sortable: true,
+		formatter: function(value,row,index){
+			return row.fullname;
+		}
+	},
+	{
 		field:'description',
 		title:'<?php echo GetCatalog('description') ?>',
 		width:'250px',		

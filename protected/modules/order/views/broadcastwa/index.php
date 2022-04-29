@@ -127,40 +127,55 @@
     </tr>
     <tr>
       <td>".getCatalog('wanumber')."</td>
-      <td><input class='easyui-textbox' type='text' id='wanumber' name='wanumber' data-options='required:true' style='width:250px'></input></td>
+      <td><select class='easyui-combogrid' id='wagatewayid' name='wagatewayid' style='width:250px' data-options=\"
+              panelWidth: '500px',
+              required: true,
+              idField: 'wagatewayid',
+              textField: 'wanumber',
+              pagination:true,
+              mode:'remote',
+              method: 'get',
+              url:'".Yii::app()->createUrl('common/wagateway/index',array('grid'=>true))."',
+              columns: [[
+                  {field:'wagatewayid',title:'".GetCatalog('wagatewayid')."'},
+                  {field:'waname',title:'". GetCatalog('waname') ."'},
+                  {field:'wanumber',title:'". GetCatalog('wanumber') ."'},
+              ]],
+              fitColumns: true
+          \">
+      </select></td>
     </tr>
 		<tr>
 				<td>".getCatalog('senddate')."</td>
-				<td><input class=\"easyui-datebox\" type=\"text\" id=\"senddate\" name=\"senddate\" data-options=\"formatter:dateformatter,required:true,parser:dateparser\" ></input></td>
+				<td><input class=\"easyui-datebox\" type=\"text\" id=\"senddate\" name=\"senddate\" data-options=\"formatter:dateformatter,parser:dateparser\" ></input></td>
     </tr>
     <tr>
-				<td>".getCatalog('senddate')."</td>
-				<td><input class=\"easyui-timespinner\" type=\"text\" id=\"sendtime\" name=\"sendtime\"  data-options=\"
-        formatter:function(date){
-          if (!date) return '';
-          var opts = $(this).timespinner('options');
-          var tt = [formatN(date.getHours()), formatN(date.getMinutes())];
-          if (opts.showSeconds){
-            tt.push(formatN(date.getSeconds()));
-          }
-          return tt.join(opts.separator);
-          
-          function formatN(value){
-            return (value < 10 ? '0' : '') + value;
-          }
-        },
-        parser:function(s){
-          var opts = $(this).timespinner('options');
-          if (!s) return null;
-          var tt = s.split(opts.separator);
-          return new Date(1900, 0, 0, 
-            parseInt(tt[0],10)||0, parseInt(tt[1],10)||0, parseInt(tt[2],10)||0);
-        }\"></input></td>
-    </tr>
+				<td>".getCatalog('sendtime')."</td>
+				<td><input class='easyui-textbox' type='text' name='sendtime' id='sendtime' style='width:250px' data-options=\"prompt:'09:00'\" ></input>
+		</tr>
     <tr>
       <td>".getCatalog('broadcasttype')."</td>
       <td>
-        <select class='easyui-combobox' name='broadcasttype' id='broadcasttype' data-options=\"required:'true', panelHeight:'auto'\" style='width:120px'>
+        <select class='easyui-combobox' name='broadcasttype' id='broadcasttype' data-options=
+				\"required:'true', panelHeight:'auto',
+				onClick: function(record){
+					if(record.text == 'Message') {
+						$('tr#rowMessage').show()
+						$('tr#rowFileUpload').hide()
+						$('tr#rowFileName').hide()
+					}
+					if(record.text == 'Image' || record.text == 'Video') {
+						$('tr#rowMessage').show()
+						$('tr#rowFileUpload').show()
+						$('tr#rowFileName').show()
+					}
+					if(record.text == 'Document/File') {
+						$('tr#rowMessage').hide()
+						$('tr#rowFileUpload').show()
+						$('tr#rowFileName').show()
+					}
+				}
+				\" style='width:120px'>
           <option value='1'>Message</option>
           <option value='2'>Image</option>
           <option value='3'>Document/File</option>
@@ -168,11 +183,11 @@
         </select>
       </td>
     </tr>
-    <tr>
+    <tr id=\"rowMessage\">
       <td>".GetCatalog('message')."</td>
-      <td><input class='easyui-textbox' id='message' name='message' data-options='multiline:true,required:true' style='width:300px;height:100px'></input></td>
+      <td><input class='easyui-textbox' id='message' name='message' data-options='multiline:true' style='width:300px;height:100px'></input></td>
     </tr>
-    <tr>
+    <tr id=\"rowFileUpload\">
       <td>".getCatalog('file')."</td>
       <td><input class='easyui-filebox' type='text' id='file' name='file' style='text-indent:50px' data-options=\" 
         prompt:'Choose a file...',
@@ -210,7 +225,7 @@
         }
       \"></input></td>
     </tr>
-    <tr>
+    <tr id=\"rowFileName\">
       <td>File Name</td>
       <td><input class='easyui-textbox' type='text' name='filename' id='filename' style='width:250px'></input>
     </tr>
@@ -218,23 +233,32 @@
       <td>".getCatalog('description')."</td>
       <td><input class='easyui-textbox' type='textarea' name='description' data-options='required:true' ></input></td>
     </tr>
-    <tr>
-      <td>".getCatalog('recordstatus')."</td>
-      <td><input id='recordstatus' name='recordstatus' type='checkbox'></input></td>
-    </tr>
 		</table>
 	",
 	'loadsuccess' => "
-		if (data.recordstatus == 1) {
-			$('#recordstatus').prop('checked', true);
-		} else {
-			$('#recordstatus').prop('checked', false);
-		}
+	",
+	'customjs' => "
+			if(row.type == 'Message') {
+				$('tr#rowMessage').show()
+				$('tr#rowFileUpload').hide()
+				$('tr#rowFileName').hide()
+			}
+			if( row.type == 'Image' || row.type == 'Video') {
+				$('tr#rowMessage').show()
+				$('tr#rowFileUpload').show()
+				$('tr#rowFileName').show()
+			}
+			if(row.type == 'Document/File') {
+				$('tr#rowMessage').hide()
+				$('tr#rowFileUpload').show()
+				$('tr#rowFileName').show()
+			}
 	",
 	'downloadbuttons'=>"
 		<a href='javascript:void(0)' title='Copy'class='easyui-linkbutton' iconCls='icon-broadcastwa' plain='true' onclick='copybroadcastwa()'></a>
 	",
 	'addonscripts'=>"
+		
 		function copybroadcastwa() {
 			var ss = [];
 			var rows = $('#dg-broadcastwa').edatagrid('getSelections');
@@ -264,9 +288,8 @@
 			'destroyurl'=>Yii::app()->createUrl('order/broadcastwa/purgedetail',array('grid'=>true)),
 			'subs'=>"
 				{field:'broadcastwadetid',title:'".getCatalog('ID') ."',width:'60px'},
-				{field:'customername',title:'".getCatalog('customername') ."',width:'250px'},
-				{field:'ownername',title:'".getCatalog('ownername') ."',width:'250px'},
-				{field:'destnumber',title:'".getCatalog('destnumber') ."',align:'right',width:'150px'},
+				{field:'nama',title:'".getCatalog('Nama') ."',width:'250px'},
+				{field:'destnumber',title:'".getCatalog('wanumber') ."',align:'right',width:'150px'},
 				{field:'status',title:'".getCatalog('status') ."',width:'150px'},
 			",
 			'onsuccess'=>"
@@ -301,7 +324,7 @@
 					}
 				},
         {
-          field:'addressbookid',
+          field:'nama',
           title:'".GetCatalog('addressbook')."',
           width:'200px',
           editor:{
@@ -310,7 +333,7 @@
               panelWidth:'500px',
               mode : 'remote',
               method:'get',
-              idField:'addressbookid',
+              idField:'fullname',
               textField:'fullname',
               url:'".Yii::app()->createUrl('common/addressbook/index',array('grid'=>true))."',
               fitColumns:true,
@@ -328,33 +351,14 @@
           },
           sortable: true,
           formatter: function(value,row,index){
-            return row.fullname;
+            return value;
           }
         },
-				{
-					field:'customername',
-					title:'".getCatalog('customername') ."',
-					editor:'text',
-					sortable: true,
-					required:true,
-					formatter: function(value,row,index){
-						return value;
-					}
-				},
-        {
-					field:'ownername',
-					title:'".getCatalog('ownername') ."',
-					editor:'text',
-					sortable: true,
-					required:true,
-					formatter: function(value,row,index){
-						return value;
-					}
-				},
         {
 					field:'destnumber',
-					title:'".getCatalog('destnumber') ."',
+					title:'".getCatalog('wanumber') ."',
 					editor:'text',
+					width:'250px',
 					sortable: true,
 					required:true,
 					formatter: function(value,row,index){

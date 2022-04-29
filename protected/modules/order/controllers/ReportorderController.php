@@ -19330,7 +19330,7 @@ class ReportorderController extends Controller
                     join employee b on b.employeeid = a.employeeid
                     where recordstatus= {$maxtarget} and a.perioddate = '{$month1}' and a.companyid = {$companyid}
                     and b.fullname like '%{$employee}%'
-                    and b.employeeid in({$employeeid})";
+                    -- and b.employeeid in({$employeeid})";
       $result = Yii::app()->db->createCommand($sql)->queryAll();
       
       foreach($result as $row)

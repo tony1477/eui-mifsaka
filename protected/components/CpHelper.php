@@ -303,6 +303,16 @@ function findstatusbyuser($workflow) {
 		return 0;
 	}
 }
+function GetGroupName($groupname) {
+  $sql = "select ifnull(count(1),0)
+  from groupaccess g
+  join usergroup u on u.groupaccessid = g.groupaccessid 
+  join useraccess u2 on u2.useraccessid = u.useraccessid 
+  where u2.username = '".Yii::app()->user->id."' and g.groupname = '".$groupname."'";
+  $query = Yii::app()->db->createCommand($sql)->queryScalar();
+  return $query;
+}
+
 function GetUserID() {
 	return Yii::app()->db->createCommand("select useraccessid 
 				from useraccess 

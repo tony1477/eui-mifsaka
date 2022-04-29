@@ -37,7 +37,6 @@ class BroadcastwaController extends Controller {
     $message       = isset($_POST['message']) ? $_POST['message'] : '';
     $file     = isset($_POST['file']) ? $_POST['file'] : '';
     $description = isset($_POST['description']) ? $_POST['description'] : '';
-    $recordstatus = isset($_POST['recordstatus']) ? $_POST['recordstatus'] : '';
     $broadcastwaid       = isset($_GET['q']) ? $_GET['q'] : $broadcastwaid;
     $company  = isset($_GET['q']) ? $_GET['q'] : $company;
     $wanumber   = isset($_GET['q']) ? $_GET['q'] : $wanumber;
@@ -46,7 +45,6 @@ class BroadcastwaController extends Controller {
     $message       = isset($_GET['q']) ? $_GET['q'] : $message;
     $file     = isset($_GET['q']) ? $_GET['q'] : $file;
     $description = isset($_GET['q']) ? $_GET['q'] : $description;
-    $recordstatus = isset($_GET['q']) ? $_GET['q'] : $recordstatus;
     $page        = isset($_POST['page']) ? intval($_POST['page']) : 1;
     $rows        = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
     $sort        = isset($_POST['sort']) ? strval($_POST['sort']) : 'broadcastwaid';
@@ -59,19 +57,14 @@ class BroadcastwaController extends Controller {
     $offset      = ($page - 1) * $rows;
     $result      = array();
     $row         = array();
-      
-    if(isset($recordstatus) && $recordstatus!='')
-        $recordstatus = 'and t.recordstatus = '.$recordstatus;
-    else
-        $recordstatus = "and t.recordstatus like '%%' ";
-        
+          
     $cmd = Yii::app()->db->createCommand()->select('count(1) as total')
       ->from('broadcastwa t')
       ->leftjoin('company a', 'a.companyid = t.companyid')
       ->where("(coalesce(broadcastwaid,'') like :broadcastwaid) 
       and (coalesce(companyname,'') like :companyname) 
       and (coalesce(t.description,'') like :description) 
-      ".$recordstatus, array(
+      ", array(
       ':broadcastwaid' => '%' . $broadcastwaid . '%',
       ':companyname' => '%' . $company . '%',
       ':description' => '%' . $description . '%',
@@ -86,7 +79,7 @@ class BroadcastwaController extends Controller {
         (coalesce(broadcastwaid,'') like :broadcastwaid)  
         and (coalesce(companyname,'') like :company) 
         and (coalesce(t.description,'') like :description) 
-        ".$recordstatus, array(
+        ", array(
         ':broadcastwaid' => '%' . $broadcastwaid . '%',
         ':company' => '%' . $company . '%',
         ':description' => '%' . $description . '%',
@@ -100,8 +93,9 @@ class BroadcastwaController extends Controller {
         'companyid' => $data['companyid'],
         'companyname' => $data['companyname'],
         'wanumber' => $data['wanumber'],
-        'senddate' => date(Yii::app()->params['dateviewfromdb'],strtotime($data['senddate'])),
-        'sendtime' => date('H:m',strtotime($data['sendtime'])),
+        'wagatewayid' => $data['wagatewayid'],
+        'senddate' => ($data['senddate'] == null ? '' : date(Yii::app()->params['dateviewfromdb'],strtotime($data['senddate']))),
+        'sendtime' => $data['sendtime'],
         'broadcasttype' => $data['broadcasttype'],
         'type' => $data['type'],
         'message' => $data['message'],
@@ -149,9 +143,9 @@ class BroadcastwaController extends Controller {
         'broadcastwadetid' => $data['broadcastwadetid'],
         'broadcastwaid' => $data['broadcastwaid'],
         'addressbookid' => $data['addressbookid'],
-        'fullname' => $data['fullname'],
-        'customername' => $data['customername'],
-        'ownername' => $data['ownername'],
+        'nama' => $data['nama'],
+        // 'customername' => $data['customername'],
+        // 'ownername' => $data['ownername'],
         'destnumber' => $data['destnumber'],
         'status' => $data['status'],
       );
@@ -254,26 +248,33 @@ class BroadcastwaController extends Controller {
     $maxstat = Yii::app()->db->createCommand("select getwfmaxstatbywfname('appbroadcastwa')")->queryScalar();
 
     // check type broadcast, 
-    $sql='select broadcastwaid,broadcasttype,message,file,description,recordstatus,filename
+    $sql='select broadcastwaid,broadcasttype,message,file,description,a.recordstatus,filename, b.devicekey
     from broadcastwa a
+    left join wagateway b on b.wagatewayid=a.wagatewayid
     where a.broadcastwaid = '.$broadcastwaid;
     $row = Yii::app()->db->createCommand($sql)->queryRow();
 
     if($row['recordstatus']==$maxstat) {
       // data for sending
+	    date_default_timezone_set('Asia/Jakarta');
+	    $time = date('Y-m-d H:i:s');
       $type = $row['broadcasttype'];
-      $message = $row['message'];
+      $message = $row['message']."\n\n_*Dikirim Otomatis oleh SIAGA (System Information AKA Group - Automatic)*_\n".$time;
       $file = 'http://akagroup.co.id/public/broadcastwa/'.$row['file'];
       $titledocument = $row['filename'];
-      $devicekey = "1a23cd16-c6a9-4245-a2f9-057e1b50dd4b"; //siaga
-      //$devicekey = Yii::app()->params['devicekey'];
+      // $devicekey = "bf1ea6ba-ecc5-488e-9d6a-d75947ecebcf"; //siaga
+      $devicekey = $row['devicekey'];
       
       try {
-        $q = "select customername, ownername, destnumber from broadcastwadet where broadcastwaid = ".$row['broadcastwaid'];
+        $q = "select nama,customername, ownername, destnumber, replace(b.message,'{{nama}}',a.nama) as message
+        from broadcastwadet a
+        join broadcastwa b on b.broadcastwaid = a.broadcastwaid  
+        where a.broadcastwaid = ".$row['broadcastwaid'];
         $dataReader = Yii::app()->db->createCommand($q)->queryAll();
         foreach($dataReader as $data) {
           // sending broadcast
           $phonenumber = $data['destnumber'];
+          $message = $data['message'];
           if($type==1) {
             $action = sendwajapri($devicekey,$message,$phonenumber);
           }
@@ -297,16 +298,16 @@ class BroadcastwaController extends Controller {
 	private function ModifyData($connection,$arraydata) {
 		$id = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($id == '') {
-			$sql     = 'call Insertbroadcastwa(:vcompanyid,:vwanumber,:vsenddate,:vbroadcasttype,:vmessage,:vfile,:vfilename,:vdescription,:vrecordstatus,:vcreatedby)';
+			$sql     = 'call Insertbroadcastwa(:vcompanyid,:vwagatewayid,:vsenddate,:vsendtime,:vbroadcasttype,:vmessage,:vfile,:vfilename,:vdescription,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 		} else {
-			$sql     = 'call Updatebroadcastwa(:vid,:vcompanyid,:vwanumber,:vsenddate,:vsendtime,:vbroadcasttype,:vmessage,:vfile,:vfilename,:vdescription,:vrecordstatus,:vcreatedby)';
+			$sql     = 'call Updatebroadcastwa(:vid,:vcompanyid,:vwagatewayid,:vsenddate,:vsendtime,:vbroadcasttype,:vmessage,:vfile,:vfilename,:vdescription,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
 			$this->DeleteLock($this->menuname, $arraydata[0]);
 		}
 		$command->bindvalue(':vcompanyid', $arraydata[1], PDO::PARAM_STR);
-		$command->bindvalue(':vwanumber', $arraydata[2], PDO::PARAM_STR);
+		$command->bindvalue(':vwagatewayid', $arraydata[2], PDO::PARAM_STR);
 		$command->bindvalue(':vsenddate', $arraydata[3], PDO::PARAM_STR);
 		$command->bindvalue(':vsendtime', $arraydata[4], PDO::PARAM_STR);
 		$command->bindvalue(':vbroadcasttype', $arraydata[5], PDO::PARAM_STR);
@@ -314,7 +315,6 @@ class BroadcastwaController extends Controller {
 		$command->bindvalue(':vfile', $arraydata[7], PDO::PARAM_STR);
 		$command->bindvalue(':vfilename', $arraydata[8], PDO::PARAM_STR);
 		$command->bindvalue(':vdescription', $arraydata[9], PDO::PARAM_STR);
-		$command->bindvalue(':vrecordstatus', $arraydata[10], PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -338,8 +338,11 @@ class BroadcastwaController extends Controller {
         $companyname = $objWorksheet->getCellByColumnAndRow(1, $row+1)->getValue();
         $companyid = Yii::app()->db->createCommand("select companyid from company where companyname = '".$companyname."'")->queryScalar();
         $wanumber = $objWorksheet->getCellByColumnAndRow(1, $row+2)->getValue();
-        $senddate = date(Yii::app()->params['datetodb'], strtotime($objWorksheet->getCellByColumnAndRow(1, $row+3)->getValue()));
-        $sendtime = date('H:i', strtotime($objWorksheet->getCellByColumnAndRow(1 , $row+4)->getValue()));
+        $wagatewayid = Yii::app()->db->createCommand("select wagatewayid from wagateway where wanumber = '".$wanumber."'")->queryScalar();
+        $senddate = $objWorksheet->getCellByColumnAndRow(1, $row+3)->getValue();
+        $senddate = ($senddate != '' ? date(Yii::app()->params['datetodb'], strtotime($senddate)) : null);
+        $sendtime = $objWorksheet->getCellByColumnAndRow(1 , $row+4)->getValue();
+        $sendtime = ($sendtime != '' ? date('H:i', strtotime($sendtime)) : null);
         $type = $objWorksheet->getCellByColumnAndRow(1, $row+5)->getValue();
         if($type=='Message'){
           $broadcasttype = 1;
@@ -359,18 +362,18 @@ class BroadcastwaController extends Controller {
         //if($productid>0)
         if($id=='') {
           // insert 
-          $this->ModifyData($connection,array('',$companyid,$wanumber,$senddate,$sendtime,$broadcasttype,$message,'',$description,1));
+          $this->ModifyData($connection,array('',$companyid,$wagatewayid,$senddate,$sendtime,$broadcasttype,$message,'','',$description));
           $id = Yii::app()->db->createCommand("select last_insert_id()")->queryScalar();
         }
         else {
-          $this->ModifyData($connection,array($id,$companyid,$wanumber,$senddate,$sendtime,$broadcasttype,$message,'',$description,1));
+          $this->ModifyData($connection,array($id,$companyid,$wagatewayid,$senddate,$sendtime,$broadcasttype,$message,'','',$description));
         }
         
         for ($row = 11; $row <= $highestRow; ++$row) {
           $iddetail = $objWorksheet->getCellByColumnAndRow(0, $row)->getValue();
           if($iddetail=='') $iddetail=null;
           $fullname = $objWorksheet->getCellByColumnAndRow(1, $row)->getValue();
-          $addressbookid = Yii::app()->db->createCommand("select addressbookid from addressbook where fullname = '".$fullname."' and iscustomer=1")->queryScalar();
+          $addressbookid = Yii::app()->db->createCommand("select addressbookid from addressbook where fullname = '".$fullname."' ")->queryScalar();
           //$addressbookid=1;
           $customername = $objWorksheet->getCellByColumnAndRow(2, $row)->getValue();
           $ownername = $objWorksheet->getCellByColumnAndRow(3, $row)->getValue();
@@ -391,8 +394,8 @@ class BroadcastwaController extends Controller {
 		$connection  = Yii::app()->db;
     $transaction = $connection->beginTransaction();
     try {
-			$this->ModifyData($connection,array((isset($_POST['broadcastwaid'])?$_POST['broadcastwaid']:''),$_POST['companyid'],$_POST['wanumber'],date(Yii::app()->params['datetodb'], strtotime($_POST['senddate'])),date('H:m',strtotime($_POST['sendtime'])),$_POST['broadcasttype'],$_POST['message'],$_POST['file'],$_POST['filename'],
-      $_POST['description'],(isset($_POST['recordstatus']) ? '1' : '0')));
+			$this->ModifyData($connection,array((isset($_POST['broadcastwaid'])?$_POST['broadcastwaid']:''),$_POST['companyid'],$_POST['wagatewayid'],($_POST['senddate']=='' ? null : date(Yii::app()->params['datetodb'], strtotime($_POST['senddate']))),($_POST['sendtime']),$_POST['broadcasttype'],$_POST['message'],$_POST['file'],$_POST['filename'],
+      $_POST['description']));
 			$transaction->commit();
 			GetMessage(false, 'insertsuccess');
 		}
@@ -404,18 +407,16 @@ class BroadcastwaController extends Controller {
 	private function ModifyDataDetail($connection,$arraydata) {
 		$detailid = (isset($arraydata[0])?$arraydata[0]:'');
 		if ($detailid == '') {
-			$sql     = 'call Insertbroadcastwadet(:vbroadcastwaid,:vaddressbookid,:vcustomername,:vownername,:vdestnumber,:vcreatedby)';
+			$sql     = 'call Insertbroadcastwadet(:vbroadcastwaid,:vnama,:vdestnumber,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 		} else {
-			$sql     = 'call Updatebroadcastwadet(:vid,:vbroadcastwaid,:vaddressbookid,:vcustomername,:vownername,:vdestnumber,:vcreatedby)';
+			$sql     = 'call Updatebroadcastwadet(:vid,:vbroadcastwaid,:vnama,:vdestnumber,:vcreatedby)';
 			$command = $connection->createCommand($sql);
 			$command->bindvalue(':vid', $arraydata[0], PDO::PARAM_STR);
 		}
 		$command->bindvalue(':vbroadcastwaid', $arraydata[1], PDO::PARAM_STR);
-		$command->bindvalue(':vaddressbookid', $arraydata[2], PDO::PARAM_STR);
-		$command->bindvalue(':vcustomername', $arraydata[3], PDO::PARAM_STR);
-		$command->bindvalue(':vownername', $arraydata[4], PDO::PARAM_STR);
-		$command->bindvalue(':vdestnumber', $arraydata[5], PDO::PARAM_STR);
+		$command->bindvalue(':vnama', $arraydata[2], PDO::PARAM_STR);
+		$command->bindvalue(':vdestnumber', $arraydata[3], PDO::PARAM_STR);
 		$command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
 		$command->execute();
 	}
@@ -424,7 +425,7 @@ class BroadcastwaController extends Controller {
 		$connection  = Yii::app()->db;
     $transaction = $connection->beginTransaction();
     try {
-			$this->ModifyDataDetail($connection,array((isset($_POST['broadcastwadetid'])?$_POST['broadcastwadetid']:''),$_POST['broadcastwaid'],(isset($_POST['addressbookid']) && ($_POST['addressbookid']!='') ? $_POST['addressbookid'] : 0),$_POST['customername'],$_POST['ownername'],$_POST['destnumber']));
+			$this->ModifyDataDetail($connection,array((isset($_POST['broadcastwadetid'])?$_POST['broadcastwadetid']:''),$_POST['broadcastwaid'],$_POST['nama'],$_POST['destnumber']));
 			$transaction->commit();
       GetMessage(false, 'insertsuccess');
     }
@@ -495,8 +496,8 @@ class BroadcastwaController extends Controller {
           $command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
           $command->execute();
         }
-        $transaction->commit();
         $this->sendBroadcastWA($ids);
+        $transaction->commit();
         GetMessage(false, 'insertsuccess');
       }
       catch (Exception $e) {
@@ -709,7 +710,7 @@ class BroadcastwaController extends Controller {
         foreach ($dataReader1 as $row1) {
           $this->phpExcel->setActiveSheetIndex(0)
             ->setCellValueByColumnAndRow(0, $i, $row1['broadcastwadetid'])
-            ->setCellValueByColumnAndRow(1, $i, $row1['fullname'])
+            ->setCellValueByColumnAndRow(1, $i, $row1['nama'])
             ->setCellValueByColumnAndRow(2, $i, $row1['customername'])
             ->setCellValueByColumnAndRow(3, $i, $row1['ownername'])
             ->setCellValueByColumnAndRow(4, $i, $row1['destnumber'])

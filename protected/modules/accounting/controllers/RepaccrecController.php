@@ -5165,6 +5165,7 @@ class RepaccrecController extends Controller
 	public function RekapUmurPiutangDagangPerBulanPerTahun($companyid,$plantid,$sloc,$materialgroup,$customer,$product,$sales,$spv,$salesarea,$groupcustomer,$umurpiutang,$isdisplay,$isbaddebt,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
+		$baddebt = '';
 		$arbaddebt = " AND (a.isbaddebt = 0 or a.baddebtdate > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') ";
 		if($isbaddebt > 0)
 		{
@@ -6261,7 +6262,7 @@ class RepaccrecController extends Controller
 			$this->pdf->text(300,15,'Per : '.$per);
 			//$this->pdf->text(270,15,'X = T.O.P');
 			$wheresalesarea = $whereproduct = '';
-			$sqldata = "select distinct f.employeeid,f.fullname,e.companyid
+			$sqldata = "select distincts f.employeeid,f.fullname,e.companyid
 			from cutarinv a
 			join cutar b on b.cutarid=a.cutarid
 			join invoice c on c.invoiceid=a.invoiceid

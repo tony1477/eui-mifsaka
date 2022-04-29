@@ -163,6 +163,9 @@ class ReportaccController extends Controller
 			{
 				$this->LampiranFinaltyTagihanSalesSPV($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
 			}
+			if($_GET['lro'] == 31) {
+				$this->KonfirmasiPK($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+			}
 		}
 	}
 	//1
@@ -3083,7 +3086,7 @@ class ReportaccController extends Controller
 			'','TOTAL SALDO AKHIR ',':',
 			Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
 			));
-    }else{
+    }else{	
         $this->pdf->SetFont('helvetica','B',20);
         $this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Hutang Deposito BM');
     }
@@ -3091,7 +3094,7 @@ class ReportaccController extends Controller
         $this->pdf->Output('Lampiran Deposito BM.pdf','I');
   }
     //25
-    public function LampiranUangMukaPembelian($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		public function LampiranUangMukaPembelian($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
     {
        parent::actionDownload();
         $this->pdf->title = 'Rincian Uang Muka Pembelian';
@@ -3111,7 +3114,8 @@ class ReportaccController extends Controller
         
         if($piutang>'0'){
         
-            $sql1 = "select distinct a.supplierid, a.cbaccid, e.fullname
+					$sql1 = "select *
+						from (select distinct a.supplierid, a.cbaccid, e.fullname
                     from cbacc a
                     join cb b on b.cbid = a.cbid
                     join account c on accountid = a.debitaccid
@@ -3119,7 +3123,17 @@ class ReportaccController extends Controller
                     join addressbook e on e.addressbookid = a.supplierid
                     where b.recordstatus = 3 and (c.accountname = 'UANG MUKA PEMBELIAN' or d.accountname = 'UANG MUKA PEMBELIAN') and a.supplierid is not null and e.fullname  like '%".$supplier."%'
                     and c.companyid = ".$companyid."
-					group by supplierid order by fullname";
+						group by supplierid
+											UNION
+											select distinct a2.addressbookid as supplierid , a3.accountid , a2.fullname
+											from cashbankout c2 
+											join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+											join account a3 on a3.accountid = c3.accountid 
+											join invoiceap i on i.invoiceapid = c3.invoiceapid 
+											join addressbook a2 on a2.addressbookid = i.addressbookid 
+											where c2.companyid = {$companyid} and a2.fullname like '%{$supplier}%' and a3.accountname like 'UANG MUKA PEMBELIAN'
+						group by supplierid) z
+						group by supplierid order by fullname";
             
             $res = $connection->createCommand($sql1)->queryAll();
             foreach($res as $row1){
@@ -3132,7 +3146,16 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join addressbook e on e.addressbookid = a.supplierid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.supplierid = ".$row1['supplierid'].") z
+                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.supplierid = ".$row1['supplierid']."
+										UNION 
+										select 0 as debit, c3.payamount as credit, a2.fullname, a2.addressbookid
+										from cashbankout c2 
+										join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+										join reqpay r on r.reqpayid = c2.reqpayid 
+										join account a3 on a3.accountid = c3.accountid 
+										join invoiceap i on i.invoiceapid = c3.invoiceapid 
+										join addressbook a2 on a2.addressbookid = i.addressbookid 
+										where c2.companyid = {$companyid} and a3.accountname like 'UANG MUKA PEMBELIAN' and c2.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a2.addressbookid = {$row1['supplierid']}) z
                     where debit <> 0 or credit <> 0";
             
             $totaldebit  = 0;
@@ -3154,7 +3177,17 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join addressbook e on e.addressbookid = a.supplierid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['supplierid'].") z
+                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['supplierid']."
+										UNION 
+										select c3.itemnote, r.headernote , c2.docdate , c2.cashbankoutno , r.reqpayno , 0 as debit, c3.payamount as credit
+										from cashbankout c2 
+										join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+										join reqpay r on r.reqpayid = c2.reqpayid 
+										join account a3 on a3.accountid = c3.accountid 
+										join invoiceap i on i.invoiceapid = c3.invoiceapid 
+										join addressbook a2 on a2.addressbookid = i.addressbookid 
+										where c2.companyid = {$companyid} and a3.accountname like 'UANG MUKA PEMBELIAN' and c2.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and a2.addressbookid = {$row1['supplierid']}
+										) z
                     where credit <> 0 or debit <> 0
                     order by docdate, cashbankno";
             $rows = $connection->createCommand($sql)->queryAll();
@@ -3199,33 +3232,33 @@ class ReportaccController extends Controller
         }
               
         $this->pdf->setFont('Arial','B',10);
-		$this->pdf->sety($this->pdf->gety()+5);
-		$this->pdf->setwidths(array(10,50,5,35));
-		$this->pdf->coldetailalign = array('C','L','C','R');
-		
-		$this->pdf->row(array(
-			'','TOTAL SALDO AWAL ',':',
-			Yii::app()->format->formatCurrency($totalawal1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI DEBIT ',':',
-			Yii::app()->format->formatCurrency($totaldebit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI CREDIT ',':',
-			Yii::app()->format->formatCurrency($totalcredit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL SALDO AKHIR ',':',
-			Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
-			));
-    }else{
-        $this->pdf->SetFont('helvetica','B',20);
-        $this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Uang Muka Pembelian');
-    }
-        
-        $this->pdf->Output('Lampiran UMPB.pdf','I');
-  }
+			$this->pdf->sety($this->pdf->gety()+5);
+			$this->pdf->setwidths(array(10,50,5,35));
+			$this->pdf->coldetailalign = array('C','L','C','R');
+			
+			$this->pdf->row(array(
+				'','TOTAL SALDO AWAL ',':',
+				Yii::app()->format->formatCurrency($totalawal1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL MUTASI DEBIT ',':',
+				Yii::app()->format->formatCurrency($totaldebit1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL MUTASI CREDIT ',':',
+				Yii::app()->format->formatCurrency($totalcredit1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL SALDO AKHIR ',':',
+				Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
+				));
+			}else{
+					$this->pdf->SetFont('helvetica','B',20);
+					$this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Uang Muka Pembelian');
+			}
+					
+					$this->pdf->Output('Lampiran UMPB.pdf','I');
+  	}
     //26
     public function LampiranUangMukaPenjualan($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
     {
@@ -3247,7 +3280,7 @@ class ReportaccController extends Controller
         
         if($piutang>'0'){
         
-            $sql1 = "
+            $sql1 = "select * from (
                     select distinct a.customerid, a.cbaccid, e.fullname
                     from cbacc a
                     join cb b on b.cbid = a.cbid
@@ -3256,11 +3289,19 @@ class ReportaccController extends Controller
                     join addressbook e on e.addressbookid = a.customerid
                     where b.recordstatus = 3 and (c.accountname = 'UANG MUKA PENJUALAN' or d.accountname = 'UANG MUKA PENJUALAN') and a.customerid is not null and e.fullname like '%".$customer."%'
                     and c.companyid = ".$companyid."
-					group by customerid order by fullname";
+										UNION 
+										select distinct a3.addressbookid, a2.accountid , a3.fullname 
+										from cbinjournal c2 
+										join cbin c3 on c3.cbinid = c2.cbinid 
+										join account a2 on a2.accountid = c2.accountid 
+										join addressbook a3 on a3.addressbookid = c2.customerid 
+										where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and a3.fullname like '%{$customer}%'
+										and c3.companyid = {$companyid} ) z
+										group by customerid order by fullname";
             
             $res = $connection->createCommand($sql1)->queryAll();
             foreach($res as $row1){
-              $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+						$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
                     from (select case when b.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as debit,
                     case when c.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as credit, e.fullname, a.customerid
                     from cbacc a
@@ -3269,7 +3310,15 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join addressbook e on e.addressbookid = a.customerid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid'].") z
+                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid']."
+										UNION 
+										select c2.debit , 0 as credit, a3.fullname, c2.customerid 
+										from cbinjournal c2 
+										join cbin c3 on c3.cbinid = c2.cbinid 
+										join account a2 on a2.accountid = c2.accountid 
+										join addressbook a3 on a3.addressbookid = c2.customerid 
+										where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and c3.companyid = {$companyid} and c3.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a3.addressbookid = ".$row1['customerid']."
+										) z
                     where debit <> 0 or credit <> 0";
             
             $totaldebit  = 0;
@@ -3291,7 +3340,14 @@ class ReportaccController extends Controller
                     join cb d on d.cbid = a.cbid
                     join addressbook e on e.addressbookid = a.customerid
                     where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid'].") z
+                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid']."
+										UNION 
+										select distinct c2.description , c3.headernote , c3.docdate , c3.cbinno , '' as receiptno , c2.debit , 0 as credit 
+										from cbinjournal c2 
+										join cbin c3 on c3.cbinid = c2.cbinid 
+										join account a2 on a2.accountid = c2.accountid 
+										join addressbook a3 on a3.addressbookid = c2.customerid 
+										where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and c3.companyid = {$companyid} and c3.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and a3.addressbookid = ".$row1['customerid'].") z
                     where credit <> 0 or debit <> 0
                     order by docdate, cashbankno";
             $rows = $connection->createCommand($sql)->queryAll();
@@ -3336,34 +3392,34 @@ class ReportaccController extends Controller
         }
               
         $this->pdf->setFont('Arial','B',10);
-		$this->pdf->sety($this->pdf->gety()+5);
-		$this->pdf->setwidths(array(10,50,5,35));
-		$this->pdf->coldetailalign = array('C','L','C','R');
-		
-		$this->pdf->row(array(
-			'','TOTAL SALDO AWAL ',':',
-			Yii::app()->format->formatCurrency($totalawal1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI DEBIT ',':',
-			Yii::app()->format->formatCurrency($totaldebit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI CREDIT ',':',
-			Yii::app()->format->formatCurrency($totalcredit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL SALDO AKHIR ',':',
-			Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
-			));
-    }else{
-        $this->pdf->SetFont('helvetica','B',20);
-        $this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Uang Muka Penjualan');
-    }
-        
-        $this->pdf->Output('Lampiran UMPJ.pdf','I');
-  }
-	//27
+				$this->pdf->sety($this->pdf->gety()+5);
+				$this->pdf->setwidths(array(10,50,5,35));
+				$this->pdf->coldetailalign = array('C','L','C','R');
+				
+				$this->pdf->row(array(
+					'','TOTAL SALDO AWAL ',':',
+					Yii::app()->format->formatCurrency($totalawal1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL MUTASI DEBIT ',':',
+					Yii::app()->format->formatCurrency($totaldebit1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL MUTASI CREDIT ',':',
+					Yii::app()->format->formatCurrency($totalcredit1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL SALDO AKHIR ',':',
+					Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
+					));
+			}else{
+					$this->pdf->SetFont('helvetica','B',20);
+					$this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Uang Muka Penjualan');
+			}
+					
+			$this->pdf->Output('Lampiran UMPJ.pdf','I');
+		}
+		//27
     public function LampiranHutangEkspedisi($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
     {
        parent::actionDownload();
@@ -3390,6 +3446,8 @@ class ReportaccController extends Controller
                         join menuauth e on e.menuauthid = a.menuauthid
                         where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('ekspedisi')";
         $ekspedisi = $connection->createCommand($sqlekspedisi)->queryScalar();
+
+				$this->pdf->companyid = $companyid;
         
         if($piutang>'0' || $ekspedisi>'0'){
         
@@ -3481,33 +3539,33 @@ class ReportaccController extends Controller
         }
               
         $this->pdf->setFont('Arial','B',10);
-		$this->pdf->sety($this->pdf->gety()+5);
-		$this->pdf->setwidths(array(10,50,5,35));
-		$this->pdf->coldetailalign = array('C','L','C','R');
-		
-		$this->pdf->row(array(
-			'','TOTAL SALDO AWAL ',':',
-			Yii::app()->format->formatCurrency($totalawal1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI DEBIT ',':',
-			Yii::app()->format->formatCurrency($totaldebit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI CREDIT ',':',
-			Yii::app()->format->formatCurrency($totalcredit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL SALDO AKHIR ',':',
-			Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
-			));
-    }else{
-        $this->pdf->SetFont('helvetica','B',20);
-        $this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Hutang Ekspedisi');
-    }
+			$this->pdf->sety($this->pdf->gety()+5);
+			$this->pdf->setwidths(array(10,50,5,35));
+			$this->pdf->coldetailalign = array('C','L','C','R');
+			
+			$this->pdf->row(array(
+				'','TOTAL SALDO AWAL ',':',
+				Yii::app()->format->formatCurrency($totalawal1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL MUTASI DEBIT ',':',
+				Yii::app()->format->formatCurrency($totaldebit1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL MUTASI CREDIT ',':',
+				Yii::app()->format->formatCurrency($totalcredit1)
+				));
+			$this->pdf->row(array(
+				'','TOTAL SALDO AKHIR ',':',
+				Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
+				));
+			}else{
+					$this->pdf->SetFont('helvetica','B',20);
+					$this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses Hutang Ekspedisi');
+			}
         
         $this->pdf->Output('Lampiran UMPB.pdf','I');
-  }
+  	}
   	//28
     public function LampiranCadInsentifToko($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
     {
@@ -3742,1774 +3800,1886 @@ class ReportaccController extends Controller
   }
 	//30
 	public function LampiranFinaltyTagihanSalesSPV($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-       parent::actionDownload();
-        $this->pdf->title = 'Rincian Hutang Finalty Tagihan Sales / SPV';
-        $this->pdf->subtitle = 'Dari : '.date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) .' - '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
-        $this->pdf->AddPage('P','A4');
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        /* <-- start here --> */
-        $connection = Yii::app()->db;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-        
-//        if($piutang>'0'){
-        
-            /*$sql1 = "
-                    select distinct a.employeeid, a.cbaccid, e.fullname
-                    from cbacc a
-                    join cb b on b.cbid = a.cbid
-                    join account c on accountid = a.debitaccid
-                    join account d on d.accountid = a.creditaccid
-                    join employee e on e.employeeid = a.employeeid
-                    left join employeeorgstruc f on f.employeeid=e.employeeid
-                    left join orgstructure g on g.orgstructureid=f.orgstructureid
-                    where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV') and a.employeeid is not null and e.fullname like '%".$employee."%'
-										and g.companyid = ".$companyid."
-										and b.companyid = ".$companyid."
-					group by employeeid order by fullname";*/
-						$sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            foreach($res as $row1){
-              $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-            $totaldebit  = 0;
-            $totalcredit = 0;
-            $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-            $this->pdf->SetFont('Arial','',10);
-            //$this->pdf->text(10,$this->pdf->gety()+10,$row['accountcode']);
-            //$this->pdf->text(10,$this->pdf->gety()+5,$query1['accountcode']);
-            $this->pdf->text(15,$this->pdf->gety()+5,' '.$row1['fullname']);
-            $this->pdf->text(150,$this->pdf->gety()+5,'Saldo Awal :  '.Yii::app()->format->formatCurrency($saldoawal/$per));
+	{
+			parent::actionDownload();
+			$this->pdf->title = 'Rincian Hutang Finalty Tagihan Sales / SPV';
+			$this->pdf->subtitle = 'Dari : '.date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)) .' - '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));
+			$this->pdf->AddPage('P','A4');
+			$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+			/* <-- start here --> */
+			$connection = Yii::app()->db;
+			$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+											from groupmenuauth a
+											join groupaccess b on b.groupaccessid = a.groupaccessid
+											join usergroup c on c.groupaccessid = b.groupaccessid
+											join useraccess d on d.useraccessid = c.useraccessid
+											join menuauth e on e.menuauthid = a.menuauthid
+											where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+			$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+			
+		//        if($piutang>'0'){
+						
+								/*$sql1 = "
+												select distinct a.employeeid, a.cbaccid, e.fullname
+												from cbacc a
+												join cb b on b.cbid = a.cbid
+												join account c on accountid = a.debitaccid
+												join account d on d.accountid = a.creditaccid
+												join employee e on e.employeeid = a.employeeid
+												left join employeeorgstruc f on f.employeeid=e.employeeid
+												left join orgstructure g on g.orgstructureid=f.orgstructureid
+												where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV') and a.employeeid is not null and e.fullname like '%".$employee."%'
+												and g.companyid = ".$companyid."
+												and b.companyid = ".$companyid."
+							group by employeeid order by fullname";*/
+								$sql1 = "select *
+									from (select j.employeeid,j.fullname
+												from (select *
+																	from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
+																				from cbacc a
+																				join cb b on b.cbid = a.cbid
+																				join account c on accountid = a.debitaccid
+																				join account d on d.accountid = a.creditaccid
+																				where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																				and a.employeeid is not null
+																				and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																				and b.companyid = ".$companyid."
+																				and b.recordstatus = 3
+																				group by a.employeeid) z
+																	where z. amount <> 0
+															union
+																	select *
+																	from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
+																				from cbacc a
+																				join cb b on b.cbid = a.cbid
+																				join account c on accountid = a.debitaccid
+																				join account d on d.accountid = a.creditaccid
+																				where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																				and a.employeeid is not null
+																				and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																				and b.companyid = ".$companyid."
+																				and b.recordstatus = 3
+																				group by a.employeeid ) z
+																		where z. amount <> 0
+															union
+																	select *
+																	from (select a.employeeid,0
+																				from cbacc a
+																				join cb b on b.cbid = a.cbid
+																				join account c on accountid = a.debitaccid
+																				join account d on d.accountid = a.creditaccid
+																				where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																				and a.employeeid is not null
+																				and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																				and b.companyid = ".$companyid."
+																				and b.recordstatus = 3
+																				group by a.employeeid ) z
+															) zz
+												left join employee j on j.employeeid=zz.employeeid
+												group by j.employeeid) zzz
+									where fullname like '%".$employee."%'
+									order by fullname
+								";
+								
+								$res = $connection->createCommand($sql1)->queryAll();
+								foreach($res as $row1){
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+												from (select case when b.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
+												case when c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit, e.fullname, e.employeeid
+												from cbacc a
+												join account b on b.accountid = a.debitaccid
+												join account c on c.accountid = a.creditaccid
+												join cb d on d.cbid = a.cbid
+												join employee e on e.employeeid = a.employeeid
+												where d.recordstatus = 3 and d.companyid=".$companyid."
+												and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
+												where debit <> 0 or credit <> 0";
+								
+								$totaldebit  = 0;
+								$totalcredit = 0;
+								$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+										
+								$this->pdf->SetFont('Arial','',10);
+								//$this->pdf->text(10,$this->pdf->gety()+10,$row['accountcode']);
+								//$this->pdf->text(10,$this->pdf->gety()+5,$query1['accountcode']);
+								$this->pdf->text(15,$this->pdf->gety()+5,' '.$row1['fullname']);
+								$this->pdf->text(150,$this->pdf->gety()+5,'Saldo Awal :  '.Yii::app()->format->formatCurrency($saldoawal/$per));
 
-            $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-										order by docdate, cashbankno";
-            $rows = $connection->createCommand($sql)->queryAll();
+								$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+												from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
+												case when c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit
+												from cbacc a
+												join account b on b.accountid = a.debitaccid
+												join account c on c.accountid = a.creditaccid
+												join cb d on d.cbid = a.cbid
+												join employee e on e.employeeid = a.employeeid
+												where d.recordstatus = 3 and d.companyid=".$companyid."
+												and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+												where credit <> 0 or debit <> 0
+												order by docdate, cashbankno";
+								$rows = $connection->createCommand($sql)->queryAll();
 
-            $this->pdf->setFont('Arial','B',8);
-            $this->pdf->sety($this->pdf->gety()+7);
-            $this->pdf->colalign = array('C','C','C','C','C','C','C','C','C');
-            $this->pdf->setwidths(array(10,23,17,55,25,25,28));
-            $this->pdf->colheader = array('No','Dokumen','Tanggal','Uraian','Debet','Credit','Saldo');
-            $this->pdf->RowHeader();
-            $this->pdf->coldetailalign = array('R','C','C','L','R','R','R');		
-            $saldo=0;$i=0;
+								$this->pdf->setFont('Arial','B',8);
+								$this->pdf->sety($this->pdf->gety()+7);
+								$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C');
+								$this->pdf->setwidths(array(10,23,17,55,25,25,28));
+								$this->pdf->colheader = array('No','Dokumen','Tanggal','Uraian','Debet','Credit','Saldo');
+								$this->pdf->RowHeader();
+								$this->pdf->coldetailalign = array('R','C','C','L','R','R','R');		
+								$saldo=0;$i=0;
 
-            foreach($rows as $row2)
-            {
-              $i+=1;
-              $this->pdf->setFont('Arial','',8);
-              $this->pdf->row(array(
-                $i,
-                $row2['cashbankno'],
-                date(Yii::app()->params['dateviewfromdb'], strtotime($row2['docdate'])),
-                $row2['uraian'],
-                Yii::app()->format->formatCurrency($row2['debit']/$per),
-                Yii::app()->format->formatCurrency($row2['credit']/$per),'-'
-              ));
-              $totaldebit += $row2['debit']/$per;
-              $totalcredit += $row2['credit']/$per;		               
-            }
-             $this->pdf->row(array(
-            '','','','TOTAL : ',
-            Yii::app()->format->formatCurrency($totaldebit),
-            Yii::app()->format->formatCurrency($totalcredit),
-            Yii::app()->format->formatCurrency(($saldoawal/$per) + $totaldebit - $totalcredit)
-            ));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
+								foreach($rows as $row2)
+								{
+									$i+=1;
+									$this->pdf->setFont('Arial','',8);
+									$this->pdf->row(array(
+										$i,
+										$row2['cashbankno'],
+										date(Yii::app()->params['dateviewfromdb'], strtotime($row2['docdate'])),
+										$row2['uraian'],
+										Yii::app()->format->formatCurrency($row2['debit']/$per),
+										Yii::app()->format->formatCurrency($row2['credit']/$per),'-'
+									));
+									$totaldebit += $row2['debit']/$per;
+									$totalcredit += $row2['credit']/$per;		               
+								}
+								$this->pdf->row(array(
+								'','','','TOTAL : ',
+								Yii::app()->format->formatCurrency($totaldebit),
+								Yii::app()->format->formatCurrency($totalcredit),
+								Yii::app()->format->formatCurrency(($saldoawal/$per) + $totaldebit - $totalcredit)
+								));
+										
+								$totalawal1 += $saldoawal/$per;
+								$totaldebit1 += $totaldebit;
+								$totalcredit1 += $totalcredit;
 
-            $this->pdf->sety($this->pdf->gety()+5);
-            $this->pdf->checkPageBreak(10);
-        }
-              
-        $this->pdf->setFont('Arial','B',10);
-		$this->pdf->sety($this->pdf->gety()+5);
-		$this->pdf->setwidths(array(10,50,5,35));
-		$this->pdf->coldetailalign = array('C','L','C','R');
-		
-		$this->pdf->row(array(
-			'','TOTAL SALDO AWAL ',':',
-			Yii::app()->format->formatCurrency($totalawal1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI DEBIT ',':',
-			Yii::app()->format->formatCurrency($totaldebit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL MUTASI CREDIT ',':',
-			Yii::app()->format->formatCurrency($totalcredit1)
-			));
-		$this->pdf->row(array(
-			'','TOTAL SALDO AKHIR ',':',
-			Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
-			));
-/*    }else{
-        $this->pdf->SetFont('helvetica','B',20);
-        $this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses HUTANG FINALTY TAGIHAN SALES / SPV');
-    }
-*/        
-        $this->pdf->Output('Lampiran PK.pdf','I');
-  }
-	
-	public function actionDownXLS()
+								$this->pdf->sety($this->pdf->gety()+5);
+								$this->pdf->checkPageBreak(10);
+						}
+									
+						$this->pdf->setFont('Arial','B',10);
+				$this->pdf->sety($this->pdf->gety()+5);
+				$this->pdf->setwidths(array(10,50,5,35));
+				$this->pdf->coldetailalign = array('C','L','C','R');
+				
+				$this->pdf->row(array(
+					'','TOTAL SALDO AWAL ',':',
+					Yii::app()->format->formatCurrency($totalawal1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL MUTASI DEBIT ',':',
+					Yii::app()->format->formatCurrency($totaldebit1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL MUTASI CREDIT ',':',
+					Yii::app()->format->formatCurrency($totalcredit1)
+					));
+				$this->pdf->row(array(
+					'','TOTAL SALDO AKHIR ',':',
+					Yii::app()->format->formatCurrency($totalawal1 + $totaldebit1 - $totalcredit1)
+					));
+		/*    }else{
+						$this->pdf->SetFont('helvetica','B',20);
+						$this->pdf->text(20, 88, 'Anda Tidak Berhak Untuk Akses HUTANG FINALTY TAGIHAN SALES / SPV');
+				}
+		*/        
+				$this->pdf->Output('Lampiran PK.pdf','I');
+	}
+	//31
+	public function KonfirmasiPK($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
 	{
 		parent::actionDownload();
-		if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['employee']) && isset($_GET['product']) && isset($_GET['account']) && isset($_GET['startacccode']) && isset($_GET['endacccode'])&& isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
+		
+		$totalbelum1=0;$totalsudah1=0;$totalnilai1=0;$totalplafon1=0;
+		// $sql ="select distinct addressbookid,fullname,alamat,phoneno
+		// 			from (select d.addressbookid,d.fullname,a.amount,
+		// 			ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+		// 			from cutarinv f
+		// 			join cutar g on g.cutarid=f.cutarid
+		// 			where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,
+		// 			(select h.addressname	from address h where h.addressbookid=d.addressbookid Limit 1) as alamat,
+		// 			(select i.phoneno	from address i where i.addressbookid=d.addressbookid Limit 1) as phoneno
+		// 			from invoice a
+		// 			join giheader b on b.giheaderid = a.giheaderid
+		// 			join soheader c on c.soheaderid = b.soheaderid
+		// 			join addressbook d on d.addressbookid = c.addressbookid
+		// 			join employee e on e.employeeid = c.employeeid			
+		// 			-- where a.isbaddebt = ".$isbaddebt." and 
+		// 			where d.fullname like '%".$customer."%' and e.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid." 
+		// 			and d.fullname like '%".$customer."%' 
+		// 			and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} ) z
+		// 			where amount > payamount
+		// 			order by fullname";
+		// $dataReader=Yii::app()->db->createCommand($sql)->queryAll();
+		
+		$this->pdf->companyid = $companyid;
+		
+		$this->pdf->title='Konfirmasi Piutang Karyawan ';
+		/*$this->pdf->subtitle = 'Per Tanggal : '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate));*/
+		$this->pdf->AddPage('P');
+		
+		//foreach($dataReader as $row)
+		//{
+			$i=0;$totalamount=0;$totalpayamount=0;
+			$this->pdf->setFont('Arial','',8);
+			$this->pdf->text(10,$this->pdf->gety()+0,'Kepada YTH,');$this->pdf->text(135,$this->pdf->gety()+5,'Note : Bukti Konfirmasi ini tidak untuk Penagihan');
+			//$this->pdf->text(15,$this->pdf->gety()+5,$row['fullname']);
+			$this->pdf->text(10,$this->pdf->gety()+10,'Di Tempat');
+			$this->pdf->setFont('Arial','BU',10);
+			$this->pdf->text(65,$this->pdf->gety()+15,'Hal : KONFIRMASI PIUTANG KARYAWAN');
+			$this->pdf->setFont('Arial','',8);
+			$this->pdf->text(10,$this->pdf->gety()+25,'Dengan Hormat,');
+			$this->pdf->text(10,$this->pdf->gety()+32,'Dalam rangka kegiatan rutin dan tertib administrasi, maka dengan ini kami mohon kesediaan Bapak / Ibu karyawan di {$companyname} ');
+			$this->pdf->text(10,$this->pdf->gety()+35,'untuk dapat memberikan informasi atas saldo piutang karyawan perusahaan kami yang masih tersisa terhadap :');
+			$this->pdf->text(25,$this->pdf->gety()+40,'Nama Karyawan');
+			//$this->pdf->text(50,$this->pdf->gety()+40,': '.$row['fullname']);
+			$this->pdf->text(110,$this->pdf->gety()+40,'Per Tanggal');
+			//$this->pdf->text(130,$this->pdf->gety()+40,': '.$row['phoneno']);
+			//$this->pdf->text(25,$this->pdf->gety()+44,'Alamat');$this->pdf->text(50,$this->pdf->gety()+44,': '.$row['alamat']);
+			//$this->pdf->text(25,$this->pdf->gety()+48,'Per Tanggal');$this->pdf->text(50,$this->pdf->gety()+48,': '.date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)));
+			$this->pdf->text(10,$this->pdf->gety()+55,'Dengan nilai piutang sebagai berikut :');
+			
+			$i=0;$nilaitot = 0;$dibayar = 0;$sisa = 0;$i=0;
+			// $sql1 ="select *
+			// 			from (select if(c.isdisplay=1,concat(a.invoiceno,'_D'),a.invoiceno) as invoiceno,a.invoicedate,e.paydays,
+			// 			if(a.companyid = 18,if(a.invoicedate < '2021-09-01',date_add(a.invoicedate, INTERVAL e.paydays day),if(e.paydays < 30,date_add(a.invoicedate, INTERVAL e.paydays day),if(c.materialtypeid in (1,19,20,30,4,24,25,16,27,28,17,6),date_add(a.invoicedate, INTERVAL 45 day),if(c.materialtypeid in (14,15,22,3),date_add(a.invoicedate, INTERVAL 30 day),date_add(a.invoicedate, INTERVAL 45 day))))),date_add(a.invoicedate, INTERVAL e.paydays day)) as jatuhtempo,
+			// 			-- date_add(a.invoicedate,interval e.paydays day) as jatuhtempo,
+			// 			datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.invoicedate) as umur,a.amount,d.creditlimit,
+			// 			ifnull((select sum((ifnull(f.cashamount,0)+ifnull(f.bankamount,0)+ifnull(f.discamount,0)+ifnull(f.returnamount,0)+ifnull(f.obamount,0))*ifnull(f.currencyrate,0))
+			// 			from cutarinv f
+			// 			join cutar g on g.cutarid=f.cutarid
+			// 			where g.recordstatus=3 and f.invoiceid=a.invoiceid and g.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as payamount,f.fullname,c.isdisplay
+			// 			from invoice a
+			// 			inner join giheader b on b.giheaderid = a.giheaderid
+			// 			inner join soheader c on c.soheaderid = b.soheaderid
+			// 			inner join addressbook d on d.addressbookid = c.addressbookid
+			// 			inner join paymentmethod e on e.paymentmethodid = c.paymentmethodid
+			// 			inner join employee f on f.employeeid = c.employeeid
+			// 			-- where a.isbaddebt = ".$isbaddebt." and 
+			// 			where d.fullname like '%".$customer."%' and f.fullname like '%".$sales."%' and a.recordstatus=3 and a.invoiceno is not null and c.companyid = ".$companyid."  
+			// 			and d.addressbookid = ".$row['addressbookid']."
+			// 			and a.invoicedate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' {$arbaddebt} )z
+			// 			where amount > payamount 
+			// 			order by invoiceno";
+						
+			// $dataReader1=Yii::app()->db->createCommand($sql1)->queryAll();
+
+			$this->pdf->sety($this->pdf->gety()+60);
+			$this->pdf->setFont('Arial','',8);
+			$this->pdf->colalign = array('C','C','C','C','C','C','C','C','C');
+			$this->pdf->setwidths(array(8,24,17,17,25,22,25,9,48));
+			$this->pdf->colheader = array('No','Dokumen','Tanggal','J_Tempo','Nilai Invoice','Jml_Cicilan','Sisa Invoice','Umur','Sales');
+			$this->pdf->RowHeader();
+			$this->pdf->coldetailalign = array('C','L','C','C','R','R','R','R','L');
+			$this->pdf->setbordercell(array(
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ));
+			$this->pdf->sety($this->pdf->gety()+1);
+			
+			// foreach($dataReader1 as $row1)
+			// {
+			// 	$i+=1;
+			// 	$this->pdf->SetFont('Arial','',8);
+			// 	if($row1['isdisplay'] == 1){$jatuhtempo = 'TERJUAL';}else{$jatuhtempo = date(Yii::app()->params['dateviewfromdb'], strtotime($row1['jatuhtempo']));}
+			// 	$this->pdf->row(array(
+			// 		$i,$row1['invoiceno'],
+			// 		date(Yii::app()->params['dateviewfromdb'], strtotime($row1['invoicedate'])),
+			// 		$jatuhtempo,
+			// 		Yii::app()->format->formatCurrency($row1['amount']/$per),
+			// 		Yii::app()->format->formatCurrency($row1['payamount']/$per),
+			// 		Yii::app()->format->formatCurrency(($row1['amount']-$row1['payamount'])/$per),
+			// 		$row1['umur'],
+			// 		$row1['fullname'],
+			// 	));
+			// 	$totalamount += $row1['amount']/$per;
+			// 	$totalpayamount += $row1['payamount']/$per;
+			// }
+			$this->pdf->setbordercell(array(
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+        'TB',
+      ));
+			$this->pdf->row(array(
+				'',
+				'',
+				'',
+				'Grand Total',
+				//Yii::app()->format->formatCurrency($totalamount),
+				//Yii::app()->format->formatCurrency($totalpayamount),
+				//Yii::app()->format->formatCurrency($totalamount-$totalpayamount),
+				'',
+				'',
+			));
+			$this->pdf->text(35,$this->pdf->gety()+5,'Saldo Piutang Dagang');
+			$this->pdf->text(70,$this->pdf->gety()+5,': ');
+			$this->pdf->SetFont('Arial','B',9);
+			//$this->pdf->text(75,$this->pdf->gety()+5,Yii::app()->format->formatCurrency(($totalamount-$totalpayamount)));
+			
+			$this->pdf->checkPageBreak(50);
+			$this->pdf->SetFont('Arial','',8);
+			$this->pdf->text(10,$this->pdf->gety()+12,'Mengingat pentingnya hal ini, maka kami sangat mengharapkan bantuannya dan jika dari jumlah tersebut diatas ada yang tidak setuju');
+			$this->pdf->text(10,$this->pdf->gety()+16,'mohon penjelasannya.');
+			$this->pdf->text(20,$this->pdf->gety()+21,'Alasan :');
+			$this->pdf->text(32,$this->pdf->gety()+43,'Menyetujui,');
+			$this->pdf->text(20,$this->pdf->gety()+66,'( TTd / Cap Toko /Nama Jelas )');
+			$this->pdf->text(90,$this->pdf->gety()+43,'Mengetahui,');
+			$this->pdf->text(85,$this->pdf->gety()+66,'(         FM / BM         )');
+			$this->pdf->text(150,$this->pdf->gety()+43,'Hormat kami,');
+			$this->pdf->text(145,$this->pdf->gety()+66,'(                                  )');
+			$this->pdf->text(10,$this->pdf->gety()+75,'Catatan : Konfirmasi ini bukan sebagai bukti penagihan');
+			
+			$this->pdf->checkPageBreak(350);
+		//}   
+		$this->pdf->Output();
+   }
+	
+		
+		public function actionDownXLS()
 		{
-			if ($_GET['lro'] == 1)
+			parent::actionDownload();
+			if (isset($_GET['lro']) && isset($_GET['company']) && isset($_GET['sloc']) && isset($_GET['materialgroup']) && isset($_GET['customer']) && isset($_GET['employee']) && isset($_GET['product']) && isset($_GET['account']) && isset($_GET['startacccode']) && isset($_GET['endacccode'])&& isset($_GET['startdate']) && isset($_GET['enddate']) && isset($_GET['per']))
 			{
-				$this->RincianJurnalTransaksiXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 2)
-			{
-				$this->BukuBesarXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}			
-			else
-			if ($_GET['lro'] == 3)
-			{
-				$this->NeracaUjiCobaXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 4)
-			{
-				$this->LabaRugiUjiCobaXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}			
-			else
-			if ($_GET['lro'] == 5)
-			{
-				$this->RincianUmurPiutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 6)
-			{
-				$this->RekapUmurPiutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 7)
-			{
-				$this->RincianGiroCairEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 8)
-			{
-				$this->RincianGiroTolakEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 9)
-			{
-				$this->RincianGiroOpnameEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 10)
-			{
-				$this->RincianUmurHutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 11)
-			{
-				$this->RekapUmurHutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 12)
-			{
-				$this->RincianGiroCairInternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 13)
-			{
-				$this->RincianGiroTolakInternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}			
-			else
-			if ($_GET['lro'] == 14)
-			{
-				$this->RekapJurnalUmumPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 15)
-			{
-				$this->RekapPenerimaanKasBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 16)
-			{
-				$this->RekapPengeluaranKasBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 17)
-			{
-				$this->RekapCashBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			/*else
-			if ($_GET['lro'] == 18)
-			{
-				$this->LampiranNeraca1XLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}*/
-			else
-			if ($_GET['lro'] == 19)
-			{
-				$this->LampiranNeraca2XLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-			else
-			if ($_GET['lro'] == 20)
-			{
-				$this->LampiranPiutangKaryawanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-    			else
-			if ($_GET['lro'] == 21)
-			{
-				$this->LampiranHutangDepositoStaffXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-	            	else
-			if ($_GET['lro'] == 22)
-			{
-				$this->LampiranHutangDepositoSalesmanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            		else
-			if ($_GET['lro'] == 23)
-			{
-				$this->LampiranHutangDepositoSPVXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            		else
-			if ($_GET['lro'] == 24)
-			{
-				$this->LampiranHutangDepositoBMXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            		else
-			if ($_GET['lro'] == 25)
-			{
-				$this->LampiranUangMukaPembelianXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            		else
-			if ($_GET['lro'] == 26)
-			{
-				$this->LampiranUangMukaPenjualanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            else
-			if ($_GET['lro'] == 27)
-			{
-				$this->LampiranHutangEkspedisiXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            else
-			if ($_GET['lro'] == 28)
-			{
-				$this->LampiranCadInsentifTokoXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            else
-			if ($_GET['lro'] == 29)
-			{
-				$this->LaporanCashFlowXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
-			}
-            else
-			if ($_GET['lro'] == 30)
-			{
-				$this->LampiranFinaltyTagihanSalesSPVXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				if ($_GET['lro'] == 1)
+				{
+					$this->RincianJurnalTransaksiXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 2)
+				{
+					$this->BukuBesarXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}			
+				else
+				if ($_GET['lro'] == 3)
+				{
+					$this->NeracaUjiCobaXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 4)
+				{
+					$this->LabaRugiUjiCobaXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}			
+				else
+				if ($_GET['lro'] == 5)
+				{
+					$this->RincianUmurPiutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 6)
+				{
+					$this->RekapUmurPiutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 7)
+				{
+					$this->RincianGiroCairEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 8)
+				{
+					$this->RincianGiroTolakEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 9)
+				{
+					$this->RincianGiroOpnameEksternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 10)
+				{
+					$this->RincianUmurHutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 11)
+				{
+					$this->RekapUmurHutangGiroXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 12)
+				{
+					$this->RincianGiroCairInternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 13)
+				{
+					$this->RincianGiroTolakInternXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}			
+				else
+				if ($_GET['lro'] == 14)
+				{
+					$this->RekapJurnalUmumPerDokumenBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 15)
+				{
+					$this->RekapPenerimaanKasBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 16)
+				{
+					$this->RekapPengeluaranKasBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 17)
+				{
+					$this->RekapCashBankPerDokumentBelumStatusMaxXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				/*else
+				if ($_GET['lro'] == 18)
+				{
+					$this->LampiranNeraca1XLS($_GET['company'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}*/
+				else
+				if ($_GET['lro'] == 19)
+				{
+					$this->LampiranNeraca2XLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+				else
+				if ($_GET['lro'] == 20)
+				{
+					$this->LampiranPiutangKaryawanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+						else
+				if ($_GET['lro'] == 21)
+				{
+					$this->LampiranHutangDepositoStaffXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+									else
+				if ($_GET['lro'] == 22)
+				{
+					$this->LampiranHutangDepositoSalesmanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+									else
+				if ($_GET['lro'] == 23)
+				{
+					$this->LampiranHutangDepositoSPVXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+									else
+				if ($_GET['lro'] == 24)
+				{
+					$this->LampiranHutangDepositoBMXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+									else
+				if ($_GET['lro'] == 25)
+				{
+					$this->LampiranUangMukaPembelianXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+									else
+				if ($_GET['lro'] == 26)
+				{
+					$this->LampiranUangMukaPenjualanXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+							else
+				if ($_GET['lro'] == 27)
+				{
+					$this->LampiranHutangEkspedisiXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+							else
+				if ($_GET['lro'] == 28)
+				{
+					$this->LampiranCadInsentifTokoXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+							else
+				if ($_GET['lro'] == 29)
+				{
+					$this->LaporanCashFlowXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
+							else
+				if ($_GET['lro'] == 30)
+				{
+					$this->LampiranFinaltyTagihanSalesSPVXLS($_GET['company'],$_GET['plant'],$_GET['sloc'],$_GET['materialgroup'],$_GET['customer'],$_GET['supplier'],$_GET['employee'],$_GET['product'],$_GET['account'],$_GET['startacccode'], $_GET['endacccode'],$_GET['startdate'],$_GET['enddate'],$_GET['per']);
+				}
 			}
 		}
-	}
-	//1
-	public function RincianJurnalTransaksiXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='rincianjurnaltransaksi';
-		parent::actionDownxls();
-    $debit=0;$credit=0;
-    $sql = "select distinct a.genjournalid,
-						ifnull(b.companyname,'-')as company,
-						ifnull(a.journalno,'-')as journalno,
-						ifnull(a.referenceno,'-')as referenceno,
-						a.journaldate,a.postdate,
-						ifnull(a.journalnote,'-')as journalnote,a.recordstatus
-						from genjournal a
-						join company b on b.companyid = a.companyid
-						join genledger c on c.genjournalid = a.genjournalid
-						join account d on d.accountid = c.accountid
-						where a.companyid = ".$companyid." and d.accountname like '%".$account."%'
-                        ".($_GET['plant']!='' ? ' and c.plantid = '.$_GET['plant'] : '')."
-						and a.journaldate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						 and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						";
-			if (($_GET['startacccode'] !== '')&&($_GET['endacccode'] !== '')) {
-						$sql = $sql . "and d.accountcode between '".$_GET['startacccode']."' and '".$_GET['endacccode']."'
-						";
-					}
-    
-		$command=$this->connection->createCommand($sql);
-    $dataReader=$command->queryAll();
-
-		$this->phpExcel->setActiveSheetIndex(0)
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-			->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-    foreach ($dataReader as $row) 
-		{
-      $this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No Journal')
-					->setCellValueByColumnAndRow(1,$line,': ' . $row['journalno']);
-			$line++;
-      $this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'Ref No ')
-					->setCellValueByColumnAndRow(1,$line,': ' . $row['referenceno']);
-			$line++;
-      $this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'Tgl Jurnal ')
-					->setCellValueByColumnAndRow(1,$line,': ' . $row['journaldate']);
-			$line++;
-
-      $sql1 = "select b.accountcode,b.accountname, a.debit,a.credit,c.symbol,a.detailnote,a.ratevalue
-							from journaldetail a
-							left join account b on b.accountid = a.accountid
-							left join currency c on c.currencyid = a.currencyid
-							where a.genjournalid = '" . $row['genjournalid'] . "'
-							order by journaldetailid ";
-      $command1    = $this->connection->createCommand($sql1);
-      $dataReader1 = $command1->queryAll();
-			
-      $this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Account')
-					->setCellValueByColumnAndRow(2,$line,'Debit')
-					->setCellValueByColumnAndRow(3,$line,'Credit')
-					->setCellValueByColumnAndRow(4,$line,'Rate')
-					->setCellValueByColumnAndRow(5,$line,'Detail Note');
-			$line++;
-      $i=0;
-      foreach ($dataReader1 as $row1) 
+		//1
+		public function RincianJurnalTransaksiXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
 			{
-        $i=$i+1;
-        $debit  = $debit + ($row1['debit']/$per * $row1['ratevalue']);
-        $credit = $credit + ($row1['credit']/$per * $row1['ratevalue']);
-        $this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,$i)
-					->setCellValueByColumnAndRow(1,$line,$row1['accountcode'] . ' ' . $row1['accountname'])
-					->setCellValueByColumnAndRow(2,$line,$row1['debit']/$per)
-					->setCellValueByColumnAndRow(3,$line,$row1['credit']/$per)
-					->setCellValueByColumnAndRow(4,$line,$row1['ratevalue'])
-					->setCellValueByColumnAndRow(5,$line,$row1['detailnote']);
+			$this->menuname='rincianjurnaltransaksi';
+			parent::actionDownxls();
+			$debit=0;$credit=0;
+			$sql = "select distinct a.genjournalid,
+							ifnull(b.companyname,'-')as company,
+							ifnull(a.journalno,'-')as journalno,
+							ifnull(a.referenceno,'-')as referenceno,
+							a.journaldate,a.postdate,
+							ifnull(a.journalnote,'-')as journalnote,a.recordstatus
+							from genjournal a
+							join company b on b.companyid = a.companyid
+							join genledger c on c.genjournalid = a.genjournalid
+							join account d on d.accountid = c.accountid
+							where a.companyid = ".$companyid." and d.accountname like '%".$account."%'
+													".($_GET['plant']!='' ? ' and c.plantid = '.$_GET['plant'] : '')."
+							and a.journaldate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+							and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							";
+				if (($_GET['startacccode'] !== '')&&($_GET['endacccode'] !== '')) {
+							$sql = $sql . "and d.accountcode between '".$_GET['startacccode']."' and '".$_GET['endacccode']."'
+							";
+						}
+			
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			foreach ($dataReader as $row) 
+			{
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No Journal')
+						->setCellValueByColumnAndRow(1,$line,': ' . $row['journalno']);
 				$line++;
-      }
-      $this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(1,$line,'Total')
-				->setCellValueByColumnAndRow(2,$line,$debit)
-				->setCellValueByColumnAndRow(3,$line,$row1['credit']/$per);
-			$line++;
-			$this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(1,$line,'Note')
-				->setCellValueByColumnAndRow(2,$line,': ' . $row['journalnote']);
-			$line+=2;
-    }
-		$this->getFooterXLS($this->phpExcel);
-  }
-	//2
-	public function BukuBesarXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='bukubesar';
-		parent::actionDownxls();
-		$totalawal1=0;$totaldebit1=0;$totalcredit1=0;
-    $sql = "select distinct b.accountid,c.accountname,c.accountcode
-            from genledger b 
-            join account c on c.accountid=b.accountid
-            where b.companyid = '".$companyid."' and b.accountname like '%".$account."%'
-            and b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' ";
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'Ref No ')
+						->setCellValueByColumnAndRow(1,$line,': ' . $row['referenceno']);
+				$line++;
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'Tgl Jurnal ')
+						->setCellValueByColumnAndRow(1,$line,': ' . $row['journaldate']);
+				$line++;
 
-					if (($_GET['startacccode'] !== '')&&($_GET['endacccode'] !== '')) {
-						$sql = $sql . "and b.accountcode between '".$_GET['startacccode']."' and '".$_GET['endacccode']."'
-						";
+				$sql1 = "select b.accountcode,b.accountname, a.debit,a.credit,c.symbol,a.detailnote,a.ratevalue
+								from journaldetail a
+								left join account b on b.accountid = a.accountid
+								left join currency c on c.currencyid = a.currencyid
+								where a.genjournalid = '" . $row['genjournalid'] . "'
+								order by journaldetailid ";
+				$command1    = $this->connection->createCommand($sql1);
+				$dataReader1 = $command1->queryAll();
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Account')
+						->setCellValueByColumnAndRow(2,$line,'Debit')
+						->setCellValueByColumnAndRow(3,$line,'Credit')
+						->setCellValueByColumnAndRow(4,$line,'Rate')
+						->setCellValueByColumnAndRow(5,$line,'Detail Note');
+				$line++;
+				$i=0;
+				foreach ($dataReader1 as $row1) 
+				{
+					$i=$i+1;
+					$debit  = $debit + ($row1['debit']/$per * $row1['ratevalue']);
+					$credit = $credit + ($row1['credit']/$per * $row1['ratevalue']);
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,$i)
+						->setCellValueByColumnAndRow(1,$line,$row1['accountcode'] . ' ' . $row1['accountname'])
+						->setCellValueByColumnAndRow(2,$line,$row1['debit']/$per)
+						->setCellValueByColumnAndRow(3,$line,$row1['credit']/$per)
+						->setCellValueByColumnAndRow(4,$line,$row1['ratevalue'])
+						->setCellValueByColumnAndRow(5,$line,$row1['detailnote']);
+					$line++;
+				}
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'Total')
+					->setCellValueByColumnAndRow(2,$line,$debit)
+					->setCellValueByColumnAndRow(3,$line,$row1['credit']/$per);
+				$line++;
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'Note')
+					->setCellValueByColumnAndRow(2,$line,': ' . $row['journalnote']);
+				$line+=2;
+			}
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//2
+		public function BukuBesarXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='bukubesar';
+			parent::actionDownxls();
+			$totalawal1=0;$totaldebit1=0;$totalcredit1=0;
+			$sql = "select distinct b.accountid,c.accountname,c.accountcode
+							from genledger b 
+							join account c on c.accountid=b.accountid
+							where b.companyid = '".$companyid."' and b.accountname like '%".$account."%'
+							and b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' ";
+
+						if (($_GET['startacccode'] !== '')&&($_GET['endacccode'] !== '')) {
+							$sql = $sql . "and b.accountcode between '".$_GET['startacccode']."' and '".$_GET['endacccode']."'
+							";
+						}
+				
+											if (($_GET['plant'] !== '')&&($_GET['plant'] !== '')) {
+													$acccode = " and c.accountcode not like '1%' and 
+																					c.accountcode not like '2%'";
+													$sql = $sql . " and b.plantid = '".$_GET['plant']."' ".$acccode;
+											}
+			$sql = $sql . " order by b.accountcode";
+						
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;				
+			foreach($dataReader as $row)
+			{
+				$sql1 = "select sum((ifnull(zz.debit,0)-ifnull(zz.credit,0))*zz.ratevalue) as saldoawal
+							from genledger zz 
+							where zz.accountid = '".$row['accountid']."'
+							".($_GET['plant']!='' ? ' and zz.plantid = '.$_GET['plant'] : '')."
+							and zz.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'";
+
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				foreach($dataReader1 as $row1)
+				{ 
+					$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['accountcode'])
+						->setCellValueByColumnAndRow(2,$line,$row['accountname'])
+						->setCellValueByColumnAndRow(7,$line,'Saldo Awal : '.$row1['saldoawal']/$per);							
+					$line++;
+
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'No. Dokumen')
+						->setCellValueByColumnAndRow(2,$line,'Tanggal')					
+						->setCellValueByColumnAndRow(3,$line,'Referensi')
+						->setCellValueByColumnAndRow(4,$line,'Keterangan')
+						->setCellValueByColumnAndRow(5,$line,'Uraian')
+						->setCellValueByColumnAndRow(6,$line,'Debet')
+						->setCellValueByColumnAndRow(7,$line,'Credit')
+						->setCellValueByColumnAndRow(8,$line,'Saldo');
+					$line++;
+					$sql2 = "select a.journalno,a.journaldate,a.referenceno,a.journalnote,b.debit,b.credit,b.detailnote
+								from genjournal a
+								join genledger b on b.genjournalid = a.genjournalid
+								where a.recordstatus = 3 and b.accountid = '".$row['accountid']."'
+								".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+								and a.journaldate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+								and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								order by a.journaldate,a.referenceno";
+
+					$command2=$this->connection->createCommand($sql2);
+					$dataReader2=$command2->queryAll();
+					$saldo=0;$i=0;$totaldebit=0;$totalcredit=0;         
+
+					foreach($dataReader2 as $row2)
+					{
+						$i+=1;
+						$this->phpExcel->setActiveSheetIndex(0)
+								->setCellValueByColumnAndRow(0,$line,$i)
+								->setCellValueByColumnAndRow(1,$line,$row2['journalno'])
+								->setCellValueByColumnAndRow(2,$line,$row2['journaldate'])
+								->setCellValueByColumnAndRow(3,$line,$row2['referenceno'])
+								->setCellValueByColumnAndRow(4,$line,$row2['journalnote'])
+								->setCellValueByColumnAndRow(5,$line,$row2['detailnote'])
+								->setCellValueByColumnAndRow(6,$line,$row2['debit']/$per)							
+								->setCellValueByColumnAndRow(7,$line,$row2['credit']/$per)
+								->setCellValueByColumnAndRow(8,$line,'-');
+						$line++;
+						//$saldo += (($row1['debit']/$per) - ($row1['credit']/$per)) + ($row['saldoawal']/$per);
+						$totaldebit += $row2['debit']/$per;
+						$totalcredit += $row2['credit']/$per;
 					}
-      
-                    if (($_GET['plant'] !== '')&&($_GET['plant'] !== '')) {
-                         $acccode = " and c.accountcode not like '1%' and 
-                                        c.accountcode not like '2%'";
-                        $sql = $sql . " and b.plantid = '".$_GET['plant']."' ".$acccode;
-                    }
-    $sql = $sql . " order by b.accountcode";
-					
-    $command=$this->connection->createCommand($sql);
-    $dataReader=$command->queryAll();
-
-    $this->phpExcel->setActiveSheetIndex(0)
-      ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-      ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-      ->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-    $line=4;				
-    foreach($dataReader as $row)
-    {
-      $sql1 = "select sum((ifnull(zz.debit,0)-ifnull(zz.credit,0))*zz.ratevalue) as saldoawal
-            from genledger zz 
-            where zz.accountid = '".$row['accountid']."'
-            ".($_GET['plant']!='' ? ' and zz.plantid = '.$_GET['plant'] : '')."
-            and zz.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'";
-
-      $command1=$this->connection->createCommand($sql1);
-      $dataReader1=$command1->queryAll();
-      foreach($dataReader1 as $row1)
-      { 
-        $this->phpExcel->setActiveSheetIndex(0)						
-          ->setCellValueByColumnAndRow(0,$line,$row['accountcode'])
-          ->setCellValueByColumnAndRow(2,$line,$row['accountname'])
-          ->setCellValueByColumnAndRow(7,$line,'Saldo Awal : '.$row1['saldoawal']/$per);							
-        $line++;
-
-        $this->phpExcel->setActiveSheetIndex(0)
-          ->setCellValueByColumnAndRow(0,$line,'No')
-          ->setCellValueByColumnAndRow(1,$line,'No. Dokumen')
-          ->setCellValueByColumnAndRow(2,$line,'Tanggal')					
-          ->setCellValueByColumnAndRow(3,$line,'Referensi')
-          ->setCellValueByColumnAndRow(4,$line,'Keterangan')
-          ->setCellValueByColumnAndRow(5,$line,'Uraian')
-          ->setCellValueByColumnAndRow(6,$line,'Debet')
-          ->setCellValueByColumnAndRow(7,$line,'Credit')
-          ->setCellValueByColumnAndRow(8,$line,'Saldo');
-        $line++;
-        $sql2 = "select a.journalno,a.journaldate,a.referenceno,a.journalnote,b.debit,b.credit,b.detailnote
-               from genjournal a
-               join genledger b on b.genjournalid = a.genjournalid
-               where a.recordstatus = 3 and b.accountid = '".$row['accountid']."'
-               ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-               and a.journaldate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-               and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-               order by a.journaldate,a.referenceno";
-
-        $command2=$this->connection->createCommand($sql2);
-        $dataReader2=$command2->queryAll();
-        $saldo=0;$i=0;$totaldebit=0;$totalcredit=0;         
-
-        foreach($dataReader2 as $row2)
-        {
-          $i+=1;
-          $this->phpExcel->setActiveSheetIndex(0)
-              ->setCellValueByColumnAndRow(0,$line,$i)
-              ->setCellValueByColumnAndRow(1,$line,$row2['journalno'])
-              ->setCellValueByColumnAndRow(2,$line,$row2['journaldate'])
-              ->setCellValueByColumnAndRow(3,$line,$row2['referenceno'])
-              ->setCellValueByColumnAndRow(4,$line,$row2['journalnote'])
-              ->setCellValueByColumnAndRow(5,$line,$row2['detailnote'])
-              ->setCellValueByColumnAndRow(6,$line,$row2['debit']/$per)							
-              ->setCellValueByColumnAndRow(7,$line,$row2['credit']/$per)
-              ->setCellValueByColumnAndRow(8,$line,'-');
-          $line++;
-          //$saldo += (($row1['debit']/$per) - ($row1['credit']/$per)) + ($row['saldoawal']/$per);
-          $totaldebit += $row2['debit']/$per;
-          $totalcredit += $row2['credit']/$per;
-        }
-        $saldo = ($row1['saldoawal']/$per) + $totaldebit - $totalcredit;
-        $this->phpExcel->setActiveSheetIndex(0)
-              ->setCellValueByColumnAndRow(5,$line,'TOTAL '.$row['accountname'])									
-              ->setCellValueByColumnAndRow(6,$line,$totaldebit)
-              ->setCellValueByColumnAndRow(7,$line,$totalcredit)
-              ->setCellValueByColumnAndRow(8,$line,$saldo);
-        $line++;
-        $line += 1;
-        $totalawal1 += $row1['saldoawal']/$per;
-        $totaldebit1 += $totaldebit;
-        $totalcredit1 += $totalcredit;
-      }
-    }
-    $this->phpExcel->setActiveSheetIndex(0)
-      ->setCellValueByColumnAndRow(1,$line,'TOTAL	SALDO AWAL')									
-      ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-    $line++;
-    $this->phpExcel->setActiveSheetIndex(0)
-      ->setCellValueByColumnAndRow(1,$line,'TOTAL	MUTASI MASUK')									
-      ->setCellValueByColumnAndRow(3,$line,$totaldebit1);
-    $line++;
-    $this->phpExcel->setActiveSheetIndex(0)
-      ->setCellValueByColumnAndRow(1,$line,'TOTAL	MUTASI KELUAR')									
-      ->setCellValueByColumnAndRow(3,$line,$totalcredit1);
-    $line++;
-    $this->phpExcel->setActiveSheetIndex(0)
-      ->setCellValueByColumnAndRow(1,$line,'TOTAL	SALDO AKHIR')									
-      ->setCellValueByColumnAndRow(3,$line,$totalawal1+$totaldebit1-$totalcredit1);
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	/*//3
-	public function NeracaUjiCobaXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='neracaujicoba';
-		parent::actionDownxls();
-		$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
-					ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and c.journaldate <= last_day('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					group by accountid asc),0) as bulanini,
-					ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and c.journaldate <= last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month))
-					group by accountid asc),0) as bulanlalu
-					from account a
-					where a.companyid = '".$companyid."' and a.accountcode < '19%') z 
-					where z.bulanini <> 0 or z.bulanlalu <> 0
-					order by accountcode asc";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
-		$line=4;
-		$i=0;$bulanini=0;$bulanlalu=0;			
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Akun')
-					->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
-					->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
-					->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
-		$line++;
-		foreach($dataReader as $row)
-		{
-			$i+=1;
+					$saldo = ($row1['saldoawal']/$per) + $totaldebit - $totalcredit;
+					$this->phpExcel->setActiveSheetIndex(0)
+								->setCellValueByColumnAndRow(5,$line,'TOTAL '.$row['accountname'])									
+								->setCellValueByColumnAndRow(6,$line,$totaldebit)
+								->setCellValueByColumnAndRow(7,$line,$totalcredit)
+								->setCellValueByColumnAndRow(8,$line,$saldo);
+					$line++;
+					$line += 1;
+					$totalawal1 += $row1['saldoawal']/$per;
+					$totaldebit1 += $totaldebit;
+					$totalcredit1 += $totalcredit;
+				}
+			}
 			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,$i)
-					->setCellValueByColumnAndRow(1,$line,$row['accountname'])
-					->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
-					->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
-					->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per)	;
+				->setCellValueByColumnAndRow(1,$line,'TOTAL	SALDO AWAL')									
+				->setCellValueByColumnAndRow(3,$line,$totalawal1);
 			$line++;
-			$bulanini += $row['bulanini']/$per;
-			$bulanlalu += $row['bulanlalu']/$per;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'TOTAL AKTIVA')			
-					->setCellValueByColumnAndRow(3,$line,$bulanini)										
-					->setCellValueByColumnAndRow(4,$line,$bulanlalu);
-		$line++;
-		
-		$i=0;$bulanini=0;$bulanlalu=0;
-		$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
-					ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and c.journaldate <= last_day('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					group by accountid asc),0) as bulanini,
-					ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and c.journaldate <= last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month))
-					group by accountid asc),0) as bulanlalu
-					from account a
-					where a.companyid = '".$companyid."' and a.accountcode between '2%' and '29%'
-					order by a.accountcode asc) z where z.bulanini <> 0 or z.bulanlalu <> 0";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		foreach($dataReader as $row)
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
-		$line++;
-					
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Akun')
-					->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
-					->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
-					->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$i+=1;
 			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,$i)
-					->setCellValueByColumnAndRow(1,$line,$row['accountname'])
-					->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
-					->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
-					->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per)	;
+				->setCellValueByColumnAndRow(1,$line,'TOTAL	MUTASI MASUK')									
+				->setCellValueByColumnAndRow(3,$line,$totaldebit1);
 			$line++;
-			$bulanini += $row['bulanini']/$per;
-			$bulanlalu += $row['bulanlalu']/$per;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'TOTAL AKTIVA')			
-					->setCellValueByColumnAndRow(3,$line,$bulanini)										
-					->setCellValueByColumnAndRow(4,$line,$bulanlalu);
-		$line++;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//4
-	public function LabaRugiUjiCobaXLS($companyid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='labarugiujicoba';
-		parent::actionDownxls();
-		$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
-					ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and month(c.journaldate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					and year(c.journaldate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-					group by accountid asc),0) as bulanini,
-					ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
-					from genledger b
-					join genjournal c on c.genjournalid=b.genjournalid
-					where b.accountid = a.accountid and month(c.journaldate) = month(last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month)))
-					and year(c.journaldate) = year(last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month)))
-					group by accountid asc),0) as bulanlalu
-					from account a
-					where a.companyid = '".$companyid."' and a.accountcode > '3%'
-					order by a.accountcode asc) z where z.bulanini <> 0 or z.bulanlalu <> 0";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
-		$line=4;
-		$i=0;$bulanini=0;$bulanlalu=0;			
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Akun')
-					->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
-					->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
-					->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$i+=1;
 			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,$i)
-					->setCellValueByColumnAndRow(1,$line,$row['accountname'])
-					->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
-					->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
-					->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per);
+				->setCellValueByColumnAndRow(1,$line,'TOTAL	MUTASI KELUAR')									
+				->setCellValueByColumnAndRow(3,$line,$totalcredit1);
 			$line++;
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(1,$line,'TOTAL	SALDO AKHIR')									
+				->setCellValueByColumnAndRow(3,$line,$totalawal1+$totaldebit1-$totalcredit1);
 			
-			$bulanini += $row['bulanini']/$per;
-			$bulanlalu += $row['bulanlalu']/$per;
+			$this->getFooterXLS($this->phpExcel);
 		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'LABA (RUGI) BERSIH')			
-					->setCellValueByColumnAndRow(3,$line,$bulanini)										
-					->setCellValueByColumnAndRow(4,$line,$bulanlalu);
-		$line++;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	*///5
-	public function RincianUmurPiutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rincianumurpiutanggiro';
-		parent::actionDownxls();
-		$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-						and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(9,1,getcompanycode($companyid));
-		$line=4;
-			
-
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(3,$line,'Tanggal')
-					->setCellValueByColumnAndRow(4,$line,'Sudah')
-					->setCellValueByColumnAndRow(6,$line,'Belum Jatuh Tempo');
-		$line++;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'1-30 Hari')
-					->setCellValueByColumnAndRow(6,$line,'31-60 Hari')
-					->setCellValueByColumnAndRow(7,$line,'61-90 Hari')
-					->setCellValueByColumnAndRow(8,$line,'>90 Hari')
-					->setCellValueByColumnAndRow(9,$line,'Jumlah');
-		$line++;
-		
-		foreach($dataReader as $row)
+		/*//3
+		public function NeracaUjiCobaXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
 		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+			$this->menuname='neracaujicoba';
+			parent::actionDownxls();
+			$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
+						ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and c.journaldate <= last_day('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+						group by accountid asc),0) as bulanini,
+						ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and c.journaldate <= last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month))
+						group by accountid asc),0) as bulanlalu
+						from account a
+						where a.companyid = '".$companyid."' and a.accountcode < '19%') z 
+						where z.bulanini <> 0 or z.bulanlalu <> 0
+						order by accountcode asc";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
+			$line=4;
+			$i=0;$bulanini=0;$bulanlalu=0;			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Akun')
+						->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
+						->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
+						->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
 			$line++;
-			
-			$sql1 = "select *,
-							case when umur >= 0 then amount else 0 end as amounttempo,
-							case when umur <= -1 and umur >= -30 then amount else 0 end as 1sd30,
-							case when umur <= -31 and umur >= -60 then amount else 0 end as 31sd60,
-							case when umur <= -61 and umur >= -90 then amount else 0 end as 61sd90,
-							case when umur < -90 then amount else 0 end as sd90
-							from
-							(select c.bankname,a.chequeno,a.tgltempo,a.amount,
-							datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.tgltempo) as umur
-							from cheque a
-							left join addressbook b on b.addressbookid=a.addressbookid
-							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-							and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-							)z order by tgltempo";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$i=0;	$amounttempo=0;$amount1sd30=0;$amount31sd60=0;$amount61sd90=0;$amountsd90=0;$amount=0;
-			
-			foreach($dataReader1 as $row1)
+			foreach($dataReader as $row)
 			{
 				$i+=1;
 				$this->phpExcel->setActiveSheetIndex(0)
 						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(4,$line,$row1['amounttempo']/$per)
-						->setCellValueByColumnAndRow(5,$line,$row1['1sd30']/$per)
-						->setCellValueByColumnAndRow(6,$line,$row1['31sd60']/$per)
-						->setCellValueByColumnAndRow(7,$line,$row1['61sd90']/$per)
-						->setCellValueByColumnAndRow(8,$line,$row1['sd90']/$per)
-						->setCellValueByColumnAndRow(9,$line,$row1['amount']/$per);
+						->setCellValueByColumnAndRow(1,$line,$row['accountname'])
+						->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
+						->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
+						->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per)	;
 				$line++;
-				$amounttempo += ($row1['amounttempo']/$per);
-				$amount1sd30 += ($row1['1sd30']/$per);
-				$amount31sd60 += ($row1['31sd60']/$per);
-				$amount61sd90 += ($row1['61sd90']/$per);
-				$amountsd90 += ($row1['sd90']/$per);
-				$amount += ($row1['amount']/$per);
+				$bulanini += $row['bulanini']/$per;
+				$bulanlalu += $row['bulanlalu']/$per;
 			}
 			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(2,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(4,$line,$amounttempo)								
-					->setCellValueByColumnAndRow(5,$line,$amount1sd30)
-					->setCellValueByColumnAndRow(6,$line,$amount31sd60)
-					->setCellValueByColumnAndRow(7,$line,$amount61sd90)
-					->setCellValueByColumnAndRow(8,$line,$amountsd90)
-					->setCellValueByColumnAndRow(9,$line,$amount);
-			$line+=2;
-			$amounttempo2 += $amounttempo;
-			$amount1sd302 += $amount1sd30;
-			$amount31sd602 += $amount31sd60;
-			$amount61sd902 += $amount61sd90;
-			$amountsd902 += $amountsd90;
-			$amount2 += $amount;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(2,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(4,$line,$amounttempo2)								
-					->setCellValueByColumnAndRow(5,$line,$amount1sd302)
-					->setCellValueByColumnAndRow(6,$line,$amount31sd602)
-					->setCellValueByColumnAndRow(7,$line,$amount61sd902)
-					->setCellValueByColumnAndRow(8,$line,$amountsd902)
-					->setCellValueByColumnAndRow(9,$line,$amount2);
-			$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//6
-	public function RekapUmurPiutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekapumurpiutanggiro';
-		parent::actionDownxls();
-		$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
-		$sql = "	select *
-					from (select a.fullname,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <'".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."')),0) as saldoawal,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as debit,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and ((b.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					or (b.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'))),0) as credit,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')),0) as saldoakhir,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur > 0 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd0,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -30 and 0 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd30,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -60 and -31 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd60,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -90 and -61 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd90,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur < -90 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd91
-					from addressbook a
-					where a.iscustomer= 1 and a.fullname like '%".$customer."%') z
-					where saldoawal <> 0 or debit <> 0 or credit <> 0 or saldoakhir <> 0
-					order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-			->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=6;
-
-		$i=0;$totalsaldoawal=0;$totaldebit=0;$totalcredit=0;$totalsaldoakhir=0;$totalsd0=0;$totalsd30=0;$totalsd60=0;$totalsd90=0;$totalsd91=0;
-
-		foreach($dataReader as $row)
-		{	
-			$i+=1;
-			$this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(0,$line,$i)
-				->setCellValueByColumnAndRow(1,$line,$row['fullname'])
-				->setCellValueByColumnAndRow(2,$line,$row['saldoawal']/$per)
-				->setCellValueByColumnAndRow(3,$line,$row['debit']/$per)
-				->setCellValueByColumnAndRow(4,$line,$row['credit']/$per)
-				->setCellValueByColumnAndRow(5,$line,$row['saldoakhir']/$per)
-				->setCellValueByColumnAndRow(6,$line,$row['sd0']/$per)
-				->setCellValueByColumnAndRow(7,$line,$row['sd30']/$per)
-				->setCellValueByColumnAndRow(8,$line,$row['sd60']/$per)
-				->setCellValueByColumnAndRow(9,$line,$row['sd90']/$per)
-				->setCellValueByColumnAndRow(10,$line,$row['sd91']/$per);
-			$line++;
-			$totalsaldoawal += ($row['saldoawal']/$per);
-			$totaldebit += ($row['debit']/$per);
-			$totalcredit += ($row['credit']/$per);
-			$totalsaldoakhir += ($row['saldoakhir']/$per);
-			$totalsd0 += ($row['sd0']/$per);
-			$totalsd30 += ($row['sd30']/$per);
-			$totalsd60 += ($row['sd60']/$per);
-			$totalsd90 += ($row['sd90']/$per);
-			$totalsd91 += ($row['sd91']/$per);
-			$this->pdf->checkPageBreak(0);
-		}
-		$line+=1;
-		$this->phpExcel->setActiveSheetIndex(0)
-			->setCellValueByColumnAndRow(1,$line,'GRAND TOTAL ')
-			->setCellValueByColumnAndRow(2,$line,$totalsaldoawal)
-			->setCellValueByColumnAndRow(3,$line,$totaldebit)
-			->setCellValueByColumnAndRow(4,$line,$totalcredit)
-			->setCellValueByColumnAndRow(5,$line,$totalsaldoakhir)
-			->setCellValueByColumnAndRow(6,$line,$totalsd0)
-			->setCellValueByColumnAndRow(7,$line,$totalsd30)
-			->setCellValueByColumnAndRow(8,$line,$totalsd60)
-			->setCellValueByColumnAndRow(9,$line,$totalsd90)
-			->setCellValueByColumnAndRow(10,$line,$totalsd91);
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//7
-	public function RincianGiroCairEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rinciangirocairekstern';
-		parent::actionDownxls();
-		$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tglcair is not null or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						and a.tglcair != '1970-01-01' 
-						and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'Tgl Cair')
-					->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
-					->setCellValueByColumnAndRow(7,$line,'Keterangan');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+						->setCellValueByColumnAndRow(1,$line,'TOTAL AKTIVA')			
+						->setCellValueByColumnAndRow(3,$line,$bulanini)										
+						->setCellValueByColumnAndRow(4,$line,$bulanlalu);
 			$line++;
 			
-			$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tglcair,a.amount
-							from cheque a
-							left join addressbook b on b.addressbookid=a.addressbookid
-							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							and (a.tglcair is not null or a.tglcair != '1970-01-01' or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-							and a.tglcair != '1970-01-01' 
-							and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							order by tglcair";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$i=0;$amount=0;
-			foreach($dataReader1 as $row1)
+			$i=0;$bulanini=0;$bulanlalu=0;
+			$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
+						ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and c.journaldate <= last_day('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+						group by accountid asc),0) as bulanini,
+						ifnull((select sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue)
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and c.journaldate <= last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month))
+						group by accountid asc),0) as bulanlalu
+						from account a
+						where a.companyid = '".$companyid."' and a.accountcode between '2%' and '29%'
+						order by a.accountcode asc) z where z.bulanini <> 0 or z.bulanlalu <> 0";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			foreach($dataReader as $row)
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
+			$line++;
+						
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Akun')
+						->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
+						->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
+						->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
+			$line++;
+			
+			foreach($dataReader as $row)
 			{
 				$i+=1;
 				$this->phpExcel->setActiveSheetIndex(0)
 						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
-						->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcair'])))						
-						->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
+						->setCellValueByColumnAndRow(1,$line,$row['accountname'])
+						->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
+						->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
+						->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per)	;
+				$line++;
+				$bulanini += $row['bulanini']/$per;
+				$bulanlalu += $row['bulanlalu']/$per;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(1,$line,'TOTAL AKTIVA')			
+						->setCellValueByColumnAndRow(3,$line,$bulanini)										
+						->setCellValueByColumnAndRow(4,$line,$bulanlalu);
+			$line++;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//4
+		public function LabaRugiUjiCobaXLS($companyid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='labarugiujicoba';
+			parent::actionDownxls();
+			$sql = "select * from(select a.accountid,a.companyid,a.accountcode,a.accountname,a.parentaccountid,a.currencyid,a.accounttypeid,a.recordstatus,
+						ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and month(c.journaldate) = month('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+						and year(c.journaldate) = year('".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+						group by accountid asc),0) as bulanini,
+						ifnull((select -1*(sum(b.debit*b.ratevalue)-sum(b.credit*b.ratevalue))
+						from genledger b
+						join genjournal c on c.genjournalid=b.genjournalid
+						where b.accountid = a.accountid and month(c.journaldate) = month(last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month)))
+						and year(c.journaldate) = year(last_day(date_sub('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',interval 1 month)))
+						group by accountid asc),0) as bulanlalu
+						from account a
+						where a.companyid = '".$companyid."' and a.accountcode > '3%'
+						order by a.accountcode asc) z where z.bulanini <> 0 or z.bulanlalu <> 0";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(4,1,getcompanycode($companyid));
+			$line=4;
+			$i=0;$bulanini=0;$bulanlalu=0;			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Akun')
+						->setCellValueByColumnAndRow(2,$line,'Kode Akun')					
+						->setCellValueByColumnAndRow(3,$line,'Bulan Ini')
+						->setCellValueByColumnAndRow(4,$line,'Bulan Lalu');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$i+=1;
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,$i)
+						->setCellValueByColumnAndRow(1,$line,$row['accountname'])
+						->setCellValueByColumnAndRow(2,$line,$row['accountcode'])
+						->setCellValueByColumnAndRow(3,$line,$row['bulanini']/$per)
+						->setCellValueByColumnAndRow(4,$line,$row['bulanlalu']/$per);
 				$line++;
 				
-				$amount += ($row1['amount']/$per);
+				$bulanini += $row['bulanini']/$per;
+				$bulanlalu += $row['bulanlalu']/$per;
 			}
 			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(6,$line,$amount) ;
-			$line+=2;
-			$amount2 += $amount;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(6,$line,$amount2);
-		$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//8
-	public function RincianGiroTolakEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rinciangirotolakekstern';
-		parent::actionDownxls();
-		$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						and a.tgltolak != '1970-01-01'
-						and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-						order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'Tgl Tolak')
-					->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
-					->setCellValueByColumnAndRow(7,$line,'Keterangan');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+						->setCellValueByColumnAndRow(1,$line,'LABA (RUGI) BERSIH')			
+						->setCellValueByColumnAndRow(3,$line,$bulanini)										
+						->setCellValueByColumnAndRow(4,$line,$bulanlalu);
 			$line++;
 			
-			$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tgltolak,a.amount
-							from cheque a
-							left join addressbook b on b.addressbookid=a.addressbookid
-							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-							and a.tgltolak != '1970-01-01'
-							and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							order by tgltolak";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$i=0;$amount=0;
-			foreach($dataReader1 as $row1)
-			{
-				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
-						->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltolak'])))						
-						->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
-				$line++;
-				
-				$amount += ($row1['amount']/$per);
-			}
-			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(6,$line,$amount);
-			$line+=2;
-			$amount2 += $amount;
+			$this->getFooterXLS($this->phpExcel);
 		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(6,$line,$amount2) ;
-		$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//9
-	public function RincianGiroOpnameEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rinciangiroopnameekstern';
-		parent::actionDownxls();
-		$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-						and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						order by fullname,tgltempo";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Tanggal')
-					->setCellValueByColumnAndRow(2,$line,'Dari Customer')					
-					->setCellValueByColumnAndRow(3,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(4,$line,'No. Cek/Giro')
-					->setCellValueByColumnAndRow(5,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
-					->setCellValueByColumnAndRow(7,$line,'V');
-		$line++;
-		
-		foreach($dataReader as $row)
+		*///5
+		public function RincianUmurPiutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
 		{
-			$sql1 = "select a.tglcheque,b.fullname,c.bankname,a.chequeno,a.tgltempo,a.amount
+			$this->menuname='rincianumurpiutanggiro';
+			parent::actionDownxls();
+			$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
 							from cheque a
 							left join addressbook b on b.addressbookid=a.addressbookid
 							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
 							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
 							and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
 							and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-							order by fullname,tgltempo";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
+							order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
 			
-			$this->pdf->sety($this->pdf->gety()+0);
-			$i=0;$amount=0;
-			foreach($dataReader1 as $row1)
-			{
-				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
-						->setCellValueByColumnAndRow(2,$line,$row1['fullname'])
-						->setCellValueByColumnAndRow(3,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(4,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))						
-						->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per)
-						->setCellValueByColumnAndRow(7,$line,'[  ]') ;
-				$line++;
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(9,1,getcompanycode($companyid));
+			$line=4;
 				
-				$amount += ($row1['amount']/$per);
-			}
-			$amount2 += $amount;
-			
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(4,$line,'SALDO ADM (PEMBUKUAN)')	
-					->setCellValueByColumnAndRow(5,$line,' : ')
-					->setCellValueByColumnAndRow(6,$line,$amount2);
-		$line+=1;
-		
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(4,$line,'SALDO CHECK FISIK') 
-					->setCellValueByColumnAndRow(5,$line,' : ') ;
-		$line+=1;
-		
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(4,$line,'SELISIH') 
-					->setCellValueByColumnAndRow(5,$line,' : ') ;
-		$line+=3;
-		
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'Dibuat oleh,') 
-					->setCellValueByColumnAndRow(2,$line,'Diperiksa oleh,')
-					->setCellValueByColumnAndRow(4,$line,'Diiketahui oleh,')
-					->setCellValueByColumnAndRow(5,$line,'Disetujui oleh,');
-		$line+=6;
-		
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'........................') 
-					->setCellValueByColumnAndRow(2,$line,'........................')
-					->setCellValueByColumnAndRow(4,$line,'........................')
-					->setCellValueByColumnAndRow(5,$line,'........................');
-		$line+=1;
-		
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(1,$line,'Kasir') 
-					->setCellValueByColumnAndRow(2,$line,'Controller')
-					->setCellValueByColumnAndRow(4,$line,'Chief Accounting')
-					->setCellValueByColumnAndRow(5,$line,'Pimpinan Cabang');
-		$line+=1;		
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//10
-	public function RincianUmurHutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rincianumurhutanggiro';
-		parent::actionDownxls();
-		$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-						and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(9,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(3,$line,'Tanggal')
-					->setCellValueByColumnAndRow(4,$line,'Sudah')
-					->setCellValueByColumnAndRow(6,$line,'Belum Jatuh Tempo');
-		$line++;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'1-30 Hari')
-					->setCellValueByColumnAndRow(6,$line,'31-60 Hari')
-					->setCellValueByColumnAndRow(7,$line,'61-90 Hari')
-					->setCellValueByColumnAndRow(8,$line,'>90 Hari')
-					->setCellValueByColumnAndRow(9,$line,'Jumlah');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(3,$line,'Tanggal')
+						->setCellValueByColumnAndRow(4,$line,'Sudah')
+						->setCellValueByColumnAndRow(6,$line,'Belum Jatuh Tempo');
 			$line++;
 			
-			$sql1 = "select *,
-							case when umur >= 0 then amount else 0 end as amounttempo,
-							case when umur <= -1 and umur >= -30 then amount else 0 end as 1sd30,
-							case when umur <= -31 and umur >= -60 then amount else 0 end as 31sd60,
-							case when umur <= -61 and umur >= -90 then amount else 0 end as 61sd90,
-							case when umur < -90 then amount else 0 end as sd90
-							from
-							(select c.bankname,a.chequeno,a.tgltempo,a.amount,
-							datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.tgltempo) as umur
-							from cheque a
-							left join addressbook b on b.addressbookid=a.addressbookid
-							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-							and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-							)z order by tgltempo";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$i=0;$amounttempo=0;$amount1sd30=0;$amount31sd60=0;$amount61sd90=0;$amountsd90=0;$amount=0;
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'1-30 Hari')
+						->setCellValueByColumnAndRow(6,$line,'31-60 Hari')
+						->setCellValueByColumnAndRow(7,$line,'61-90 Hari')
+						->setCellValueByColumnAndRow(8,$line,'>90 Hari')
+						->setCellValueByColumnAndRow(9,$line,'Jumlah');
+			$line++;
 			
-			foreach($dataReader1 as $row1)
+			foreach($dataReader as $row)
 			{
-				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(4,$line,$row1['amounttempo']/$per)
-						->setCellValueByColumnAndRow(5,$line,$row1['1sd30']/$per)
-						->setCellValueByColumnAndRow(6,$line,$row1['31sd60']/$per)
-						->setCellValueByColumnAndRow(7,$line,$row1['61sd90']/$per)
-						->setCellValueByColumnAndRow(8,$line,$row1['sd90']/$per)
-						->setCellValueByColumnAndRow(9,$line,$row1['amount']/$per);
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
 				$line++;
 				
-				$amounttempo += ($row1['amounttempo']/$per);
-				$amount1sd30 += ($row1['1sd30']/$per);
-				$amount31sd60 += ($row1['31sd60']/$per);
-				$amount61sd90 += ($row1['61sd90']/$per);
-				$amountsd90 += ($row1['sd90']/$per);
-				$amount += ($row1['amount']/$per);
+				$sql1 = "select *,
+								case when umur >= 0 then amount else 0 end as amounttempo,
+								case when umur <= -1 and umur >= -30 then amount else 0 end as 1sd30,
+								case when umur <= -31 and umur >= -60 then amount else 0 end as 31sd60,
+								case when umur <= -61 and umur >= -90 then amount else 0 end as 61sd90,
+								case when umur < -90 then amount else 0 end as sd90
+								from
+								(select c.bankname,a.chequeno,a.tgltempo,a.amount,
+								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.tgltempo) as umur
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+								and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+								)z order by tgltempo";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$i=0;	$amounttempo=0;$amount1sd30=0;$amount31sd60=0;$amount61sd90=0;$amountsd90=0;$amount=0;
+				
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(4,$line,$row1['amounttempo']/$per)
+							->setCellValueByColumnAndRow(5,$line,$row1['1sd30']/$per)
+							->setCellValueByColumnAndRow(6,$line,$row1['31sd60']/$per)
+							->setCellValueByColumnAndRow(7,$line,$row1['61sd90']/$per)
+							->setCellValueByColumnAndRow(8,$line,$row1['sd90']/$per)
+							->setCellValueByColumnAndRow(9,$line,$row1['amount']/$per);
+					$line++;
+					$amounttempo += ($row1['amounttempo']/$per);
+					$amount1sd30 += ($row1['1sd30']/$per);
+					$amount31sd60 += ($row1['31sd60']/$per);
+					$amount61sd90 += ($row1['61sd90']/$per);
+					$amountsd90 += ($row1['sd90']/$per);
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(2,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(4,$line,$amounttempo)								
+						->setCellValueByColumnAndRow(5,$line,$amount1sd30)
+						->setCellValueByColumnAndRow(6,$line,$amount31sd60)
+						->setCellValueByColumnAndRow(7,$line,$amount61sd90)
+						->setCellValueByColumnAndRow(8,$line,$amountsd90)
+						->setCellValueByColumnAndRow(9,$line,$amount);
+				$line+=2;
+				$amounttempo2 += $amounttempo;
+				$amount1sd302 += $amount1sd30;
+				$amount31sd602 += $amount31sd60;
+				$amount61sd902 += $amount61sd90;
+				$amountsd902 += $amountsd90;
+				$amount2 += $amount;
 			}
 			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(2,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(4,$line,$amounttempo)							
-					->setCellValueByColumnAndRow(5,$line,$amount1sd30)
-					->setCellValueByColumnAndRow(6,$line,$amount31sd60)
-					->setCellValueByColumnAndRow(7,$line,$amount61sd90)
-					->setCellValueByColumnAndRow(8,$line,$amountsd90)
-					->setCellValueByColumnAndRow(9,$line,$amount);
-			$line+=2;
+						->setCellValueByColumnAndRow(2,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(4,$line,$amounttempo2)								
+						->setCellValueByColumnAndRow(5,$line,$amount1sd302)
+						->setCellValueByColumnAndRow(6,$line,$amount31sd602)
+						->setCellValueByColumnAndRow(7,$line,$amount61sd902)
+						->setCellValueByColumnAndRow(8,$line,$amountsd902)
+						->setCellValueByColumnAndRow(9,$line,$amount2);
+				$line+=2;
 			
-			$amounttempo2 += $amounttempo;
-			$amount1sd302 += $amount1sd30;
-			$amount31sd602 += $amount31sd60;
-			$amount61sd902 += $amount61sd90;
-			$amountsd902 += $amountsd90;
-			$amount2 += $amount;
+			$this->getFooterXLS($this->phpExcel);
 		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(2,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(4,$line,$amounttempo2)										
-					->setCellValueByColumnAndRow(5,$line,$amount1sd302)
-					->setCellValueByColumnAndRow(6,$line,$amount31sd602)
-					->setCellValueByColumnAndRow(7,$line,$amount61sd902)
-					->setCellValueByColumnAndRow(8,$line,$amountsd902)
-					->setCellValueByColumnAndRow(9,$line,$amount2);
-			$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//11
-	public function RekapUmurHutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekapumurhutanggiro';
-		parent::actionDownxls();
-		$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
-		$sql = "select *
-					from (select a.fullname,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <'".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."')),0) as saldoawal,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as debit,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and ((b.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					or (b.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'))),0) as credit,
-					ifnull((select sum(b.amount)
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')),0) as saldoakhir,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur > 0 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd0,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -30 and 0 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd30,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -60 and -31 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd60,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur between -90 and -61 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd90,
-					ifnull((select sum(amount)
-					from (select addressbookid,case when umur < -90 then amount else 0 end as amount
-					from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
-					from cheque b
-					where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
-                    ".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
-					and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
-					and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
-					where zz.addressbookid=a.addressbookid),0) as sd91
-					from addressbook a
-					where a.isvendor= 1 and a.fullname like '%".$customer."%') z
-					where saldoawal <> 0 or debit <> 0 or credit <> 0 or saldoakhir <> 0
-					order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-			->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=6;
-
-		$i=0;$totalsaldoawal=0;$totaldebit=0;$totalcredit=0;$totalsaldoakhir=0;$totalsd0=0;$totalsd30=0;$totalsd60=0;$totalsd90=0;$totalsd91=0;
-
-		foreach($dataReader as $row)
-		{	
-			$i+=1;
-			$this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(0,$line,$i)
-				->setCellValueByColumnAndRow(1,$line,$row['fullname'])
-				->setCellValueByColumnAndRow(2,$line,$row['saldoawal']/$per)
-				->setCellValueByColumnAndRow(3,$line,$row['debit']/$per)
-				->setCellValueByColumnAndRow(4,$line,$row['credit']/$per)
-				->setCellValueByColumnAndRow(5,$line,$row['saldoakhir']/$per)
-				->setCellValueByColumnAndRow(6,$line,$row['sd0']/$per)
-				->setCellValueByColumnAndRow(7,$line,$row['sd30']/$per)
-				->setCellValueByColumnAndRow(8,$line,$row['sd60']/$per)
-				->setCellValueByColumnAndRow(9,$line,$row['sd90']/$per)
-				->setCellValueByColumnAndRow(10,$line,$row['sd91']/$per);
-			$line++;
-			$totalsaldoawal += ($row['saldoawal']/$per);
-			$totaldebit += ($row['debit']/$per);
-			$totalcredit += ($row['credit']/$per);
-			$totalsaldoakhir += ($row['saldoakhir']/$per);
-			$totalsd0 += ($row['sd0']/$per);
-			$totalsd30 += ($row['sd30']/$per);
-			$totalsd60 += ($row['sd60']/$per);
-			$totalsd90 += ($row['sd90']/$per);
-			$totalsd91 += ($row['sd91']/$per);
-			$this->pdf->checkPageBreak(0);
-		}
-		$line+=1;
-		$this->phpExcel->setActiveSheetIndex(0)
-			->setCellValueByColumnAndRow(1,$line,'GRAND TOTAL ')
-			->setCellValueByColumnAndRow(2,$line,$totalsaldoawal)
-			->setCellValueByColumnAndRow(3,$line,$totaldebit)
-			->setCellValueByColumnAndRow(4,$line,$totalcredit)
-			->setCellValueByColumnAndRow(5,$line,$totalsaldoakhir)
-			->setCellValueByColumnAndRow(6,$line,$totalsd0)
-			->setCellValueByColumnAndRow(7,$line,$totalsd30)
-			->setCellValueByColumnAndRow(8,$line,$totalsd60)
-			->setCellValueByColumnAndRow(9,$line,$totalsd90)
-			->setCellValueByColumnAndRow(10,$line,$totalsd91);
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//12
-	public function RincianGiroCairInternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rinciangirocairintern';
-		parent::actionDownxls();
-		$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tglcair is not null or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						and a.tglcair != '1970-01-01' 
-						and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						order by fullname";
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'Tgl Cair')
-					->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
-					->setCellValueByColumnAndRow(7,$line,'Keterangan');
-		$line++;
-		
-		foreach($dataReader as $row)
+		//6
+		public function RekapUmurPiutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
 		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
-			$line++;
+			$this->menuname='rekapumurpiutanggiro';
+			parent::actionDownxls();
+			$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
+			$sql = "	select *
+						from (select a.fullname,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <'".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."')),0) as saldoawal,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as debit,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and ((b.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						or (b.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'))),0) as credit,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')),0) as saldoakhir,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur > 0 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd0,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -30 and 0 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd30,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -60 and -31 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd60,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -90 and -61 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd90,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur < -90 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 1 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd91
+						from addressbook a
+						where a.iscustomer= 1 and a.fullname like '%".$customer."%') z
+						where saldoawal <> 0 or debit <> 0 or credit <> 0 or saldoakhir <> 0
+						order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
 			
-			$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tglcair,a.amount
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=6;
+
+			$i=0;$totalsaldoawal=0;$totaldebit=0;$totalcredit=0;$totalsaldoakhir=0;$totalsd0=0;$totalsd30=0;$totalsd60=0;$totalsd90=0;$totalsd91=0;
+
+			foreach($dataReader as $row)
+			{	
+				$i+=1;
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(0,$line,$i)
+					->setCellValueByColumnAndRow(1,$line,$row['fullname'])
+					->setCellValueByColumnAndRow(2,$line,$row['saldoawal']/$per)
+					->setCellValueByColumnAndRow(3,$line,$row['debit']/$per)
+					->setCellValueByColumnAndRow(4,$line,$row['credit']/$per)
+					->setCellValueByColumnAndRow(5,$line,$row['saldoakhir']/$per)
+					->setCellValueByColumnAndRow(6,$line,$row['sd0']/$per)
+					->setCellValueByColumnAndRow(7,$line,$row['sd30']/$per)
+					->setCellValueByColumnAndRow(8,$line,$row['sd60']/$per)
+					->setCellValueByColumnAndRow(9,$line,$row['sd90']/$per)
+					->setCellValueByColumnAndRow(10,$line,$row['sd91']/$per);
+				$line++;
+				$totalsaldoawal += ($row['saldoawal']/$per);
+				$totaldebit += ($row['debit']/$per);
+				$totalcredit += ($row['credit']/$per);
+				$totalsaldoakhir += ($row['saldoakhir']/$per);
+				$totalsd0 += ($row['sd0']/$per);
+				$totalsd30 += ($row['sd30']/$per);
+				$totalsd60 += ($row['sd60']/$per);
+				$totalsd90 += ($row['sd90']/$per);
+				$totalsd91 += ($row['sd91']/$per);
+				$this->pdf->checkPageBreak(0);
+			}
+			$line+=1;
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(1,$line,'GRAND TOTAL ')
+				->setCellValueByColumnAndRow(2,$line,$totalsaldoawal)
+				->setCellValueByColumnAndRow(3,$line,$totaldebit)
+				->setCellValueByColumnAndRow(4,$line,$totalcredit)
+				->setCellValueByColumnAndRow(5,$line,$totalsaldoakhir)
+				->setCellValueByColumnAndRow(6,$line,$totalsd0)
+				->setCellValueByColumnAndRow(7,$line,$totalsd30)
+				->setCellValueByColumnAndRow(8,$line,$totalsd60)
+				->setCellValueByColumnAndRow(9,$line,$totalsd90)
+				->setCellValueByColumnAndRow(10,$line,$totalsd91);
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//7
+		public function RincianGiroCairEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rinciangirocairekstern';
+			parent::actionDownxls();
+			$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
 							from cheque a
 							left join addressbook b on b.addressbookid=a.addressbookid
 							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
 							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
 							and (a.tglcair is not null or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
 							and a.tglcair != '1970-01-01' 
 							and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							order by tglcair";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();		
-			$i=0;$amount=0;
-			foreach($dataReader1 as $row1)
-			{
-				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
-						->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcair'])))						
-						->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
-				$line++;
-				$amount += ($row1['amount']/$per);
-			}
-			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(6,$line,$amount);
-			$line+=2;
-			$amount2 += $amount;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(6,$line,$amount2);
-		$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//13
-	public function RincianGiroTolakInternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rinciangirotolakintern';
-		parent::actionDownxls();
-		$amount2=0;
-		$sql = "select distinct b.addressbookid,b.fullname
-						from cheque a
-						left join addressbook b on b.addressbookid=a.addressbookid
-						left join bank c on c.bankid=a.bankid
-						where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
-                        ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
-						and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
-						and a.tgltolak != '1970-01-01' 
-						and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						order by fullname" ;
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		$this->phpExcel->setActiveSheetIndex(0)			
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-			->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'Nama Bank')
-					->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
-					->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
-					->setCellValueByColumnAndRow(4,$line,'J_Tempo')
-					->setCellValueByColumnAndRow(5,$line,'Tgl Tolak')
-					->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
-					->setCellValueByColumnAndRow(7,$line,'Keterangan');
-		$line++;
-		
-		foreach($dataReader as $row)
-		{
-			$this->phpExcel->setActiveSheetIndex(0)						
-					->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+							order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'Tgl Cair')
+						->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
+						->setCellValueByColumnAndRow(7,$line,'Keterangan');
 			$line++;
 			
-			$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tgltolak,a.amount
+			foreach($dataReader as $row)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+				$line++;
+				
+				$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tglcair,a.amount
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tglcair is not null or a.tglcair != '1970-01-01' or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+								and a.tglcair != '1970-01-01' 
+								and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								order by tglcair";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$i=0;$amount=0;
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
+							->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcair'])))						
+							->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
+					$line++;
+					
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(6,$line,$amount) ;
+				$line+=2;
+				$amount2 += $amount;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(6,$line,$amount2);
+			$line+=2;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//8
+		public function RincianGiroTolakEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rinciangirotolakekstern';
+			parent::actionDownxls();
+			$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
 							from cheque a
 							left join addressbook b on b.addressbookid=a.addressbookid
 							left join bank c on c.bankid=a.bankid
-							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
-                            ".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							and a.tgltolak != '1970-01-01'
+							and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
+							order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'Tgl Tolak')
+						->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
+						->setCellValueByColumnAndRow(7,$line,'Keterangan');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+				$line++;
+				
+				$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tgltolak,a.amount
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+								and a.tgltolak != '1970-01-01'
+								and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								order by tgltolak";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$i=0;$amount=0;
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
+							->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltolak'])))						
+							->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
+					$line++;
+					
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(6,$line,$amount);
+				$line+=2;
+				$amount2 += $amount;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(6,$line,$amount2) ;
+			$line+=2;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//9
+		public function RincianGiroOpnameEksternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rinciangiroopnameekstern';
+			parent::actionDownxls();
+			$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
+							from cheque a
+							left join addressbook b on b.addressbookid=a.addressbookid
+							left join bank c on c.bankid=a.bankid
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+							and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							order by fullname,tgltempo";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Tanggal')
+						->setCellValueByColumnAndRow(2,$line,'Dari Customer')					
+						->setCellValueByColumnAndRow(3,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(4,$line,'No. Cek/Giro')
+						->setCellValueByColumnAndRow(5,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
+						->setCellValueByColumnAndRow(7,$line,'V');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$sql1 = "select a.tglcheque,b.fullname,c.bankname,a.chequeno,a.tgltempo,a.amount
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 1 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+								and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+								order by fullname,tgltempo";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				
+				$this->pdf->sety($this->pdf->gety()+0);
+				$i=0;$amount=0;
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
+							->setCellValueByColumnAndRow(2,$line,$row1['fullname'])
+							->setCellValueByColumnAndRow(3,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(4,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))						
+							->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per)
+							->setCellValueByColumnAndRow(7,$line,'[  ]') ;
+					$line++;
+					
+					$amount += ($row1['amount']/$per);
+				}
+				$amount2 += $amount;
+				
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(4,$line,'SALDO ADM (PEMBUKUAN)')	
+						->setCellValueByColumnAndRow(5,$line,' : ')
+						->setCellValueByColumnAndRow(6,$line,$amount2);
+			$line+=1;
+			
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(4,$line,'SALDO CHECK FISIK') 
+						->setCellValueByColumnAndRow(5,$line,' : ') ;
+			$line+=1;
+			
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(4,$line,'SELISIH') 
+						->setCellValueByColumnAndRow(5,$line,' : ') ;
+			$line+=3;
+			
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(1,$line,'Dibuat oleh,') 
+						->setCellValueByColumnAndRow(2,$line,'Diperiksa oleh,')
+						->setCellValueByColumnAndRow(4,$line,'Diiketahui oleh,')
+						->setCellValueByColumnAndRow(5,$line,'Disetujui oleh,');
+			$line+=6;
+			
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(1,$line,'........................') 
+						->setCellValueByColumnAndRow(2,$line,'........................')
+						->setCellValueByColumnAndRow(4,$line,'........................')
+						->setCellValueByColumnAndRow(5,$line,'........................');
+			$line+=1;
+			
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(1,$line,'Kasir') 
+						->setCellValueByColumnAndRow(2,$line,'Controller')
+						->setCellValueByColumnAndRow(4,$line,'Chief Accounting')
+						->setCellValueByColumnAndRow(5,$line,'Pimpinan Cabang');
+			$line+=1;		
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//10
+		public function RincianUmurHutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rincianumurhutanggiro';
+			parent::actionDownxls();
+			$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
+							from cheque a
+							left join addressbook b on b.addressbookid=a.addressbookid
+							left join bank c on c.bankid=a.bankid
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+							and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(9,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(3,$line,'Tanggal')
+						->setCellValueByColumnAndRow(4,$line,'Sudah')
+						->setCellValueByColumnAndRow(6,$line,'Belum Jatuh Tempo');
+			$line++;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'1-30 Hari')
+						->setCellValueByColumnAndRow(6,$line,'31-60 Hari')
+						->setCellValueByColumnAndRow(7,$line,'61-90 Hari')
+						->setCellValueByColumnAndRow(8,$line,'>90 Hari')
+						->setCellValueByColumnAndRow(9,$line,'Jumlah');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+				$line++;
+				
+				$sql1 = "select *,
+								case when umur >= 0 then amount else 0 end as amounttempo,
+								case when umur <= -1 and umur >= -30 then amount else 0 end as 1sd30,
+								case when umur <= -31 and umur >= -60 then amount else 0 end as 31sd60,
+								case when umur <= -61 and umur >= -90 then amount else 0 end as 61sd90,
+								case when umur < -90 then amount else 0 end as sd90
+								from
+								(select c.bankname,a.chequeno,a.tgltempo,a.amount,
+								datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',a.tgltempo) as umur
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tglcair is null or a.tglcair = '1970-01-01' or a.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+								and (a.tgltolak is null or a.tgltolak = '1970-01-01' or a.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+								)z order by tgltempo";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$i=0;$amounttempo=0;$amount1sd30=0;$amount31sd60=0;$amount61sd90=0;$amountsd90=0;$amount=0;
+				
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(4,$line,$row1['amounttempo']/$per)
+							->setCellValueByColumnAndRow(5,$line,$row1['1sd30']/$per)
+							->setCellValueByColumnAndRow(6,$line,$row1['31sd60']/$per)
+							->setCellValueByColumnAndRow(7,$line,$row1['61sd90']/$per)
+							->setCellValueByColumnAndRow(8,$line,$row1['sd90']/$per)
+							->setCellValueByColumnAndRow(9,$line,$row1['amount']/$per);
+					$line++;
+					
+					$amounttempo += ($row1['amounttempo']/$per);
+					$amount1sd30 += ($row1['1sd30']/$per);
+					$amount31sd60 += ($row1['31sd60']/$per);
+					$amount61sd90 += ($row1['61sd90']/$per);
+					$amountsd90 += ($row1['sd90']/$per);
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(2,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(4,$line,$amounttempo)							
+						->setCellValueByColumnAndRow(5,$line,$amount1sd30)
+						->setCellValueByColumnAndRow(6,$line,$amount31sd60)
+						->setCellValueByColumnAndRow(7,$line,$amount61sd90)
+						->setCellValueByColumnAndRow(8,$line,$amountsd90)
+						->setCellValueByColumnAndRow(9,$line,$amount);
+				$line+=2;
+				
+				$amounttempo2 += $amounttempo;
+				$amount1sd302 += $amount1sd30;
+				$amount31sd602 += $amount31sd60;
+				$amount61sd902 += $amount61sd90;
+				$amountsd902 += $amountsd90;
+				$amount2 += $amount;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(2,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(4,$line,$amounttempo2)										
+						->setCellValueByColumnAndRow(5,$line,$amount1sd302)
+						->setCellValueByColumnAndRow(6,$line,$amount31sd602)
+						->setCellValueByColumnAndRow(7,$line,$amount61sd902)
+						->setCellValueByColumnAndRow(8,$line,$amountsd902)
+						->setCellValueByColumnAndRow(9,$line,$amount2);
+				$line+=2;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//11
+		public function RekapUmurHutangGiroXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rekapumurhutanggiro';
+			parent::actionDownxls();
+			$amounttempo2=0;$amount1sd302=0;$amount31sd602=0;$amount61sd902=0;$amountsd902=0;$amount2=0;
+			$sql = "select *
+						from (select a.fullname,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <'".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak >= '".date(Yii::app()->params['datetodb'], strtotime($startdate))."')),0) as saldoawal,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'),0) as debit,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and ((b.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						or (b.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'))),0) as credit,
+						ifnull((select sum(b.amount)
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid." and b.addressbookid=a.addressbookid
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')),0) as saldoakhir,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur > 0 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd0,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -30 and 0 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd30,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -60 and -31 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd60,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur between -90 and -61 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd90,
+						ifnull((select sum(amount)
+						from (select addressbookid,case when umur < -90 then amount else 0 end as amount
+						from (select b.amount,b.addressbookid,datediff('".date(Yii::app()->params['datetodb'], strtotime($enddate))."',b.tgltempo) as umur
+						from cheque b
+						where b.recordstatus = 2 and b.iscustomer = 0 and b.companyid = ".$companyid."
+											".($_GET['plant']!='' ? ' and b.plantid = '.$_GET['plant'] : '')."
+						and b.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and (b.tglcair is null or b.tglcair = '1970-01-01' or b.tglcair > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."') 
+						and (b.tgltolak is null or b.tgltolak = '1970-01-01' or b.tgltolak > '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')) z) zz 
+						where zz.addressbookid=a.addressbookid),0) as sd91
+						from addressbook a
+						where a.isvendor= 1 and a.fullname like '%".$customer."%') z
+						where saldoawal <> 0 or debit <> 0 or credit <> 0 or saldoakhir <> 0
+						order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=6;
+
+			$i=0;$totalsaldoawal=0;$totaldebit=0;$totalcredit=0;$totalsaldoakhir=0;$totalsd0=0;$totalsd30=0;$totalsd60=0;$totalsd90=0;$totalsd91=0;
+
+			foreach($dataReader as $row)
+			{	
+				$i+=1;
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(0,$line,$i)
+					->setCellValueByColumnAndRow(1,$line,$row['fullname'])
+					->setCellValueByColumnAndRow(2,$line,$row['saldoawal']/$per)
+					->setCellValueByColumnAndRow(3,$line,$row['debit']/$per)
+					->setCellValueByColumnAndRow(4,$line,$row['credit']/$per)
+					->setCellValueByColumnAndRow(5,$line,$row['saldoakhir']/$per)
+					->setCellValueByColumnAndRow(6,$line,$row['sd0']/$per)
+					->setCellValueByColumnAndRow(7,$line,$row['sd30']/$per)
+					->setCellValueByColumnAndRow(8,$line,$row['sd60']/$per)
+					->setCellValueByColumnAndRow(9,$line,$row['sd90']/$per)
+					->setCellValueByColumnAndRow(10,$line,$row['sd91']/$per);
+				$line++;
+				$totalsaldoawal += ($row['saldoawal']/$per);
+				$totaldebit += ($row['debit']/$per);
+				$totalcredit += ($row['credit']/$per);
+				$totalsaldoakhir += ($row['saldoakhir']/$per);
+				$totalsd0 += ($row['sd0']/$per);
+				$totalsd30 += ($row['sd30']/$per);
+				$totalsd60 += ($row['sd60']/$per);
+				$totalsd90 += ($row['sd90']/$per);
+				$totalsd91 += ($row['sd91']/$per);
+				$this->pdf->checkPageBreak(0);
+			}
+			$line+=1;
+			$this->phpExcel->setActiveSheetIndex(0)
+				->setCellValueByColumnAndRow(1,$line,'GRAND TOTAL ')
+				->setCellValueByColumnAndRow(2,$line,$totalsaldoawal)
+				->setCellValueByColumnAndRow(3,$line,$totaldebit)
+				->setCellValueByColumnAndRow(4,$line,$totalcredit)
+				->setCellValueByColumnAndRow(5,$line,$totalsaldoakhir)
+				->setCellValueByColumnAndRow(6,$line,$totalsd0)
+				->setCellValueByColumnAndRow(7,$line,$totalsd30)
+				->setCellValueByColumnAndRow(8,$line,$totalsd60)
+				->setCellValueByColumnAndRow(9,$line,$totalsd90)
+				->setCellValueByColumnAndRow(10,$line,$totalsd91);
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//12
+		public function RincianGiroCairInternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rinciangirocairintern';
+			parent::actionDownxls();
+			$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
+							from cheque a
+							left join addressbook b on b.addressbookid=a.addressbookid
+							left join bank c on c.bankid=a.bankid
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
+							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							and (a.tglcair is not null or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+							and a.tglcair != '1970-01-01' 
+							and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							order by fullname";
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'Tgl Cair')
+						->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
+						->setCellValueByColumnAndRow(7,$line,'Keterangan');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+				$line++;
+				
+				$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tglcair,a.amount
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tglcair is not null or a.tglcair <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+								and a.tglcair != '1970-01-01' 
+								and a.tglcair between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								order by tglcair";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();		
+				$i=0;$amount=0;
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
+							->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcair'])))						
+							->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
+					$line++;
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(6,$line,$amount);
+				$line+=2;
+				$amount2 += $amount;
+			}
+			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(6,$line,$amount2);
+			$line+=2;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//13
+		public function RincianGiroTolakInternXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rinciangirotolakintern';
+			parent::actionDownxls();
+			$amount2=0;
+			$sql = "select distinct b.addressbookid,b.fullname
+							from cheque a
+							left join addressbook b on b.addressbookid=a.addressbookid
+							left join bank c on c.bankid=a.bankid
+							where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0
+													".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
 							and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
 							and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
 							and a.tgltolak != '1970-01-01' 
 							and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							order by tgltolak";
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$i=0;$amount=0;
-			foreach($dataReader1 as $row1)
-			{
-				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
-						->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
-						->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
-						->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltolak'])))						
-						->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
-				$line++;
-				
-				$amount += ($row1['amount']/$per);
-			}
-			$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
-					->setCellValueByColumnAndRow(6,$line,$amount);
-			$line+=2;
-			$amount2 += $amount;
-		}
-		$this->phpExcel->setActiveSheetIndex(0)	
-					->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
-					->setCellValueByColumnAndRow(6,$line,$amount2);
-		$line+=2;
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//14
-	public function RekapJurnalUmumPerDokumenBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekapjurnalumumperdokumenbelumstatusmax';
-		parent::actionDownxls();
-		$sql = "select distinct a.genjournalid,a.journalno,a.referenceno,a.journaldate,a.journalnote,a.recordstatus
-						from genjournal a
-						join journaldetail b on b.genjournalid = a.genjournalid
-						where a.journaldate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-						and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-						and a.recordstatus between 1 and (3-1)
-						and a.referenceno is not null
-						and a.companyid = ".$companyid."
-						order by a.journaldate,a.journalno";
-		
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-		foreach($dataReader as $row)
-		$this->phpExcel->setActiveSheetIndex(0)				
-			->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-			->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)));
-		$line=4;
-		
-		$this->phpExcel->setActiveSheetIndex(0)
-				->setCellValueByColumnAndRow(0,$line,'No')
-				->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
-				->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
-				->setCellValueByColumnAndRow(3,$line,'Tanggal')
-				->setCellValueByColumnAndRow(4,$line,'No Referensi')
-				->setCellValueByColumnAndRow(5,$line,'Keterangan')
-				->setCellValueByColumnAndRow(6,$line,'Status') ;
-		$line++;
-		$i=0;
-		foreach($dataReader as $row)
-		{
-			$i+=1;
-			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,$i)
-					->setCellValueByColumnAndRow(1,$line,$row['genjournalid'])
-					->setCellValueByColumnAndRow(2,$line,$row['journalno'])
-					->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['journaldate'])))
-					->setCellValueByColumnAndRow(4,$line,$row['referenceno'])
-					->setCellValueByColumnAndRow(5,$line,$row['journalnote'])
-					->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
-			$line++;
-		}
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//15
-	public function RekapPenerimaanKasBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekappenerimaankasbankperdokumenbelumstatusmax';
-		parent::actionDownxls();
-		$sql = "select distinct a.cbinid,a.cbinno,a.docdate,b.docno,a.headernote,a.recordstatus
-							from cbin a
-							join ttnt b on b.ttntid = a.ttntid
-							where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-							and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-							and a.recordstatus between 1 and (3-1)
-							and b.docno is not null
-							and b.companyid = ".$companyid."
-							order by a.docdate,a.cbinno";
-		
+							order by fullname" ;
 			$command=$this->connection->createCommand($sql);
 			$dataReader=$command->queryAll();
 			
+			$this->phpExcel->setActiveSheetIndex(0)			
+				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+				->setCellValueByColumnAndRow(7,1,getcompanycode($companyid));
+			$line=4;
+			
+			$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Nama Bank')
+						->setCellValueByColumnAndRow(2,$line,'No Cek/Giro')					
+						->setCellValueByColumnAndRow(3,$line,'Tgl C/G')
+						->setCellValueByColumnAndRow(4,$line,'J_Tempo')
+						->setCellValueByColumnAndRow(5,$line,'Tgl Tolak')
+						->setCellValueByColumnAndRow(6,$line,'Nilai Giro')
+						->setCellValueByColumnAndRow(7,$line,'Keterangan');
+			$line++;
+			
+			foreach($dataReader as $row)
+			{
+				$this->phpExcel->setActiveSheetIndex(0)						
+						->setCellValueByColumnAndRow(0,$line,$row['fullname']);							
+				$line++;
+				
+				$sql1 = "select c.bankname,a.chequeno,a.tglcheque,a.tgltempo,a.tgltolak,a.amount
+								from cheque a
+								left join addressbook b on b.addressbookid=a.addressbookid
+								left join bank c on c.bankid=a.bankid
+								where a.recordstatus = 2 and a.companyid = ".$companyid." and a.iscustomer = 0 and b.addressbookid = '".$row['addressbookid']."'
+															".($_GET['plant']!='' ? ' and a.plantid = '.$_GET['plant'] : '')."
+								and a.tglbayar <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and (a.tgltolak is not null or a.tgltolak <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."')
+								and a.tgltolak != '1970-01-01' 
+								and a.tgltolak between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								order by tgltolak";
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$i=0;$amount=0;
+				foreach($dataReader1 as $row1)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row1['bankname'])
+							->setCellValueByColumnAndRow(2,$line,$row1['chequeno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tglcheque'])))
+							->setCellValueByColumnAndRow(4,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltempo'])))
+							->setCellValueByColumnAndRow(5,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row1['tgltolak'])))						
+							->setCellValueByColumnAndRow(6,$line,$row1['amount']/$per);
+					$line++;
+					
+					$amount += ($row1['amount']/$per);
+				}
+				$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'TOTAL CEK/GIRO '.$row['fullname'])			
+						->setCellValueByColumnAndRow(6,$line,$amount);
+				$line+=2;
+				$amount2 += $amount;
+			}
 			$this->phpExcel->setActiveSheetIndex(0)	
+						->setCellValueByColumnAndRow(3,$line,'GRAND TOTAL CEK/GIRO ')			
+						->setCellValueByColumnAndRow(6,$line,$amount2);
+			$line+=2;
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//14
+		public function RekapJurnalUmumPerDokumenBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rekapjurnalumumperdokumenbelumstatusmax';
+			parent::actionDownxls();
+			$sql = "select distinct a.genjournalid,a.journalno,a.referenceno,a.journaldate,a.journalnote,a.recordstatus
+							from genjournal a
+							join journaldetail b on b.genjournalid = a.genjournalid
+							where a.journaldate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+							and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+							and a.recordstatus between 1 and (3-1)
+							and a.referenceno is not null
+							and a.companyid = ".$companyid."
+							order by a.journaldate,a.journalno";
+			
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+			foreach($dataReader as $row)
+			$this->phpExcel->setActiveSheetIndex(0)				
 				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-				->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
+				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)));
 			$line=4;
 			
 			$this->phpExcel->setActiveSheetIndex(0)
@@ -5520,1768 +5690,2010 @@ class ReportaccController extends Controller
 					->setCellValueByColumnAndRow(4,$line,'No Referensi')
 					->setCellValueByColumnAndRow(5,$line,'Keterangan')
 					->setCellValueByColumnAndRow(6,$line,'Status') ;
-			$line++;	
+			$line++;
 			$i=0;
 			foreach($dataReader as $row)
 			{
 				$i+=1;
 				$this->phpExcel->setActiveSheetIndex(0)
 						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row['cbinid'])
-						->setCellValueByColumnAndRow(2,$line,$row['cbinno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
-						->setCellValueByColumnAndRow(4,$line,$row['docno'])
-						->setCellValueByColumnAndRow(5,$line,$row['headernote'])
+						->setCellValueByColumnAndRow(1,$line,$row['genjournalid'])
+						->setCellValueByColumnAndRow(2,$line,$row['journalno'])
+						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['journaldate'])))
+						->setCellValueByColumnAndRow(4,$line,$row['referenceno'])
+						->setCellValueByColumnAndRow(5,$line,$row['journalnote'])
 						->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
 				$line++;
 			}
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//16
-	public function RekapPengeluaranKasBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekappengeluarankasbankperdokumenbelumstatusmax';
-		parent::actionDownxls();
-		$sql="select a.cashbankoutid,a.cashbankoutno,a.docdate,b.reqpayno,b.headernote,a.recordstatus
-					from cashbankout a
-					join reqpay b on b.reqpayid = a.cashbankoutid
-					where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-					and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-					and a.recordstatus between 1 and (3-1)
-					and b.reqpayno is not null
-					and a.companyid = ".$companyid." 
-					order by a.docdate,a.cashbankoutno";
-														
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-			$this->phpExcel->setActiveSheetIndex(0)	
-				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-				->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
-			$line=4;
 			
-			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
-					->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
-					->setCellValueByColumnAndRow(3,$line,'Tanggal')
-					->setCellValueByColumnAndRow(4,$line,'No Referensi')
-					->setCellValueByColumnAndRow(5,$line,'Keterangan')
-					->setCellValueByColumnAndRow(6,$line,'Status') ;
-			$line++;	
-			$i=0;		
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//15
+		public function RekapPenerimaanKasBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rekappenerimaankasbankperdokumenbelumstatusmax';
+			parent::actionDownxls();
+			$sql = "select distinct a.cbinid,a.cbinno,a.docdate,b.docno,a.headernote,a.recordstatus
+								from cbin a
+								join ttnt b on b.ttntid = a.ttntid
+								where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+								and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+								and a.recordstatus between 1 and (3-1)
+								and b.docno is not null
+								and b.companyid = ".$companyid."
+								order by a.docdate,a.cbinno";
+			
+				$command=$this->connection->createCommand($sql);
+				$dataReader=$command->queryAll();
+				
+				$this->phpExcel->setActiveSheetIndex(0)	
+					->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+					->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+					->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
+				$line=4;
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
+						->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
+						->setCellValueByColumnAndRow(3,$line,'Tanggal')
+						->setCellValueByColumnAndRow(4,$line,'No Referensi')
+						->setCellValueByColumnAndRow(5,$line,'Keterangan')
+						->setCellValueByColumnAndRow(6,$line,'Status') ;
+				$line++;	
+				$i=0;
+				foreach($dataReader as $row)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row['cbinid'])
+							->setCellValueByColumnAndRow(2,$line,$row['cbinno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
+							->setCellValueByColumnAndRow(4,$line,$row['docno'])
+							->setCellValueByColumnAndRow(5,$line,$row['headernote'])
+							->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
+					$line++;
+				}
+			
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//16
+		public function RekapPengeluaranKasBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rekappengeluarankasbankperdokumenbelumstatusmax';
+			parent::actionDownxls();
+			$sql="select a.cashbankoutid,a.cashbankoutno,a.docdate,b.reqpayno,b.headernote,a.recordstatus
+						from cashbankout a
+						join reqpay b on b.reqpayid = a.cashbankoutid
+						where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+						and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+						and a.recordstatus between 1 and (3-1)
+						and b.reqpayno is not null
+						and a.companyid = ".$companyid." 
+						order by a.docdate,a.cashbankoutno";
+															
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+				$this->phpExcel->setActiveSheetIndex(0)	
+					->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+					->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+					->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
+				$line=4;
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
+						->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
+						->setCellValueByColumnAndRow(3,$line,'Tanggal')
+						->setCellValueByColumnAndRow(4,$line,'No Referensi')
+						->setCellValueByColumnAndRow(5,$line,'Keterangan')
+						->setCellValueByColumnAndRow(6,$line,'Status') ;
+				$line++;	
+				$i=0;		
+				foreach($dataReader as $row)
+				{
+					$i+=1;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row['cbinid'])
+							->setCellValueByColumnAndRow(2,$line,$row['cbinno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
+							->setCellValueByColumnAndRow(4,$line,$row['docno'])
+							->setCellValueByColumnAndRow(5,$line,$row['headernote'])
+							->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
+					$line++;
+				}	
+			$this->getFooterXLS($this->phpExcel);
+		}
+		//17 
+		public function RekapCashBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='rekapcashbankperdokumenbelumstatusmax';
+			parent::actionDownxls();
+			$sql ="select distinct a.cbid,a.cashbankno,a.docdate,a.receiptno,a.headernote,a.recordstatus
+						from cb a
+						where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
+						and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
+						and a.receiptno is not null
+						and a.recordstatus between 1 and (3-1)
+						and a.companyid = ".$companyid." 
+						order by a.docdate,a.cashbankno";
+															
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+			
+				$this->phpExcel->setActiveSheetIndex(0)	
+					->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+					->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+					->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
+				$line=4;
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
+						->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
+						->setCellValueByColumnAndRow(3,$line,'Tanggal')
+						->setCellValueByColumnAndRow(4,$line,'No Referensi')
+						->setCellValueByColumnAndRow(5,$line,'Keterangan')
+						->setCellValueByColumnAndRow(6,$line,'Status') ;
+				$line++;	
+				$i=0;	
+			
 			foreach($dataReader as $row)
 			{
 				$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row['cbinid'])
-						->setCellValueByColumnAndRow(2,$line,$row['cbinno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
-						->setCellValueByColumnAndRow(4,$line,$row['docno'])
-						->setCellValueByColumnAndRow(5,$line,$row['headernote'])
-						->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
-				$line++;
-			}	
-		$this->getFooterXLS($this->phpExcel);
-	}
-	//17 
-	public function RekapCashBankPerDokumentBelumStatusMaxXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-	{
-		$this->menuname='rekapcashbankperdokumenbelumstatusmax';
-		parent::actionDownxls();
-		$sql ="select distinct a.cbid,a.cashbankno,a.docdate,a.receiptno,a.headernote,a.recordstatus
-					from cb a
-					where a.docdate between '". date(Yii::app()->params['datetodb'], strtotime($startdate))."' 
-					and '". date(Yii::app()->params['datetodb'], strtotime($enddate))."' 
-					and a.receiptno is not null
-					and a.recordstatus between 1 and (3-1)
-					and a.companyid = ".$companyid." 
-					order by a.docdate,a.cashbankno";
-														
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-		
-			$this->phpExcel->setActiveSheetIndex(0)	
-				->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-				->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-				->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
-			$line=4;
-			
-			$this->phpExcel->setActiveSheetIndex(0)
-					->setCellValueByColumnAndRow(0,$line,'No')
-					->setCellValueByColumnAndRow(1,$line,'ID Transaksi')
-					->setCellValueByColumnAndRow(2,$line,'No Transaksi')					
-					->setCellValueByColumnAndRow(3,$line,'Tanggal')
-					->setCellValueByColumnAndRow(4,$line,'No Referensi')
-					->setCellValueByColumnAndRow(5,$line,'Keterangan')
-					->setCellValueByColumnAndRow(6,$line,'Status') ;
-			$line++;	
-			$i=0;	
-		
-		foreach($dataReader as $row)
-		{
-			$i+=1;
-				$this->phpExcel->setActiveSheetIndex(0)
-						->setCellValueByColumnAndRow(0,$line,$i)
-						->setCellValueByColumnAndRow(1,$line,$row['cbid'])
-						->setCellValueByColumnAndRow(2,$line,$row['cashbankno'])
-						->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
-						->setCellValueByColumnAndRow(4,$line,$row['receiptno'])
-						->setCellValueByColumnAndRow(5,$line,$row['headernote'])
-						->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
-				$line++;
-		}
-		
-		$this->getFooterXLS($this->phpExcel);
-	}
-	/*//18
-	public function LampiranNeraca1XLS($companyid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-        $this->menuname='Lampiranneraca1';
-		parent::actionDownxls();
-				$totalawal1=0;$totaldebit1=0;$totalcredit1=0;
-				$sql = "SELECT a.accountname, a.accountcode
-														from repneraca a
-														where a.companyid = '".$companyid."' AND LOWER(a.accountname) <> LOWER('AKTIVA LANCAR') AND LOWER(a.accountname) <> LOWER('AKTIVA TETAP') AND LOWER(a.accountname) <> LOWER('AKTIVA LAIN-LAIN') AND LOWER(a.accountname) <> LOWER('AKTIVA') AND LOWER(a.accountname) <> LOWER('KEWAJIBAN LANCAR') AND LOWER(a.accountname) <> LOWER('KEWAJIBAN JANGKA PANJANG') AND LOWER(a.accountname) <> LOWER('EKUITAS') AND LOWER(a.accountname) <> LOWER('PASIVA') AND LOWER(a.accountname) <> LOWER('PERSEDIAAN')";
-
-		$command=$this->connection->createCommand($sql);
-		$dataReader=$command->queryAll();
-
-		foreach($dataReader as $row)
-		{
-				//$this->pdf->companyid = $companyid;
-		}
-        $this->phpExcel->setActiveSheetIndex(0)	
-            ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
-            ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
-            ->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
-        $line=2;
-		foreach($dataReader as $row)
-		{
-            $line=$line+2;
-            $this->pdf->text(10,$this->pdf->gety()+3,'MUTASI '.$row['accountname']);
-            $this->phpExcel->setActiveSheetIndex(0)	
-            ->setCellValueByColumnAndRow(0,$line,'MUTASI '.$row['accountname']);
-
-            $sql1 = "select a.accountname,a.accountcode
-                                     from account a
-                                     where a.recordstatus = 1 and a.parentaccountid = (SELECT b.accountid FROM account b WHERE b.accountcode= '".$row['accountcode']."' AND b.companyid='".$companyid."')
-                                     order by a.accountid";
-
-			$command1=$this->connection->createCommand($sql1);
-			$dataReader1=$command1->queryAll();
-			$saldo=0;$i=0;
-            $line++;
-
-            $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(0,$line,'No')
-                ->setCellValueByColumnAndRow(1,$line,'Keterangan')
-                ->setCellValueByColumnAndRow(2,$line,'Saldo Awal')
-                ->setCellValueByColumnAndRow(3,$line,'Debit')
-                ->setCellValueByColumnAndRow(4,$line,'Kredit')
-                ->setCellValueByColumnAndRow(5,$line,'Saldo Akhir');
-			
-			$saldo=0;$i=0;$totaldebit=0;$totalcredit=0;
-
-			$sql2 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' ";
-			$command2=$this->connection->createCommand($sql2);
-			$saldoawal1=$command2->queryScalar();
-
-			$sql3 = "SELECT SUM(b.debit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-			$command3=$this->connection->createCommand($sql3);
-			$debit1=$command3->queryScalar();
-
-			$sql4 = "SELECT SUM(b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-			$command4=$this->connection->createCommand($sql4);
-			$credit1=$command4->queryScalar();
-
-			$sql5 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-			$command5=$this->connection->createCommand($sql5);
-			$saldoakhir1=$command5->queryScalar();
-
-            $line++;
-			$this->pdf->setFont('Arial','B',8);
-			$this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(0,$line,'')
-                ->setCellValueByColumnAndRow(1,$line,$row['accountname'])
-                ->setCellValueByColumnAndRow(2,$line,($saldoawal1))
-                ->setCellValueByColumnAndRow(3,$line,($debit1))
-                ->setCellValueByColumnAndRow(4,$line,($credit1))
-                ->setCellValueByColumnAndRow(5,$line,($saldoakhir1));
-            
-            $line++;
-
-			foreach($dataReader1 as $row1)
-			{
-
-				$sql6 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' ";
-				$command6=$this->connection->createCommand($sql6);
-				$saldoawal2=$command6->queryScalar();
-
-				$sql7 = "SELECT SUM(b.debit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-				$command7=$this->connection->createCommand($sql7);
-				$debit2=$command7->queryScalar();
-
-				$sql8 = "SELECT SUM(b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-				$command8=$this->connection->createCommand($sql8);
-				$credit2=$command8->queryScalar();
-
-				$sql9 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
-				$command9=$this->connection->createCommand($sql9);
-				$saldoakhir2=$command9->queryScalar();
-
-					$i+=1;
-					$this->phpExcel->setActiveSheetIndex(0)	
-                        ->setCellValueByColumnAndRow(0,$line,$i)
-                        ->setCellValueByColumnAndRow(1,$line,$row1['accountname'])
-                        ->setCellValueByColumnAndRow(2,$line,($saldoawal2))
-                        ->setCellValueByColumnAndRow(3,$line,($debit2))
-                        ->setCellValueByColumnAndRow(4,$line,($credit2))
-                        ->setCellValueByColumnAndRow(5,$line,($saldoakhir2));
-                $line++;
+					$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row['cbid'])
+							->setCellValueByColumnAndRow(2,$line,$row['cashbankno'])
+							->setCellValueByColumnAndRow(3,$line,date(Yii::app()->params['dateviewfromdb'], strtotime($row['docdate'])))
+							->setCellValueByColumnAndRow(4,$line,$row['receiptno'])
+							->setCellValueByColumnAndRow(5,$line,$row['headernote'])
+							->setCellValueByColumnAndRow(6,$line,findstatusname("apppayreq",$row['recordstatus']))	;
+					$line++;
 			}
+			
+			$this->getFooterXLS($this->phpExcel);
 		}
-        $line++;
-		$this->getFooterXLS($this->phpExcel);
-  }
-    */
-	//20
-	public function LampiranPiutangKaryawanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranpiutangkaryawan';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='piutang karyawan' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='piutang karyawan' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
+		/*//18
+		public function LampiranNeraca1XLS($companyid,$sloc,$materialgroup,$customer,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+					$this->menuname='Lampiranneraca1';
+			parent::actionDownxls();
+					$totalawal1=0;$totaldebit1=0;$totalcredit1=0;
+					$sql = "SELECT a.accountname, a.accountcode
+															from repneraca a
+															where a.companyid = '".$companyid."' AND LOWER(a.accountname) <> LOWER('AKTIVA LANCAR') AND LOWER(a.accountname) <> LOWER('AKTIVA TETAP') AND LOWER(a.accountname) <> LOWER('AKTIVA LAIN-LAIN') AND LOWER(a.accountname) <> LOWER('AKTIVA') AND LOWER(a.accountname) <> LOWER('KEWAJIBAN LANCAR') AND LOWER(a.accountname) <> LOWER('KEWAJIBAN JANGKA PANJANG') AND LOWER(a.accountname) <> LOWER('EKUITAS') AND LOWER(a.accountname) <> LOWER('PASIVA') AND LOWER(a.accountname) <> LOWER('PERSEDIAAN')";
+
+			$command=$this->connection->createCommand($sql);
+			$dataReader=$command->queryAll();
+
+			foreach($dataReader as $row)
+			{
+					//$this->pdf->companyid = $companyid;
+			}
+					$this->phpExcel->setActiveSheetIndex(0)	
+							->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'], strtotime($startdate)))
+							->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'], strtotime($enddate)))
+							->setCellValueByColumnAndRow(6,1,getcompanycode($companyid));
+					$line=2;
+			foreach($dataReader as $row)
+			{
+							$line=$line+2;
+							$this->pdf->text(10,$this->pdf->gety()+3,'MUTASI '.$row['accountname']);
+							$this->phpExcel->setActiveSheetIndex(0)	
+							->setCellValueByColumnAndRow(0,$line,'MUTASI '.$row['accountname']);
+
+							$sql1 = "select a.accountname,a.accountcode
+																			from account a
+																			where a.recordstatus = 1 and a.parentaccountid = (SELECT b.accountid FROM account b WHERE b.accountcode= '".$row['accountcode']."' AND b.companyid='".$companyid."')
+																			order by a.accountid";
+
+				$command1=$this->connection->createCommand($sql1);
+				$dataReader1=$command1->queryAll();
+				$saldo=0;$i=0;
+							$line++;
+
+							$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(0,$line,'No')
+									->setCellValueByColumnAndRow(1,$line,'Keterangan')
+									->setCellValueByColumnAndRow(2,$line,'Saldo Awal')
+									->setCellValueByColumnAndRow(3,$line,'Debit')
+									->setCellValueByColumnAndRow(4,$line,'Kredit')
+									->setCellValueByColumnAndRow(5,$line,'Saldo Akhir');
+				
+				$saldo=0;$i=0;$totaldebit=0;$totalcredit=0;
+
+				$sql2 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' ";
+				$command2=$this->connection->createCommand($sql2);
+				$saldoawal1=$command2->queryScalar();
+
+				$sql3 = "SELECT SUM(b.debit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+				$command3=$this->connection->createCommand($sql3);
+				$debit1=$command3->queryScalar();
+
+				$sql4 = "SELECT SUM(b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+				$command4=$this->connection->createCommand($sql4);
+				$credit1=$command4->queryScalar();
+
+				$sql5 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row['accountcode']."' AND concat('".$row['accountcode']."','9999999999') AND b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+				$command5=$this->connection->createCommand($sql5);
+				$saldoakhir1=$command5->queryScalar();
+
+							$line++;
+				$this->pdf->setFont('Arial','B',8);
+				$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(0,$line,'')
+									->setCellValueByColumnAndRow(1,$line,$row['accountname'])
+									->setCellValueByColumnAndRow(2,$line,($saldoawal1))
+									->setCellValueByColumnAndRow(3,$line,($debit1))
+									->setCellValueByColumnAndRow(4,$line,($credit1))
+									->setCellValueByColumnAndRow(5,$line,($saldoakhir1));
+							
+							$line++;
+
+				foreach($dataReader1 as $row1)
+				{
+
+					$sql6 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate < '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' ";
+					$command6=$this->connection->createCommand($sql6);
+					$saldoawal2=$command6->queryScalar();
+
+					$sql7 = "SELECT SUM(b.debit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+					$command7=$this->connection->createCommand($sql7);
+					$debit2=$command7->queryScalar();
+
+					$sql8 = "SELECT SUM(b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate)) ."' AND '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+					$command8=$this->connection->createCommand($sql8);
+					$credit2=$command8->queryScalar();
+
+					$sql9 = "SELECT SUM(b.debit-b.credit) FROM genledger b JOIN genjournal c on c.genjournalid=b.genjournalid WHERE    c.recordstatus=3 and b.companyid=".$companyid." AND b.accountcode BETWEEN '".$row1['accountcode']."' AND concat('".$row1['accountcode']."','9999999999') AND b.journaldate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate)) ."' ";
+					$command9=$this->connection->createCommand($sql9);
+					$saldoakhir2=$command9->queryScalar();
+
+						$i+=1;
+						$this->phpExcel->setActiveSheetIndex(0)	
+													->setCellValueByColumnAndRow(0,$line,$i)
+													->setCellValueByColumnAndRow(1,$line,$row1['accountname'])
+													->setCellValueByColumnAndRow(2,$line,($saldoawal2))
+													->setCellValueByColumnAndRow(3,$line,($debit2))
+													->setCellValueByColumnAndRow(4,$line,($credit2))
+													->setCellValueByColumnAndRow(5,$line,($saldoakhir2));
+									$line++;
+				}
+			}
+					$line++;
+			$this->getFooterXLS($this->phpExcel);
+		}
+			*/
+		//20
+		public function LampiranPiutangKaryawanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranpiutangkaryawan';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='piutang karyawan' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='piutang karyawan' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
 													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'piutang karyawan' or d.accountname = 'piutang karyawan')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-												union
-															SELECT *
-																		FROM (SELECT a1.employeeid,sum(a1.debit) as amount
-																		FROM arbaddebtacc a1
-																		JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
-																		JOIN account c1 ON c1.accountid=a1.accountid
-																		WHERE c1.accountname = 'piutang karyawan'
-																		AND a1.employeeid IS NOT NULL
-																		AND b1.docdate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		AND b1.companyid = ".$companyid."
-																		AND b1.recordstatus = 5
-																		group by a1.employeeid ) z
+																SELECT *
+																			FROM (SELECT a1.employeeid,sum(a1.debit) as amount
+																			FROM arbaddebtacc a1
+																			JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+																			JOIN account c1 ON c1.accountid=a1.accountid
+																			WHERE c1.accountname = 'piutang karyawan'
+																			AND a1.employeeid IS NOT NULL
+																			AND b1.docdate BETWEEN '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			AND b1.companyid = ".$companyid."
+																			AND b1.recordstatus = 5
+																			group by a1.employeeid ) z
+																	where z. amount <> 0
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select a.cbaccid,case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
+											case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid']."
+
+					union
+
+						SELECT a1.arbaddebtaccid,a1.debit, a1.credit, d1.fullname, d1.employeeid
+						FROM arbaddebtacc a1
+						JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+						JOIN account c1 ON c1.accountid=a1.accountid
+						JOIN employee d1 ON d1.employeeid=a1.employeeid
+						WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+						AND b1.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+						) z where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
+
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.cbaccid,a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
+											case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid']."
+
+					union
+
+						SELECT a1.arbaddebtaccid,b1.headernote AS uraian, b1.headernote, b1.docdate, b1.docno AS cashbankno, '' AS reciptno, a1.debit, a1.credit
+						FROM arbaddebtacc a1
+						JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
+						JOIN account c1 ON c1.accountid=a1.accountid
+						JOIN employee d1 ON d1.employeeid=a1.employeeid
+						WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
+						AND b1.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
+						) z where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+			//21
+			public function LampiranHutangDepositoStaffXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranhutangdepositostaff';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO STAFF' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select a.cbaccid,case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
-                    case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid']."
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO STAFF' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
 
-				union
-
-					SELECT a1.arbaddebtaccid,a1.debit, a1.credit, d1.fullname, d1.employeeid
-					FROM arbaddebtacc a1
-					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
-					JOIN account c1 ON c1.accountid=a1.accountid
-					JOIN employee d1 ON d1.employeeid=a1.employeeid
-					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
-					AND b1.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
-					) z where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
-
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.cbaccid,a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'Piutang Karyawan' then a.amount else 0 end as debit,
-                    case when c.accountname like 'Piutang Karyawan' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid']."
-
-				union
-
-					SELECT a1.arbaddebtaccid,b1.headernote AS uraian, b1.headernote, b1.docdate, b1.docno AS cashbankno, '' AS reciptno, a1.debit, a1.credit
-					FROM arbaddebtacc a1
-					JOIN arbaddebt b1 ON b1.arbaddebtid=a1.arbaddebtid
-					JOIN account c1 ON c1.accountid=a1.accountid
-					JOIN employee d1 ON d1.employeeid=a1.employeeid
-					WHERE b1.recordstatus =5 AND b1.companyid=".$companyid."
-					AND b1.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) AND a1.employeeid = ".$row1['employeeid']."
-					) z where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //21
-    public function LampiranHutangDepositoStaffXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranhutangdepositostaff';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO STAFF' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO STAFF' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+			//22
+			public function LampiranHutangDepositoSalesmanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranhutangdepositosalesman';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SALESMAN' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO STAFF' or d.accountname = 'HUTANG DEPOSITO STAFF')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SALESMAN' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO STAFF' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //22
-    public function LampiranHutangDepositoSalesmanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranhutangdepositosalesman';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SALESMAN' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SALESMAN' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+			//23
+			public function LampiranHutangDepositoSPVXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranhutangdepositosupervisor';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SUPERVISOR' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SALESMAN' or d.accountname = 'HUTANG DEPOSITO SALESMAN')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SUPERVISOR' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO SALESMAN' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //23
-    public function LampiranHutangDepositoSPVXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranhutangdepositosupervisor';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SUPERVISOR' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO SUPERVISOR' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+			//24
+			public function LampiranHutangDepositoBMXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranhutangdepositobm';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO BM' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO SUPERVISOR' or d.accountname = 'HUTANG DEPOSITO SUPERVISOR')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO BM' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO SUPERVISOR' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //24
-    public function LampiranHutangDepositoBMXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranhutangdepositobm';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO BM' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG DEPOSITO BM' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG DEPOSITO BM' or d.accountname = 'HUTANG DEPOSITO BM')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
-
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as debit,
-                    case when c.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //25
-    public function LampiranUangMukaPembelianXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranuangmukapembelian';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "select distinct a.supplierid, a.cbaccid, e.fullname
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as debit,
+											case when c.accountname = 'HUTANG DEPOSITO BM' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+		//25
+		public function LampiranUangMukaPembelianXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+				$this->menuname='lampiranuangmukapembelian';
+				parent::actionDownxls();
+				$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+				if($piutang>'0')
+					{
+						$sql1 = "select *
+						from (select distinct a.supplierid, a.cbaccid, e.fullname
                     from cbacc a
                     join cb b on b.cbid = a.cbid
                     join account c on accountid = a.debitaccid
                     join account d on d.accountid = a.creditaccid
                     join addressbook e on e.addressbookid = a.supplierid
-                    where (c.accountname = 'UANG MUKA PEMBELIAN' or d.accountname = 'UANG MUKA PEMBELIAN') and a.supplierid is not null and e.fullname  like '%".$supplier."%'
+                    where b.recordstatus = 3 and (c.accountname = 'UANG MUKA PEMBELIAN' or d.accountname = 'UANG MUKA PEMBELIAN') and a.supplierid is not null and e.fullname  like '%".$supplier."%'
                     and c.companyid = ".$companyid."
+						group by supplierid
+											UNION
+											select distinct a2.addressbookid as supplierid , a3.accountid , a2.fullname
+											from cashbankout c2 
+											join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+											join account a3 on a3.accountid = c3.accountid 
+											join invoiceap i on i.invoiceapid = c3.invoiceapid 
+											join addressbook a2 on a2.addressbookid = i.addressbookid 
+											where c2.companyid = {$companyid} and a2.fullname like '%{$supplier}%' and a3.accountname like 'UANG MUKA PEMBELIAN'
+						group by supplierid) z
+						group by supplierid order by fullname";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+								$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+									from (select case when b.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as debit,
+									case when c.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as credit, e.fullname, a.supplierid
+									from cbacc a
+									join account b on b.accountid = a.debitaccid
+									join account c on c.accountid = a.creditaccid
+									join cb d on d.cbid = a.cbid
+									join addressbook e on e.addressbookid = a.supplierid
+									where d.recordstatus = 3 and d.companyid=".$companyid."
+									and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.supplierid = ".$row1['supplierid']."
+									UNION 
+									select 0 as debit, c3.payamount as credit, a2.fullname, a2.addressbookid
+									from cashbankout c2 
+									join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+									join reqpay r on r.reqpayid = c2.reqpayid 
+									join account a3 on a3.accountid = c3.accountid 
+									join invoiceap i on i.invoiceapid = c3.invoiceapid 
+									join addressbook a2 on a2.addressbookid = i.addressbookid 
+									where c2.companyid = {$companyid} and a3.accountname like 'UANG MUKA PEMBELIAN' and c2.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a2.addressbookid = {$row1['supplierid']}) z
+									where debit <> 0 or credit <> 0";
+				
+								$totaldebit  = 0;
+								$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
+
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as debit,
+											case when c.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join addressbook e on e.addressbookid = a.supplierid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['supplierid']."
+											UNION 
+											select c3.itemnote, r.headernote , c2.docdate , c2.cashbankoutno , r.reqpayno , 0 as debit, c3.payamount as credit
+											from cashbankout c2 
+											join cbapinv c3 on c3.cashbankoutid = c2.cashbankoutid 
+											join reqpay r on r.reqpayid = c2.reqpayid 
+											join account a3 on a3.accountid = c3.accountid 
+											join invoiceap i on i.invoiceapid = c3.invoiceapid 
+											join addressbook a2 on a2.addressbookid = i.addressbookid 
+											where c2.companyid = {$companyid} and a3.accountname like 'UANG MUKA PEMBELIAN' and c2.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and a2.addressbookid = {$row1['supplierid']}
+											) z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+							
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+		//26
+		public function LampiranUangMUkaPenjualanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='lampiranuangmukapenjualan';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+						$sql1 = "select * from (
+							select distinct a.customerid, a.cbaccid, e.fullname
+							from cbacc a
+							join cb b on b.cbid = a.cbid
+							join account c on accountid = a.debitaccid
+							join account d on d.accountid = a.creditaccid
+							join addressbook e on e.addressbookid = a.customerid
+							where b.recordstatus = 3 and (c.accountname = 'UANG MUKA PENJUALAN' or d.accountname = 'UANG MUKA PENJUALAN') and a.customerid is not null and e.fullname like '%".$customer."%'
+							and c.companyid = ".$companyid."
+							UNION 
+							select distinct a3.addressbookid, a2.accountid , a3.fullname 
+							from cbinjournal c2 
+							join cbin c3 on c3.cbinid = c2.cbinid 
+							join account a2 on a2.accountid = c2.accountid 
+							join addressbook a3 on a3.addressbookid = c2.customerid 
+							where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and a3.fullname like '%{$customer}%'
+							and c3.companyid = {$companyid} ) z
+							group by customerid order by fullname";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+								$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+								from (select case when b.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as debit,
+								case when c.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as credit, e.fullname, a.customerid
+								from cbacc a
+								join account b on b.accountid = a.debitaccid
+								join account c on c.accountid = a.creditaccid
+								join cb d on d.cbid = a.cbid
+								join addressbook e on e.addressbookid = a.customerid
+								where d.recordstatus = 3 and d.companyid=".$companyid."
+								and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid']."
+								UNION 
+								select c2.debit , 0 as credit, a3.fullname, c2.customerid 
+								from cbinjournal c2 
+								join cbin c3 on c3.cbinid = c2.cbinid 
+								join account a2 on a2.accountid = c2.accountid 
+								join addressbook a3 on a3.addressbookid = c2.customerid 
+								where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and c3.companyid = {$companyid} and c3.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a3.addressbookid = ".$row1['customerid']."
+								) z
+								where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
+
+											$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as debit,
+											case when c.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join addressbook e on e.addressbookid = a.customerid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid']."
+											UNION 
+											select distinct c2.description , c3.headernote , c3.docdate , c3.cbinno , '' as receiptno , c2.debit , 0 as credit 
+											from cbinjournal c2 
+											join cbin c3 on c3.cbinid = c2.cbinid 
+											join account a2 on a2.accountid = c2.accountid 
+											join addressbook a3 on a3.addressbookid = c2.customerid 
+											where c3.recordstatus = 3 and a2.accountname = 'UANG MUKA PENJUALAN' and c3.companyid = {$companyid} and c3.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and a3.addressbookid = ".$row1['customerid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}
+			
+		}
+		//27
+		public function LampiranHutangEkspedisiXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+		{
+			$this->menuname='lampiranhutangekspedisi';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+			{
+				$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+						->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+						->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+				
+				$line=4;
+
+				$sql1 = "select distinct a.supplierid, a.cbaccid, e.fullname
+					from cbacc a
+					join cb b on b.cbid = a.cbid
+					join account c on accountid = a.debitaccid
+					join account d on d.accountid = a.creditaccid
+					join addressbook e on e.addressbookid = a.supplierid
+					where (c.accountname = 'HUTANG EKSPEDISI' or d.accountname = 'HUTANG EKSPEDISI') and a.supplierid is not null and e.fullname  like '%".$supplier."%'
+					and c.companyid = ".$companyid."
 					group by addressbookid order by fullname";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as credit, e.fullname, a.supplierid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.supplierid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.supplierid = ".$row1['supplierid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+				$res = $connection->createCommand($sql1)->queryAll();
 
-               $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'UANG MUKA PEMBELIAN' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.supplierid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['supplierid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //26
-    public function LampiranUangMUkaPenjualanXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranuangmukapenjualan';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "
-                    select distinct a.customerid, a.cbaccid, e.fullname
-                    from cbacc a
-                    join cb b on b.cbid = a.cbid
-                    join account c on accountid = a.debitaccid
-                    join account d on d.accountid = a.creditaccid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where (c.accountname = 'UANG MUKA PENJUALAN' or d.accountname = 'UANG MUKA PENJUALAN') and a.customerid is not null and e.fullname like '%".$customer."%'
-                    and c.companyid = ".$companyid."
-					group by employeeid order by fullname";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as credit, e.fullname, a.customerid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+				foreach($res as $row1) {
+					$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+						from (select case when b.accountname = 'HUTANG EKSPEDISI' then a.amount else 0 end as debit,
+						case when c.accountname = 'HUTANG EKSPEDISI' then a.amount else 0 end as credit, e.fullname, a.supplierid
+						from cbacc a
+						join account b on b.accountid = a.debitaccid
+						join account c on c.accountid = a.creditaccid
+						join cb d on d.cbid = a.cbid
+						join addressbook e on e.addressbookid = a.supplierid
+						where d.recordstatus = 3 and d.companyid=".$companyid."
+						and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.supplierid = ".$row1['supplierid'].") z
+						where debit <> 0 or credit <> 0";
+					
+					$totaldebit  = 0;
+					$totalcredit = 0;
+					$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as debit,
-                    case when c.accountname = 'UANG MUKA PENJUALAN' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }
-    
-   }
-    //28
-    public function LampiranCadInsentifTokoXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-        $this->menuname='lampirancadinsentiftoko';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $sql1 = "
-                    select distinct a.customerid, a.cbaccid, e.fullname
-                    from cbacc a
-                    join cb b on b.cbid = a.cbid
-                    join account c on accountid = a.debitaccid
-                    join account d on d.accountid = a.creditaccid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where (c.accountname = 'CAD. INSENTIF TOKO' or d.accountname = 'CAD. INSENTIF TOKO') and a.customerid is not null and e.fullname like '%".$customer."%'
-                    and c.companyid = ".$companyid."
-					group by e.fullname order by fullname";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as debit,
-                    case when c.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as credit, e.fullname, a.customerid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+						->setCellValueByColumnAndRow(2,$line,'Saldo Awal : ')
+						->setCellValueByColumnAndRow(3,$line,$saldoawal/$per);
+					$line++;
+					
+					$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+									from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'HUTANG EKSPEDISI' then a.amount else 0 end as debit,
+									case when c.accountname = 'HUTANG EKSPEDISI' then a.amount else 0 end as credit
+									from cbacc a
+									join account b on b.accountid = a.debitaccid
+									join account c on c.accountid = a.creditaccid
+									join cb d on d.cbid = a.cbid
+									join addressbook e on e.addressbookid = a.supplierid
+									where d.recordstatus = 3 and d.companyid=".$companyid."
+									and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['supplierid'].") z
+									where credit <> 0 or debit <> 0
+									order by docdate, cashbankno";
+					$rows = $connection->createCommand($sql)->queryAll();
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as debit,
-                    case when c.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join addressbook e on e.addressbookid = a.customerid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-    }   
-  }
-	//29
-    public function LaporanCashFlowXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-        $this->menuname='laporancashflow';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalsa = $totaldb = $totalcr = $totalsk = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('cashflow')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-		if($piutang>'0')
-        {
-            $date2 = date('Y-m',strtotime($enddate));
-            $date = $date2.'-01';
-            
-            $sql1 = "select a.accountname, a.accountid, a.accountcode
-                from account a
-                where (a.accountcode between '110101' and '11010199999999' 
-                or a.accountcode between '110102' and '11010299999999')
-                and a.companyid = {$companyid} and a.recordstatus=1
-                and accounttypeid=2
-                order by a.accountcode asc";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=5;
-            foreach($res as $row)
-            {
-                $sqlsaldoawal = "select sum((ifnull(zz.debit,0)-ifnull(zz.credit,0))*zz.ratevalue) as saldoawal
-                from genledger zz 
-                where zz.accountid = '".$row['accountid']."'
-                ".($_GET['plant']!='' ? ' and zz.plantid = '.$_GET['plant'] : '')."
-                and zz.journaldate < '{$date}'";
-                $saldoawal = Yii::app()->db->createCommand($sqlsaldoawal)->queryScalar();
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(0,$line,'No')
+						->setCellValueByColumnAndRow(1,$line,'Dokumen')
+						->setCellValueByColumnAndRow(2,$line,'Tanggal')
+						->setCellValueByColumnAndRow(3,$line,'Uraian')
+						->setCellValueByColumnAndRow(4,$line,'Debet')
+						->setCellValueByColumnAndRow(5,$line,'Kredit')
+						->setCellValueByColumnAndRow(6,$line,'Saldo');
+					$line++;
+					
+					$saldo = 0; $i=0;
 
-                $sqldebit = "select ifnull(sum(debit*ratevalue),0) as debit
-                from genledger a
-                where a.accountid = {$row['accountid']}
-                and a.journaldate between '{$date}' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'";
-                $debit = Yii::app()->db->createCommand($sqldebit)->queryScalar();
+					foreach($rows as $row2) {
+						$i+=1;
+						$this->phpExcel->setActiveSheetIndex(0)
+							->setCellValueByColumnAndRow(0,$line,$i)
+							->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+							->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+							->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+							->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+							->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per);
 
-                $sqlcredit = "select ifnull(sum(credit*ratevalue),0) as credit
-                from genledger a
-                where a.accountid = {$row['accountid']}
-                and a.journaldate between '{$date}' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'";
-                $credit = Yii::app()->db->createCommand($sqlcredit)->queryScalar();
-              
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$row['accountname'])
-                    ->setCellValueByColumnAndRow(1,$line,$saldoawal/$per)
-                    ->setCellValueByColumnAndRow(2,$line,$debit/$per)
-                    ->setCellValueByColumnAndRow(3,$line,$credit/$per)
-                    ->setCellValueByColumnAndRow(4,$line,(($saldoawal/$per) + ($debit - $credit)/$per));
-              
-                $line++;
-                
-                $totalsa = $totalsa + $saldoawal;
-                $totaldb = $totaldb + $debit;
-                $totalcr = $totalcr + $credit;
-        }
-          
-        $this->phpExcel->setActiveSheetIndex(0)	
-              ->setCellValueByColumnAndRow(0,$line,'TOTAL : ')
-              ->setCellValueByColumnAndRow(1,$line,$totalsa/$per)
-              ->setCellValueByColumnAndRow(2,$line,$totaldb/$per)
-              ->setCellValueByColumnAndRow(3,$line,$totalcr/$per)
-              ->setCellValueByColumnAndRow(4,$line,(($totalsa/$per) + ($totaldb - $totalcr)/$per));
+							$totaldebit += $row2['debit']/$per;
+							$totalcredit += $row2['credit']/$per;
+							$line++;
+					}
+					$this->phpExcel->setActiveSheetIndex(0)
+						->setCellValueByColumnAndRow(3,$line,'TOTAL :')
+						->setCellValueByColumnAndRow(4,$line,$totaldebit)
+						->setCellValueByColumnAndRow(5,$line,$totalcredit)
+						->setCellValueByColumnAndRow(6,$line,($saldoawal/$per) + ($totaldebit - $totalcredit));
 
-        $this->getFooterXLS($this->phpExcel);
-    }   
-  }
-	//30
-	public function LampiranFinaltyTagihanSalesSPVXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
-    {
-		$this->menuname='lampiranfinaltytagihansales';
-		parent::actionDownxls();
-		$connection = Yii::app()->db;
-        $totalawal1 = $totaldebit1 = $totalcredit1 = 0;
-        $sqlpiutang = " select ifnull(count(a.menuvalueid),0)
-                        from groupmenuauth a
-                        join groupaccess b on b.groupaccessid = a.groupaccessid
-                        join usergroup c on c.groupaccessid = b.groupaccessid
-                        join useraccess d on d.useraccessid = c.useraccessid
-                        join menuauth e on e.menuauthid = a.menuauthid
-                        where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
-        $piutang = $connection->createCommand($sqlpiutang)->queryScalar();
-														
-//		if($piutang>'0') {
-            $sql1 = "select *
-							from (select j.employeeid,j.fullname
-										from (select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid) z
-															where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
+						$totalawal1 += $saldoawal/$per;
+						$totaldebit1 += $totaldebit;
+						$totalcredit1 += $totalcredit;
+						$line = $line+2;
+				}
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL')
+					->setCellValueByColumnAndRow(2,$line,' : ')
+					->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					$line=$line++;
+
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'TOTAL MUTASI DEBIT')
+					->setCellValueByColumnAndRow(2,$line,' : ')
+					->setCellValueByColumnAndRow(3,$line,$totaldebit1);
+					$line=$line++;
+				
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'TOTAL MUTASI CREDIT')
+					->setCellValueByColumnAndRow(2,$line,' : ')
+					->setCellValueByColumnAndRow(3,$line,$totalcredit1);
+					$line=$line++;
+
+				$this->phpExcel->setActiveSheetIndex(0)
+					->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AKHIR')
+					->setCellValueByColumnAndRow(2,$line,' : ')
+					->setCellValueByColumnAndRow(3,$line,$totalawal1 + $totaldebit1 - $totalcredit1);
+				$line=$line++;
+
+				$this->getFooterXLS($this->phpExcel);
+			}
+
+		}
+		//28
+		public function LampiranCadInsentifTokoXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+					$this->menuname='lampirancadinsentiftoko';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$sql1 = "
+											select distinct a.customerid, a.cbaccid, e.fullname
+											from cbacc a
+											join cb b on b.cbid = a.cbid
+											join account c on accountid = a.debitaccid
+											join account d on d.accountid = a.creditaccid
+											join addressbook e on e.addressbookid = a.customerid
+											where (c.accountname = 'CAD. INSENTIF TOKO' or d.accountname = 'CAD. INSENTIF TOKO') and a.customerid is not null and e.fullname like '%".$customer."%'
+											and c.companyid = ".$companyid."
+						group by e.fullname order by fullname";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as debit,
+											case when c.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as credit, e.fullname, a.customerid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join addressbook e on e.addressbookid = a.customerid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and a.customerid = ".$row1['customerid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
+
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as debit,
+											case when c.accountname = 'CAD. INSENTIF TOKO' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join addressbook e on e.addressbookid = a.customerid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.addressbookid = ".$row1['customerid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+			}   
+		}
+		//29
+			public function LaporanCashFlowXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+					$this->menuname='laporancashflow';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalsa = $totaldb = $totalcr = $totalsk = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('cashflow')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+			if($piutang>'0')
+					{
+							$date2 = date('Y-m',strtotime($enddate));
+							$date = $date2.'-01';
+							
+							$sql1 = "select a.accountname, a.accountid, a.accountcode
+									from account a
+									where (a.accountcode between '110101' and '11010199999999' 
+									or a.accountcode between '110102' and '11010299999999')
+									and a.companyid = {$companyid} and a.recordstatus=1
+									and accounttypeid=2
+									order by a.accountcode asc";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=5;
+							foreach($res as $row)
+							{
+									$sqlsaldoawal = "select sum((ifnull(zz.debit,0)-ifnull(zz.credit,0))*zz.ratevalue) as saldoawal
+									from genledger zz 
+									where zz.accountid = '".$row['accountid']."'
+									".($_GET['plant']!='' ? ' and zz.plantid = '.$_GET['plant'] : '')."
+									and zz.journaldate < '{$date}'";
+									$saldoawal = Yii::app()->db->createCommand($sqlsaldoawal)->queryScalar();
+
+									$sqldebit = "select ifnull(sum(debit*ratevalue),0) as debit
+									from genledger a
+									where a.accountid = {$row['accountid']}
+									and a.journaldate between '{$date}' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'";
+									$debit = Yii::app()->db->createCommand($sqldebit)->queryScalar();
+
+									$sqlcredit = "select ifnull(sum(credit*ratevalue),0) as credit
+									from genledger a
+									where a.accountid = {$row['accountid']}
+									and a.journaldate between '{$date}' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'";
+									$credit = Yii::app()->db->createCommand($sqlcredit)->queryScalar();
+								
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$row['accountname'])
+											->setCellValueByColumnAndRow(1,$line,$saldoawal/$per)
+											->setCellValueByColumnAndRow(2,$line,$debit/$per)
+											->setCellValueByColumnAndRow(3,$line,$credit/$per)
+											->setCellValueByColumnAndRow(4,$line,(($saldoawal/$per) + ($debit - $credit)/$per));
+								
+									$line++;
+									
+									$totalsa = $totalsa + $saldoawal;
+									$totaldb = $totaldb + $debit;
+									$totalcr = $totalcr + $credit;
+					}
+						
+					$this->phpExcel->setActiveSheetIndex(0)	
+								->setCellValueByColumnAndRow(0,$line,'TOTAL : ')
+								->setCellValueByColumnAndRow(1,$line,$totalsa/$per)
+								->setCellValueByColumnAndRow(2,$line,$totaldb/$per)
+								->setCellValueByColumnAndRow(3,$line,$totalcr/$per)
+								->setCellValueByColumnAndRow(4,$line,(($totalsa/$per) + ($totaldb - $totalcr)/$per));
+
+					$this->getFooterXLS($this->phpExcel);
+			}   
+		}
+		//30
+		public function LampiranFinaltyTagihanSalesSPVXLS($companyid,$plantid,$sloc,$materialgroup,$customer,$supplier,$employee,$product,$account,$startaccode,$endacccode,$startdate,$enddate,$per)
+			{
+			$this->menuname='lampiranfinaltytagihansales';
+			parent::actionDownxls();
+			$connection = Yii::app()->db;
+					$totalawal1 = $totaldebit1 = $totalcredit1 = 0;
+					$sqlpiutang = " select ifnull(count(a.menuvalueid),0)
+													from groupmenuauth a
+													join groupaccess b on b.groupaccessid = a.groupaccessid
+													join usergroup c on c.groupaccessid = b.groupaccessid
+													join useraccess d on d.useraccessid = c.useraccessid
+													join menuauth e on e.menuauthid = a.menuauthid
+													where upper(d.username)=upper('".Yii::app()->user->id."') and upper(e.menuobject) = upper('piutang')";
+					$piutang = $connection->createCommand($sqlpiutang)->queryScalar();
+															
+	//		if($piutang>'0') {
+							$sql1 = "select *
+								from (select j.employeeid,j.fullname
+											from (select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																			and a.employeeid is not null
+																			and b.docdate < '".date(Yii::app()->params['datetodb'], strtotime($startdate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid) z
 																where z. amount <> 0
-													union
-															select *
-															from (select a.employeeid,0
-																		from cbacc a
-																		join cb b on b.cbid = a.cbid
-																		join account c on accountid = a.debitaccid
-																		join account d on d.accountid = a.creditaccid
-																		where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
-																		and a.employeeid is not null
-																		and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
-																		and b.companyid = ".$companyid."
-																		and b.recordstatus = 3
-																		group by a.employeeid ) z
-													) zz
-										left join employee j on j.employeeid=zz.employeeid
-										group by j.employeeid) zzz
-							where fullname like '%".$employee."%'
-							order by fullname
-						";
-            
-            $res = $connection->createCommand($sql1)->queryAll();
-            
-            $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
-                        ->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
-                        ->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
-            
-            $line=4;
-            foreach($res as $row1)
-            {
-                $sqlsaldoawal = "select ifnull(sum(debit-credit),0)
-                    from (select case when b.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
-                    case when c.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit, e.fullname, e.employeeid
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid'].") z
-                    where debit <> 0 or credit <> 0";
-            
-                $totaldebit  = 0;
-                $totalcredit = 0;
-                $i=0;
-                $saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
-                
-                $this->phpExcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
-                        ->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
-                        ->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
-                
-                $line++;
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,'No')
-                    ->setCellValueByColumnAndRow(1,$line,'Dokumen')
-                    ->setCellValueByColumnAndRow(2,$line,'Tanggal')
-                    ->setCellValueByColumnAndRow(3,$line,'Uraian')
-                    ->setCellValueByColumnAndRow(4,$line,'Debit')
-                    ->setCellValueByColumnAndRow(5,$line,'Credit')
-                    ->setCellValueByColumnAndRow(6,$line,'Saldo');
+														union
+																select *
+																from (select a.employeeid,sum(case when c.accountname='HUTANG FINALTY TAGIHAN SALES / SPV' then amount else -1*amount end) as amount
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																			and a.employeeid is not null
+																			and b.docdate <= '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+																	where z. amount <> 0
+														union
+																select *
+																from (select a.employeeid,0
+																			from cbacc a
+																			join cb b on b.cbid = a.cbid
+																			join account c on accountid = a.debitaccid
+																			join account d on d.accountid = a.creditaccid
+																			where (c.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV' or d.accountname = 'HUTANG FINALTY TAGIHAN SALES / SPV')
+																			and a.employeeid is not null
+																			and b.docdate between '".date(Yii::app()->params['datetodb'], strtotime($startdate))."' and '".date(Yii::app()->params['datetodb'], strtotime($enddate))."'
+																			and b.companyid = ".$companyid."
+																			and b.recordstatus = 3
+																			group by a.employeeid ) z
+														) zz
+											left join employee j on j.employeeid=zz.employeeid
+											group by j.employeeid) zzz
+								where fullname like '%".$employee."%'
+								order by fullname
+							";
+							
+							$res = $connection->createCommand($sql1)->queryAll();
+							
+							$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(1,2,date(Yii::app()->params['dateviewfromdb'],strtotime($startdate)))
+													->setCellValueByColumnAndRow(3,2,date(Yii::app()->params['dateviewfromdb'],strtotime($enddate)))
+													->setCellValueByColumnAndRow(6,2,getcompanycode($companyid));
+							
+							$line=4;
+							foreach($res as $row1)
+							{
+									$sqlsaldoawal = "select ifnull(sum(debit-credit),0)
+											from (select case when b.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
+											case when c.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit, e.fullname, e.employeeid
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate < cast('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' as date) and a.employeeid = ".$row1['employeeid'].") z
+											where debit <> 0 or credit <> 0";
+							
+									$totaldebit  = 0;
+									$totalcredit = 0;
+									$i=0;
+									$saldoawal = $connection->createCommand($sqlsaldoawal)->queryScalar();
+									
+									$this->phpExcel->setActiveSheetIndex(0)
+													->setCellValueByColumnAndRow(0,$line,$row1['fullname'])
+													->setCellValueByColumnAndRow(5,$line,'Saldo Awal')
+													->setCellValueByColumnAndRow(6,$line,': '.$saldoawal/$per);
+									
+									$line++;
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,'No')
+											->setCellValueByColumnAndRow(1,$line,'Dokumen')
+											->setCellValueByColumnAndRow(2,$line,'Tanggal')
+											->setCellValueByColumnAndRow(3,$line,'Uraian')
+											->setCellValueByColumnAndRow(4,$line,'Debit')
+											->setCellValueByColumnAndRow(5,$line,'Credit')
+											->setCellValueByColumnAndRow(6,$line,'Saldo');
 
-                $sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
-                    from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
-                    case when c.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit
-                    from cbacc a
-                    join account b on b.accountid = a.debitaccid
-                    join account c on c.accountid = a.creditaccid
-                    join cb d on d.cbid = a.cbid
-                    join employee e on e.employeeid = a.employeeid
-                    where d.recordstatus = 3 and d.companyid=".$companyid."
-                    and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
-                    where credit <> 0 or debit <> 0
-                    order by docdate, cashbankno";
-                $rows = $connection->createCommand($sql)->queryAll();
-                $line++;
-                foreach($rows as $row2)
-                {
-                    $i+=1;
-                    $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(0,$line,$i)
-                    ->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
-                    ->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
-                    ->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
-                    ->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
-                    ->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
-                    ->setCellValueByColumnAndRow(6,$line,'-');
-                    $totaldebit += $row2['debit']/$per;
-                    $totalcredit += $row2['credit']/$per;
-                    $line++;
-                }
-                
-                $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
-                    ->setCellValueByColumnAndRow(4,$line,$totaldebit)
-                    ->setCellValueByColumnAndRow(5,$line,$totalcredit)
-                    ->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
-                
-            $totalawal1 += $saldoawal/$per;
-            $totaldebit1 += $totaldebit;
-            $totalcredit1 += $totalcredit;
-                
-            $line+=2;	   
-        }
-        $this->phpExcel->setActiveSheetIndex(0)	
-                    ->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
-                    ->setCellValueByColumnAndRow(3,$line,$totalawal1);
-        
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
-                ->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
-                ->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
-            
-        $this->phpExcel->setActiveSheetIndex(0)	
-                ->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
-                ->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
-            
-        $this->getFooterXLS($this->phpExcel);
-//    }
+									$sql = "select credit, debit, uraian, headernote, docdate, cashbankno, receiptno
+											from (select a.description as uraian, d.headernote, d.docdate, d.cashbankno, d.receiptno, case when b.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as debit,
+											case when c.accountname like 'HUTANG FINALTY TAGIHAN SALES / SPV' then a.amount else 0 end as credit
+											from cbacc a
+											join account b on b.accountid = a.debitaccid
+											join account c on c.accountid = a.creditaccid
+											join cb d on d.cbid = a.cbid
+											join employee e on e.employeeid = a.employeeid
+											where d.recordstatus = 3 and d.companyid=".$companyid."
+											and d.docdate between CAST('".date(Yii::app()->params['datetodb'], strtotime($startdate))."' AS DATE) and CAST('".date(Yii::app()->params['datetodb'], strtotime($enddate))."' AS DATE) and e.employeeid = ".$row1['employeeid'].") z
+											where credit <> 0 or debit <> 0
+											order by docdate, cashbankno";
+									$rows = $connection->createCommand($sql)->queryAll();
+									$line++;
+									foreach($rows as $row2)
+									{
+											$i+=1;
+											$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(0,$line,$i)
+											->setCellValueByColumnAndRow(1,$line,$row2['cashbankno'])
+											->setCellValueByColumnAndRow(2,$line,$row2['docdate'])
+											->setCellValueByColumnAndRow(3,$line,$row2['uraian'])
+											->setCellValueByColumnAndRow(4,$line,$row2['debit']/$per)
+											->setCellValueByColumnAndRow(5,$line,$row2['credit']/$per)
+											->setCellValueByColumnAndRow(6,$line,'-');
+											$totaldebit += $row2['debit']/$per;
+											$totalcredit += $row2['credit']/$per;
+											$line++;
+									}
+									
+									$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(3,$line,'TOTAL : ')
+											->setCellValueByColumnAndRow(4,$line,$totaldebit)
+											->setCellValueByColumnAndRow(5,$line,$totalcredit)
+											->setCellValueByColumnAndRow(6,$line,(($saldoawal/$per) + $totaldebit - $totalcredit));
+									
+							$totalawal1 += $saldoawal/$per;
+							$totaldebit1 += $totaldebit;
+							$totalcredit1 += $totalcredit;
+									
+							$line+=2;	   
+					}
+					$this->phpExcel->setActiveSheetIndex(0)	
+											->setCellValueByColumnAndRow(1,$line,'TOTAL SALDO AWAL: ')
+											->setCellValueByColumnAndRow(3,$line,$totalawal1);
+					
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+1,'TOTAL MUTASI DEBIT: ')
+									->setCellValueByColumnAndRow(3,$line+1,$totaldebit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+2,'TOTAL MUTASI CREDIT: ')
+									->setCellValueByColumnAndRow(3,$line+2,$totalcredit1);
+							
+					$this->phpExcel->setActiveSheetIndex(0)	
+									->setCellValueByColumnAndRow(1,$line+3,'TOTAL SALDO AKHIR: ')
+									->setCellValueByColumnAndRow(3,$line+3,($totalawal1 + $totaldebit1 - $totalcredit1));
+							
+					$this->getFooterXLS($this->phpExcel);
+	//    }
     
    }
 }

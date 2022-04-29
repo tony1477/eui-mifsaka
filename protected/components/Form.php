@@ -14,6 +14,7 @@ class Form extends CPortlet {
 	public $downloadbuttons = '';
 	public $otherbuttons = '';
 	public $addonscripts = '';
+	public $customjs = '';
 	public $formtype = 'master'; //master, masterdetail
 	public $columns = null; //array columns / column header
 	public $searchfield = null; //array search field
