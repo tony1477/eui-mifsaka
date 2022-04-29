@@ -240,12 +240,11 @@ class RepinvapController extends Controller
     ));
     echo CJSON::encode($result);
   }
-  public function actionDownPDF()
-  {
+  public function actionDownPDF() {
     parent::actionDownload();
     $sql = "select journalno,invoiceapid,invoiceno,f.pono,fullname,amount,symbol,currencyrate,a.invoicedate,concat('Pencatatan Invoice Supplier No ',invoiceno) as headernote, taxvalue,a.recordstatus,
 	   (select addressname from address e where e.addressbookid = f.addressbookid limit 1) as addressname,
-	   (select cityname from address e left join city f on f.cityid = e.cityid where e.addressbookid = f.addressbookid limit 1) as cityname
+	   (select cityname from address e left join city f on f.cityid = e.cityid where e.addressbookid = f.addressbookid limit 1) as cityname,a.companyid
 		from invoiceap a 
 		left join poheader f on f.poheaderid = a.poheaderid
 		left join currency b on b.currencyid = a.currencyid 
@@ -257,6 +256,9 @@ class RepinvapController extends Controller
     $sql              = $sql . " order by invoiceapid ";
     $command          = $this->connection->createCommand($sql);
     $dataReader       = $command->queryAll();
+    foreach ($dataReader as $row) {
+      $this->pdf->companyid = $row['companyid'];
+    }
     $this->pdf->title = 'Journal Adjustment';
     $this->pdf->AddPage('P');
     foreach ($dataReader as $row) {

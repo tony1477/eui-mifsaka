@@ -100,6 +100,14 @@ class ReportinventoryController extends Controller
         $this->LaporanRekapMonitoringStock($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
       } else if ($_GET['lro'] == 45) {
         $this->LaporanRincianMonitoringStock($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 46) {
+        $this->RincianBarangKurangMinimumStok($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 47) {
+        $this->RekapBarangKurangMinimumStok($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 48) {
+        $this->RincianBarangLebihMaksimumStok($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 49) {
+        $this->RekapBarangLebihMaksimumStok($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
       }
     }
   }
@@ -9257,9 +9265,312 @@ class ReportinventoryController extends Controller
     }
     $this->pdf->Output();
   }
+  //46
+  public function RincianBarangKurangMinimumStok($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    parent::actionDownload();
+    $this->pdf->title    = 'Rincian Barang Kurang dari Minimum Stok';
+    // $this->pdf->subtitle = 'Tanggal : ' . date('d-m-Y', strtotime($enddate));
+    $this->pdf->subtitle = 'Tanggal : ' . date('d-m-Y H:i:s');
+    $this->pdf->companyid = $companyid;
+    $this->pdf->AddPage('P');
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,minqtyreal  
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock <= minqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    
+    foreach($dataReader as $row) {
+      // $this->pdf->setbordercell(array('B','B','B'));
+      $this->pdf->setFont('Arial','',10);
+      $this->pdf->setwidths(array(140,15,20,5,20));
+      $this->pdf->colalign = array('L','L','R','C','L');
+      $this->pdf->coldetailalign = array('L','L','R','C','L');
+      // $this->pdf->colheader = array(getCatalog('product'),getCatalog('uom'),'Stock','Qty Min');
+      // $this->pdf->RowHeader();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->text(10,$this->pdf->getY(),'MATERIAL/SERVICE');
+      // $this->pdf->text(145,$this->pdf->getY(),'SATUAN');
+      // $this->pdf->text(165,$this->pdf->getY(),'STOCK');
+      // $this->pdf->text(185,$this->pdf->getY(),'MIN STOCK');
+      
+      $this->pdf->setFont('Arial','B',9);
+      $this->pdf->row(array(
+        $row['productname'],
+        $row['uomcode'],
+        Yii::app()->format->formatCurrency($row['stock']),
+        '<',
+        Yii::app()->format->formatCurrency($row['minqtyreal'])
+      ));
+
+      $this->pdf->setFont('Arial','',9);
+      $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+        from productstock a
+        where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+        from sloc s
+        join plant p on p.plantid = s.plantid
+        where p.companyid = {$companyid} and s.recordstatus=1)
+        group by a.slocid) z where stock > 0 or qtyinprogress > 0";
+      $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      $this->pdf->setwidths(array(130,20,20,25));
+      $this->pdf->colheader = array('Gudang','','Stock','Qty Inprogres');
+      $this->pdf->RowHeader();
+      foreach($dataReader1 as $row1) {
+        // $this->pdf->setbordercell(array('','',''));
+        $this->pdf->row(array(
+          $row1['sloccode'],
+          '',
+          // $row1['uomcode'],
+          Yii::app()->format->formatCurrency($row1['stock']),
+          Yii::app()->format->formatCurrency($row1['qtyinprogress'])
+        ));
+      }
+      $this->pdf->setY($this->pdf->getY()+5);
+
+      $this->pdf->checkNewPage(20);
+    }
+    $this->pdf->Output();
+  }
+
+  //47
+  public function RekapBarangKurangMinimumStok($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    parent::actionDownload();
+    $this->pdf->title    = 'Rekap Barang Kurang dari Minimum Stok';
+    // $this->pdf->subtitle = 'Periode : ' . date('M-Y', strtotime($enddate));
+    $this->pdf->subtitle = 'Tanggal : ' . date('d-m-Y H:i:s');
+    $this->pdf->companyid = $companyid;
+    $this->pdf->AddPage('P');
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,minqtyreal  
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock <= minqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->pdf->setFont('Arial','',10);
+    $this->pdf->setwidths(array(140,15,20,20));
+    $this->pdf->colalign = array('L','L','R','R');
+    $this->pdf->coldetailalign = array('L','L','R','R');
+    $this->pdf->colheader = array(getCatalog('product'),getCatalog('uom'),'Stock','Qty Min');
+      $this->pdf->RowHeader();
+    foreach($dataReader as $row) {
+      // $this->pdf->setbordercell(array('B','B','B'));
+   
+      
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->text(10,$this->pdf->getY(),'MATERIAL/SERVICE');
+      // $this->pdf->text(145,$this->pdf->getY(),'SATUAN');
+      // $this->pdf->text(165,$this->pdf->getY(),'STOCK');
+      // $this->pdf->text(185,$this->pdf->getY(),'MIN STOCK');
+      
+      $this->pdf->setFont('Arial','',9);
+      $this->pdf->row(array(
+        $row['productname'],
+        $row['uomcode'],
+        Yii::app()->format->formatCurrency($row['stock']),
+        Yii::app()->format->formatCurrency($row['minqtyreal'])
+      ));
+
+      $this->pdf->setFont('Arial','',9);
+      // $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+      //   from productstock a
+      //   where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+      //   from sloc s
+      //   join plant p on p.plantid = s.plantid
+      //   where p.companyid = {$companyid} and s.recordstatus=1)
+      //   group by a.slocid) z ";
+      // $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->setwidths(array(130,20,20,25));
+      // $this->pdf->colheader = array('Gudang','','Stock','Qty Inprogres');
+      // $this->pdf->RowHeader();
+      // foreach($dataReader1 as $row1) {
+      //   // $this->pdf->setbordercell(array('','',''));
+      //   $this->pdf->row(array(
+      //     $row1['sloccode'],
+      //     '',
+      //     // $row1['uomcode'],
+      //     Yii::app()->format->formatCurrency($row1['stock']),
+      //     Yii::app()->format->formatCurrency($row1['qtyinprogress'])
+      //   ));
+      // }
+      // $this->pdf->setY($this->pdf->getY()+5);
+
+      $this->pdf->checkNewPage(20);
+    }
+    $this->pdf->Output();
+  }
   
+  //48
+  public function RincianBarangLebihMaksimumStok($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  { 
+    parent::actionDownload();
+    $this->pdf->title    = 'Rincian Barang Lebih dari Maksimum Stok';
+    // $this->pdf->subtitle = 'Periode : ' . date('M-Y', strtotime($enddate));
+    $this->pdf->subtitle = 'Tanggal : ' . date('d-m-Y H:i:s');
+    $this->pdf->companyid = $companyid;
+    $this->pdf->AddPage('P');
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,maxqtyreal
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock > maxqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    
+    foreach($dataReader as $row) {
+      // $this->pdf->setbordercell(array('B','B','B'));
+      $this->pdf->setFont('Arial','',10);
+      $this->pdf->setwidths(array(140,15,20,5,20));
+      $this->pdf->colalign = array('L','L','R','C','L');
+      $this->pdf->coldetailalign = array('L','L','R','C','L');
+      // $this->pdf->colheader = array(getCatalog('product'),getCatalog('uom'),'Stock','Qty Min');
+      // $this->pdf->RowHeader();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->text(10,$this->pdf->getY(),'MATERIAL/SERVICE');
+      // $this->pdf->text(145,$this->pdf->getY(),'SATUAN');
+      // $this->pdf->text(165,$this->pdf->getY(),'STOCK');
+      // $this->pdf->text(185,$this->pdf->getY(),'MIN STOCK');
+      
+      $this->pdf->setFont('Arial','B',9);
+      $this->pdf->row(array(
+        $row['productname'],
+        $row['uomcode'],
+        Yii::app()->format->formatCurrency($row['stock']),
+        '>',
+        Yii::app()->format->formatCurrency($row['maxqtyreal'])
+      ));
+
+      $this->pdf->setFont('Arial','',9);
+      $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+        from productstock a
+        where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+        from sloc s
+        join plant p on p.plantid = s.plantid
+        where p.companyid = {$companyid} and s.recordstatus=1)
+        group by a.slocid) z where stock > 0 or qtyinprogress > 0";
+      $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      $this->pdf->setwidths(array(130,20,20,25));
+      $this->pdf->colheader = array('Gudang','','Stock','Qty Inprogres');
+      $this->pdf->RowHeader();
+      foreach($dataReader1 as $row1) {
+        // $this->pdf->setbordercell(array('','',''));
+        $this->pdf->row(array(
+          $row1['sloccode'],
+          '',
+          // $row1['uomcode'],
+          Yii::app()->format->formatCurrency($row1['stock']),
+          Yii::app()->format->formatCurrency($row1['qtyinprogress'])
+        ));
+      }
+      $this->pdf->setY($this->pdf->getY()+5);
+
+      $this->pdf->checkNewPage(20);
+    }
+    $this->pdf->Output();
+  }
   
-  
+  //49
+  public function RekapBarangLebihMaksimumStok($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    parent::actionDownload();
+    $this->pdf->title    = 'Rekap Barang Lebih dari Maksimum Stok';
+    // $this->pdf->subtitle = 'Periode : ' . date('M-Y', strtotime($enddate));
+    $this->pdf->subtitle = 'Tanggal : ' . date('d-m-Y H:i:s');
+    $this->pdf->companyid = $companyid;
+    $this->pdf->AddPage('P');
+
+    $sql = "SELECT *
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock > maxqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->pdf->setFont('Arial','',10);
+    $this->pdf->setwidths(array(140,15,20,20));
+    $this->pdf->colalign = array('L','L','R','R');
+    $this->pdf->coldetailalign = array('L','L','R','R');
+    $this->pdf->colheader = array(getCatalog('product'),getCatalog('uom'),'Stock','Qty Maks');
+      $this->pdf->RowHeader();
+    foreach($dataReader as $row) {
+      // $this->pdf->setbordercell(array('B','B','B'));
+   
+      
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->text(10,$this->pdf->getY(),'MATERIAL/SERVICE');
+      // $this->pdf->text(145,$this->pdf->getY(),'SATUAN');
+      // $this->pdf->text(165,$this->pdf->getY(),'STOCK');
+      // $this->pdf->text(185,$this->pdf->getY(),'MIN STOCK');
+      
+      $this->pdf->setFont('Arial','',9);
+      $this->pdf->row(array(
+        $row['productname'],
+        $row['uomcode'],
+        Yii::app()->format->formatCurrency($row['stock']),
+        Yii::app()->format->formatCurrency($row['maxqtyreal'])
+      ));
+
+      $this->pdf->setFont('Arial','',9);
+      // $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+      //   from productstock a
+      //   where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+      //   from sloc s
+      //   join plant p on p.plantid = s.plantid
+      //   where p.companyid = {$companyid} and s.recordstatus=1)
+      //   group by a.slocid) z ";
+      // $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      // $this->pdf->setY($this->pdf->getY()+5);
+      // $this->pdf->setwidths(array(130,20,20,25));
+      // $this->pdf->colheader = array('Gudang','','Stock','Qty Inprogres');
+      // $this->pdf->RowHeader();
+      // foreach($dataReader1 as $row1) {
+      //   // $this->pdf->setbordercell(array('','',''));
+      //   $this->pdf->row(array(
+      //     $row1['sloccode'],
+      //     '',
+      //     // $row1['uomcode'],
+      //     Yii::app()->format->formatCurrency($row1['stock']),
+      //     Yii::app()->format->formatCurrency($row1['qtyinprogress'])
+      //   ));
+      // }
+      // $this->pdf->setY($this->pdf->getY()+5);
+
+      if($this->pdf->checkNewPage(5)) {
+        $this->pdf->colheader = array(getCatalog('product'),getCatalog('uom'),'Stock','Qty Maks');
+        $this->pdf->RowHeader();
+      }
+    }
+    $this->pdf->Output();
+  }
   public function actionDownXLS()
   {
     parent::actionDownload();
@@ -9354,6 +9665,14 @@ class ReportinventoryController extends Controller
         $this->LaporanRekapMonitoringStockXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
       } else if ($_GET['lro'] == 45) {
         $this->LaporanRincianMonitoringStockXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 46) {
+        $this->RincianBarangKurangMinimumStokXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 47) {
+        $this->RekapBarangKurangMinimumStokXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 48) {
+        $this->RincianBarangLebihMaksimumStokXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
+      } else if ($_GET['lro'] == 49) {
+        $this->RekapBarangLebihMaksimumStokXLS($_GET['companyid'], $_GET['sloc'], $_GET['slocto'], $_GET['storagebin'],$_GET['customer'], $_GET['sales'], $_GET['product'], $_GET['salesarea'], $_GET['startdate'], $_GET['enddate'],$_GET['keluar3']);
       }
     }
   }
@@ -13364,6 +13683,215 @@ class ReportinventoryController extends Controller
           ->setCellValueByColumnAndRow(3, $line, $totalmasuk1)
           ->setCellValueByColumnAndRow(4, $line, $totalkeluar1)
           ->setCellValueByColumnAndRow(5, $line, $totalsaldo1);
+    }
+    $this->getFooterXLS($this->phpExcel);
+  }
+  //46
+  public function RincianBarangKurangMinimumStokXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    $this->menuname = 'rincianbarangkurangminimumstock';
+    parent::actionDownxls();
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,minqtyreal  
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock <= minqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->phpExcel->setActiveSheetIndex(0)
+      // ->setCellValueByColumnAndRow(1, 2, date('M-Y',strtotime($enddate)))
+      ->setCellValueByColumnAndRow(1, 2, date('d-m-Y H:i:s'))
+      ->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
+    $line=4;
+    foreach($dataReader as $row) {
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,$row['productname'])
+        ->setCellValueByColumnAndRow(1, $line,$row['uomcode'])
+        ->setCellValueByColumnAndRow(2, $line,$row['stock'])
+        ->setCellValueByColumnAndRow(3, $line,$row['minqtyreal']);
+      $line++;
+      
+      $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+        from productstock a
+        where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+        from sloc s
+        join plant p on p.plantid = s.plantid
+        where p.companyid = {$companyid} and s.recordstatus=1)
+        group by a.slocid) z where stock > 0 or qtyinprogress > 0";
+      $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      $i=1;
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,'No')
+        ->setCellValueByColumnAndRow(1, $line,'Gudang')
+        ->setCellValueByColumnAndRow(2, $line,'Stock')
+        ->setCellValueByColumnAndRow(3, $line,'Qty Inprogress');
+      $line++;
+
+      foreach($dataReader1 as $row1) {
+        $this->phpExcel->setActiveSheetIndex(0)
+          ->setCellValueByColumnAndRow(0, $line,$i)
+          ->setCellValueByColumnAndRow(1, $line,$row1['sloccode'])
+          ->setCellValueByColumnAndRow(2, $line,$row1['stock'])
+          ->setCellValueByColumnAndRow(3, $line,$row1['qtyinprogress']);
+        $line++;
+        $i++;
+      }
+      $line++;
+    }
+    $this->getFooterXLS($this->phpExcel);
+  }
+
+  //47
+  public function RekapBarangKurangMinimumStokXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    $this->menuname = 'rekapbarangkurangminimumstock';
+    parent::actionDownxls();
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,minqtyreal  
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock <= minqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->phpExcel->setActiveSheetIndex(0)
+      // ->setCellValueByColumnAndRow(1, 2, date('M-Y',strtotime($enddate)))
+      ->setCellValueByColumnAndRow(1, 2, date('d-m-Y H:i:s'))
+      ->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
+    $line=4;
+    $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,'No')
+        ->setCellValueByColumnAndRow(1, $line,'Nama Barang')
+        ->setCellValueByColumnAndRow(2, $line,'Satuan')
+        ->setCellValueByColumnAndRow(3, $line,'Stock')
+        ->setCellValueByColumnAndRow(4, $line,'Qty Min');
+    $line++;
+    $i=1;
+    foreach($dataReader as $row) {
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,$i)
+        ->setCellValueByColumnAndRow(1, $line,$row['productname'])
+        ->setCellValueByColumnAndRow(2, $line,$row['uomcode'])
+        ->setCellValueByColumnAndRow(3, $line,$row['stock'])
+        ->setCellValueByColumnAndRow(4, $line,$row['minqtyreal']);
+      $line++;
+      $i++;
+    }
+    $this->getFooterXLS($this->phpExcel);
+  }
+
+  //48
+  public function RincianBarangLebihMaksimumStokXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    $this->menuname = 'rincianbaranglebihmaksimumstock';
+    parent::actionDownxls();
+
+    $sql = "SELECT productname,productid,uomid,uomcode,stock,maxqtyreal
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock > maxqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->phpExcel->setActiveSheetIndex(0)
+      // ->setCellValueByColumnAndRow(1, 2, date('M-Y',strtotime($enddate)))
+      ->setCellValueByColumnAndRow(1, 2, date('d-m-Y H:i:s'))
+      ->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
+    $line=4;
+    foreach($dataReader as $row) {
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,$row['productname'])
+        ->setCellValueByColumnAndRow(1, $line,$row['uomcode'])
+        ->setCellValueByColumnAndRow(2, $line,$row['stock'])
+        ->setCellValueByColumnAndRow(3, $line,$row['maxqtyreal']);
+      $line++;
+      
+      $sql1 = "select sloccode, uomcode, stock, qtyinprogress from (select a.slocid,a.sloccode,sum(a.qty) as stock, sum(a.qtyinprogress) as qtyinprogress,a.uomcode
+        from productstock a
+        where a.productid = {$row['productid']} and a.unitofmeasureid = {$row['uomid']} and slocid in(select slocid 
+        from sloc s
+        join plant p on p.plantid = s.plantid
+        where p.companyid = {$companyid} and s.recordstatus=1)
+        group by a.slocid) z where stock > 0 or qtyinprogress > 0";
+      $dataReader1 = Yii::app()->db->createCommand($sql1)->queryAll();
+      $i=1;
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,'No')
+        ->setCellValueByColumnAndRow(1, $line,'Gudang')
+        ->setCellValueByColumnAndRow(2, $line,'Stock')
+        ->setCellValueByColumnAndRow(3, $line,'Qty Inprogress');
+      $line++;
+
+      foreach($dataReader1 as $row1) {
+        $this->phpExcel->setActiveSheetIndex(0)
+          ->setCellValueByColumnAndRow(0, $line,$i)
+          ->setCellValueByColumnAndRow(1, $line,$row1['sloccode'])
+          ->setCellValueByColumnAndRow(2, $line,$row1['stock'])
+          ->setCellValueByColumnAndRow(3, $line,$row1['qtyinprogress']);
+        $line++;
+        $i++;
+      }
+      $line++;
+    }
+    $this->getFooterXLS($this->phpExcel);
+  }
+
+  //49
+  public function RekapBarangLebihMaksimumStokXLS($companyid, $sloc, $slocto, $storagebin, $customer, $sales, $product, $salesarea, $startdate, $enddate, $keluar3)
+  {
+    $this->menuname = 'rekapbarangkurangminimumstock';
+    parent::actionDownxls();
+
+    $sql = "SELECT *
+    FROM (SELECT m.*,c.companyname,c.companycode,(select sum(qty) from productstock p join sloc s on s.slocid=p.slocid join plant p2 on p2.plantid=s.plantid where p.productid = m.productid and p.unitofmeasureid = m.uomid and p2.companyid = m.companyid) as stock
+    FROM mrpperiod m 
+    JOIN product p3 ON p3.productid=m.productid 
+    JOIN company c ON c.companyid=m.companyid
+    WHERE m.perioddate = DATE_ADD(LAST_DAY(DATE_ADD(now(), INTERVAL -1 MONTH)), INTERVAL 1 DAY)
+    AND p3.iscontinue = 1
+    AND m.companyid = {$companyid}
+    ) z 
+    WHERE stock > maxqtyreal";
+    $dataReader = Yii::app()->db->createCommand($sql)->queryAll();
+
+    $this->phpExcel->setActiveSheetIndex(0)
+      // ->setCellValueByColumnAndRow(1, 2, date('M-Y',strtotime($enddate)))
+      ->setCellValueByColumnAndRow(1, 2, date('d-m-Y H:i:s'))
+      ->setCellValueByColumnAndRow(5, 1, GetCompanyCode($companyid));
+    $line=4;
+    $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,'No')
+        ->setCellValueByColumnAndRow(1, $line,'Nama Barang')
+        ->setCellValueByColumnAndRow(2, $line,'Satuan')
+        ->setCellValueByColumnAndRow(3, $line,'Stock')
+        ->setCellValueByColumnAndRow(4, $line,'Qty Maks');
+    $line++;
+    $i=1;
+    foreach($dataReader as $row) {
+      $this->phpExcel->setActiveSheetIndex(0)
+        ->setCellValueByColumnAndRow(0, $line,$i)
+        ->setCellValueByColumnAndRow(1, $line,$row['productname'])
+        ->setCellValueByColumnAndRow(2, $line,$row['uomcode'])
+        ->setCellValueByColumnAndRow(3, $line,$row['stock'])
+        ->setCellValueByColumnAndRow(4, $line,$row['maxqtyreal']);
+      $line++;
+      $i++;
     }
     $this->getFooterXLS($this->phpExcel);
   }

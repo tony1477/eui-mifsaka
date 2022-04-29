@@ -101,11 +101,11 @@ class CbinController extends Controller {
     }
     $result          = array();
     $row             = array();
-    $cmd             = Yii::app()->db->createCommand()->select('count(1) as total')->from('cbinjournal t')->leftjoin('currency a', 'a.currencyid=t.currencyid')->leftjoin('account b', 'b.accountid=t.accountid')->leftjoin('cheque c', 'c.chequeid=t.chequeid')->leftjoin('plant d', 'd.plantid=t.plantid')->where('cbinid = :cbinid', array(
+    $cmd             = Yii::app()->db->createCommand()->select('count(1) as total')->from('cbinjournal t')->leftjoin('currency a', 'a.currencyid=t.currencyid')->leftjoin('account b', 'b.accountid=t.accountid')->leftjoin('cheque c', 'c.chequeid=t.chequeid')->leftjoin('plant d', 'd.plantid=t.plantid')->leftjoin('addressbook e','e.addressbookid=t.customerid')->where('cbinid = :cbinid', array(
       ':cbinid' => $id
     ))->queryScalar();
     $result['total'] = $cmd;
-    $cmd             = Yii::app()->db->createCommand()->select('t.*,a.currencyname,b.accountname,c.chequeno,d.plantcode')->from('cbinjournal t')->leftjoin('currency a', 'a.currencyid=t.currencyid')->leftjoin('account b', 'b.accountid=t.accountid')->leftjoin('cheque c', 'c.chequeid=t.chequeid')->leftjoin('plant d', 'd.plantid=t.plantid')->where('cbinid = :cbinid', array(
+    $cmd             = Yii::app()->db->createCommand()->select('t.*,a.currencyname,b.accountname,c.chequeno,d.plantcode,e.fullname')->from('cbinjournal t')->leftjoin('currency a', 'a.currencyid=t.currencyid')->leftjoin('account b', 'b.accountid=t.accountid')->leftjoin('cheque c', 'c.chequeid=t.chequeid')->leftjoin('plant d', 'd.plantid=t.plantid')->leftjoin('addressbook e','e.addressbookid=t.customerid')->where('cbinid = :cbinid', array(
       ':cbinid' => $id
     ))->queryAll();
     foreach ($cmd as $data) {
@@ -113,6 +113,8 @@ class CbinController extends Controller {
         'cbinjournalid' => $data['cbinjournalid'],
         'cbinid' => $data['cbinid'],
         'plantid' => $data['plantid'],
+        'customerid' => $data['customerid'],
+        'fullname' => $data['fullname'],
         'plantcode' => $data['plantcode'],
         'accountid' => $data['accountid'],
         'accountname' => $data['accountname'],
@@ -174,10 +176,10 @@ class CbinController extends Controller {
     $transaction = $connection->beginTransaction();
     try {
       if (isset($_POST['isNewRecord'])) {
-        $sql     = 'call InsertCbinjournal(:vcbinid,:vplantid,:vaccountid,:vdebit,:vcurrencyid,:vcurrencyrate,:vchequeid,:vtglcair,:vdescription,:vcreatedby)';
+        $sql     = 'call InsertCbinjournal(:vcbinid,:vplantid,:vaccountid,:vdebit,:vcurrencyid,:vcurrencyrate,:vchequeid,:vtglcair,:vcustomerid,:vdescription,:vcreatedby)';
         $command = $connection->createCommand($sql);
       } else {
-        $sql     = 'call UpdateCbinjournal(:vid,:vcbinid,:vplantid,:vaccountid,:vdebit,:vcurrencyid,:vcurrencyrate,:vchequeid,:vtglcair,:vdescription,:vcreatedby)';
+        $sql     = 'call UpdateCbinjournal(:vid,:vcbinid,:vplantid,:vaccountid,:vdebit,:vcurrencyid,:vcurrencyrate,:vchequeid,:vtglcair,:vcustomerid,:vdescription,:vcreatedby)';
         $command = $connection->createCommand($sql);
         $command->bindvalue(':vid', $_POST['cbinjournalid'], PDO::PARAM_STR);
         $this->DeleteLock($this->menuname, $_POST['cbinjournalid']);
@@ -190,6 +192,7 @@ class CbinController extends Controller {
       $command->bindvalue(':vcurrencyrate', $_POST['currencyrate'], PDO::PARAM_STR);
       $command->bindvalue(':vchequeid', $_POST['chequeid'], PDO::PARAM_STR);
       $command->bindvalue(':vtglcair', date(Yii::app()->params['datetodb'], strtotime($_POST['tglcair'])), PDO::PARAM_STR);
+      $command->bindvalue(':vcustomerid', $_POST['customerid'], PDO::PARAM_STR);
       $command->bindvalue(':vdescription', $_POST['description'], PDO::PARAM_STR);
       $command->bindvalue(':vcreatedby', Yii::app()->user->name, PDO::PARAM_STR);
       $command->execute();
@@ -331,11 +334,12 @@ class CbinController extends Controller {
       $this->pdf->text(130, $this->pdf->gety(), ': ' . $row['ttntno']);
       $this->pdf->text(160, $this->pdf->gety(), 'Tgl ');
       $this->pdf->text(180, $this->pdf->gety(), ': ' . date(Yii::app()->params['dateviewfromdb'], strtotime($row['ttntdate'])));
-      $sql1        = "select b.accountname,a.description,d.chequeno,a.tglcair,a.debit,c.currencyname,a.currencyrate
+      $sql1        = "select b.accountname,a.description,d.chequeno,a.tglcair,a.debit,c.currencyname,a.currencyrate,e.fullname
                             from cbinjournal a
                             left join account b on b.accountid=a.accountid
                             left join currency c on c.currencyid=a.currencyid
 														left join cheque d on d.chequeid = a.chequeid
+                            left join addressbook e on e.addressbookid = a.customerid
                             where a.cbinid = " . $row['cbinid'];
       $command1    = $this->connection->createCommand($sql1);
       $dataReader1 = $command1->queryAll();
@@ -347,6 +351,7 @@ class CbinController extends Controller {
         'L',
         'L',
         'L',
+        'L',
         'C',
         'C',
         'C'
@@ -354,7 +359,8 @@ class CbinController extends Controller {
       $this->pdf->setwidths(array(
         10,
         40,
-        65,
+        45,
+        45,
         20,
         20,
         25,
@@ -364,6 +370,7 @@ class CbinController extends Controller {
         'No',
         'Akun',
         'Keterangan',
+        'Customer',
         'No. Cek/Giro',
         'Tgl. Cair',
         'Debit',
@@ -372,6 +379,7 @@ class CbinController extends Controller {
       $this->pdf->RowHeader();
       $this->pdf->coldetailalign = array(
         'C',
+        'L',
         'L',
         'L',
         'L',
@@ -385,6 +393,7 @@ class CbinController extends Controller {
         $this->pdf->row(array(
           $i,
           $row1['accountname'],
+          $row1['fullname'],
           $row1['description'],
           $row1['chequeno'],
           $row1['tglcair'],

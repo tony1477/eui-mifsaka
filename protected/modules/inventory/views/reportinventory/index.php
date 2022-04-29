@@ -14,6 +14,10 @@
         <option value="26">Rekap Stok Barang (Ada Transaksi Keluar Masuk)</option>
         <option value="6">Rekap Stok Barang per Hari</option>
         <option value="7">Rekap Stok Barang per Rak</option>
+				<option value="46">Rincian Barang Kurang dari Minumum Stok</option>
+				<option value="47">Rekap Barang Kurang dari Minumum Stok</option>
+				<option value="48">Rincian Barang Kurang dari Minumum Stok</option>
+				<option value="49">Rincian Barang Kurang dari Minumum Stok</option>
         <option value="8">Rincian Surat Jalan Per Dokumen</option>
         <option value="9">Rekap Surat Jalan Per Barang</option>
         <option value="10">Rekap Surat Jalan Per Customer</option>

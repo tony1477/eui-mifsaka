@@ -515,7 +515,7 @@ function downxlscutar() {
 
 $('#dg-cutarinv').edatagrid({
 	iconCls: 'icon-edit',	
-	singleSelect: true,
+	singleSelect: false,
 	idField:'cutarinvid',
 	editing: true,
 	toolbar:'#tb-cutarinv',

@@ -417,7 +417,7 @@ class InvoiceapController extends Controller {
             GetMessage(true, $e->getMessage());
         }
     }
- }
+  }
   public function actionSave() {
     header("Content-Type: application/json");
     if (!Yii::app()->request->isPostRequest)
@@ -726,7 +726,7 @@ class InvoiceapController extends Controller {
     parent::actionDownload();
     $sql = "select journalno,invoiceapid,invoiceno,f.pono,fullname,amount,symbol,currencyrate,a.invoicedate,concat('Pencatatan Invoice Supplier No ',invoiceno) as headernote, taxvalue,a.recordstatus,
 	   (select addressname from address e where e.addressbookid = f.addressbookid limit 1) as addressname,
-	   (select cityname from address e left join city f on f.cityid = e.cityid where e.addressbookid = f.addressbookid limit 1) as cityname,a.companyid
+	   (select cityname from address e left join city f on f.cityid = e.cityid where e.addressbookid = f.addressbookid limit 1) as cityname,a.companyid, a.grheaderid
 		from invoiceap a 
 		left join poheader f on f.poheaderid = a.poheaderid
 		left join currency b on b.currencyid = a.currencyid 
@@ -744,15 +744,74 @@ class InvoiceapController extends Controller {
     $this->pdf->title = 'Journal Adjustment';
     $this->pdf->AddPage('P');
     foreach ($dataReader as $row) {
+
       $this->pdf->setFont('Arial', 'B', 9);
       $this->pdf->text(15, $this->pdf->gety() + 5, 'PO No: ' . $row['pono']);
       $this->pdf->text(120, $this->pdf->gety() + 5, 'Tanggal: ' . date(Yii::app()->params['dateviewfromdb'], strtotime($row['invoicedate'])));
       $this->pdf->text(15, $this->pdf->gety() + 10, 'J.NO: ' . $row['journalno']);
       $this->pdf->text(120, $this->pdf->gety() + 10, 'Supplier: ' . $row['fullname']);
+
+      $sqlgr = "select c.productname, d.uomcode, b.netprice, a.qty, a.itemtext
+        from grdetail a
+        join podetail b on b.podetailid = a.podetailid 
+        join product c on c.productid = a.productid
+        join unitofmeasure d on d.unitofmeasureid = a.unitofmeasureid
+        where a.grheaderid = ".$row['grheaderid'];
+      $qgr = Yii::app()->db->createCommand($sqlgr)->queryAll();
+
+      $this->pdf->SetY($this->pdf->gety() + 15);
+      $this->pdf->setFont('Arial', 'B', 8);
+      $this->pdf->colalign = array(
+        'C',
+        'C',
+        'C',
+        'C',
+        'C',
+        'C'
+      );
+      $this->pdf->setwidths(array(
+        10,
+        40,
+        25,
+        20,
+        30,
+        50
+      ));
+      $this->pdf->colheader = array(
+        'No',
+        'Nama Barang',
+        'Qty',
+        'Satuan',
+        'Harga',
+        'Keterangan'
+      );
+      $this->pdf->RowHeader();
+      $this->pdf->setFont('Arial', '', 8);
+      $this->pdf->coldetailalign = array(
+        'L',
+        'L',
+        'R',
+        'C',
+        'R',
+        'L'
+      );
+      $i=1;
+      foreach($qgr as $row2) {
+          $this->pdf->row(array(
+            $i,
+            $row2['productname'],
+            Yii::app()->format->formatNumber($row2['qty']),
+            $row2['uomcode'],
+            Yii::app()->format->formatCurrency($row2['netprice']),
+            $row2['itemtext'],
+          ));
+        $i+=1;
+      }
+
       $sql1        = "select accountcode, accountname,debet,credit,a.currencyid,currencyrate,a.description,symbol,e.plantcode
         from invoiceapjurnal a
-		left join currency b on b.currencyid = a.currencyid
-		left join account d on d.accountid = a.accountid 
+        left join currency b on b.currencyid = a.currencyid
+        left join account d on d.accountid = a.accountid 
         left join plant e on e.plantid = a.plantid 
         where invoiceapid = " . $row['invoiceapid'] . " order by debet desc ";
       $command1    = $this->connection->createCommand($sql1);
